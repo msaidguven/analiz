@@ -703,23 +703,73 @@
             if (!onay) return;
 
             try {
-                const res = await fetch(`${window.kararKayitSistemi.API_URL}/kayitlar/${kayitId}/kapat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mevcutFiyat: mp })
-                });
-                const result = await res.json();
-
-                if (result.success) {
-                    // Aktif kayıtları yeniden yükle
+                if (window.kararKayitSistemi.isGitHubPages) {
+                    // GitHub Pages: localStorage kullan
+                    // Aktif kayıtlardan sil
+                    const aktifData = await fetch('./coin_islem.json');
+                    const aktifDB = await aktifData.json();
+                    aktifDB.kayitlar = aktifDB.kayitlar.filter(k => k.id !== kayitId);
+                    
+                    // Cüzdana ekle
+                    const cuzdanData = await fetch('./coin_cuzdan.json');
+                    const cuzdanDB = await cuzdanData.json();
+                    
+                    const kapaliKayit = {
+                        id: kayit.id,
+                        symbol: kayit.symbol,
+                        karar: kayit.karar,
+                        girisFiyati: kayit.girisFiyati,
+                        kapanisFiyati: mp,
+                        karZararDolar: parseFloat(pnlDolar.toFixed(2)),
+                        karZararYuzde: parseFloat(pnlYuzde.toFixed(2)),
+                        karZararYon: pnlDolar >= 0 ? 'KAR' : 'ZARAR',
+                        acilisTarihi: kayit.tarih,
+                        kapanisTarihi: new Date().toISOString()
+                    };
+                    
+                    cuzdanDB.kayitlar.unshift(kapaliKayit);
+                    
+                    // localStorage'a kaydet (çünkü GitHub Pages'ta dosyaya yazamayız)
+                    const localCuzdan = localStorage.getItem('karar_cuzdan');
+                    const existingCuzdan = localCuzdan ? JSON.parse(localCuzdan) : { kayitlar: [] };
+                    existingCuzdan.kayitlar.unshift(kapaliKayit);
+                    localStorage.setItem('karar_cuzdan', JSON.stringify(existingCuzdan));
+                    
+                    // Aktif kayıtları localStorage'dan da sil
+                    const localAktif = localStorage.getItem('karar_kayitlari');
+                    if (localAktif) {
+                        const localAktifData = JSON.parse(localAktif);
+                        localAktifData.kayitlar = localAktifData.kayitlar.filter(k => k.id !== kayitId);
+                        localStorage.setItem('karar_kayitlari', JSON.stringify(localAktifData));
+                    }
+                    
+                    // Verileri yeniden yükle
                     tumKayitlar = await window.kararKayitSistemi.kayitlariYukle();
                     filtreliKayitlar = [...tumKayitlar];
-                    // Geçmişi güncelle
                     gecmisIslemGoster();
                     kayitlariGoster();
                     performansGoster();
                     istatistikleriGoster();
-                    alert(`✅ İşlem kapatıldı!\nKar/Zarar: ${pnlDolar >= 0 ? '+' : ''}$${fmt(pnlDolar)}`);
+                    
+                    alert(`✅ İşlem kapatıldı!\\nKar/Zarar: ${pnlDolar >= 0 ? '+' : ''}$${fmt(pnlDolar)}\\n⚠️ Not: GitHub Pages'ta veriler tarayıcınızda saklanır.`);
+                } else {
+                    // Local: API kullan
+                    const res = await fetch(`${window.kararKayitSistemi.API_URL}/kayitlar/${kayitId}/kapat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mevcutFiyat: mp })
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        tumKayitlar = await window.kararKayitSistemi.kayitlariYukle();
+                        filtreliKayitlar = [...tumKayitlar];
+                        gecmisIslemGoster();
+                        kayitlariGoster();
+                        performansGoster();
+                        istatistikleriGoster();
+                        alert(`✅ İşlem kapatıldı!\\nKar/Zarar: ${pnlDolar >= 0 ? '+' : ''}$${fmt(pnlDolar)}`);
+                    }
                 }
             } catch (err) {
                 alert('İşlem kapatılamadı: ' + err.message);
@@ -733,9 +783,35 @@
             const el = document.getElementById('gecmisListesi');
 
             try {
-                const res = await fetch(`${window.kararKayitSistemi.API_URL}/cuzdan`);
-                const data = await res.json();
-                const gecmis = data.kayitlar || [];
+                let gecmis = [];
+                
+                if (window.kararKayitSistemi.isGitHubPages) {
+                    // GitHub Pages: JSON dosyası + localStorage
+                    const cuzdanData = await fetch('./coin_cuzdan.json');
+                    const cuzdanDB = await cuzdanData.json();
+                    gecmis = cuzdanDB.kayitlar || [];
+                    
+                    // localStorage'dan ek kayıtları al
+                    const localCuzdan = localStorage.getItem('karar_cuzdan');
+                    if (localCuzdan) {
+                        const localDB = JSON.parse(localCuzdan);
+                        const localKayitlar = localDB.kayitlar || [];
+                        
+                        // JSON'daki ID'leri topla
+                        const jsonIds = new Set(gecmis.map(k => k.id));
+                        
+                        // localStorage'daki unique kayıtları ekle
+                        const uniqueLocal = localKayitlar.filter(k => !jsonIds.has(k.id));
+                        gecmis = [...gecmis, ...uniqueLocal];
+                        
+                        console.log(`📜 Geçmiş: ${gecmis.length} işlem (${(cuzdanDB.kayitlar || []).length} JSON + ${uniqueLocal.length} localStorage)`);
+                    }
+                } else {
+                    // Local: API kullan
+                    const res = await fetch(`${window.kararKayitSistemi.API_URL}/cuzdan`);
+                    const data = await res.json();
+                    gecmis = data.kayitlar || [];
+                }
 
                 if (!gecmis.length) {
                     el.innerHTML = `

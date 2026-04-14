@@ -1,7 +1,7 @@
 {
   "versiyon": "1.0",
-  "tarih": "2026-04-14T20:36:09.870Z",
-  "kayitSayisi": 12,
+  "tarih": "2026-04-14T21:00:41.329Z",
+  "kayitSayisi": 11,
   "kayitlar": [
     {
       "id": 1776198969869,
@@ -155,23 +155,6 @@
       "takeProfit2": 0.253725,
       "fark": -53.68652768376302,
       "analizZamani": "2026-04-14T20:27:43.639Z"
-    },
-    {
-      "id": 1776198459881,
-      "tarih": "2026-04-14T20:27:39.881Z",
-      "symbol": "ARIA",
-      "karar": "SHORT",
-      "kararSinif": "short",
-      "longOran": 19.28518242740134,
-      "shortOran": 80.71481757259866,
-      "riskSkor": 6,
-      "guven": 79,
-      "girisFiyati": 0.1151,
-      "stopLoss": 0.120855,
-      "takeProfit1": 0.105892,
-      "takeProfit2": 0.09783499999999999,
-      "fark": -61.429635145197324,
-      "analizZamani": "2026-04-14T20:27:39.875Z"
     },
     {
       "id": 1776198419457,

@@ -1,25 +1,105 @@
 // Karar Kayıt ve Analiz Sistemi
-// Backend API üzerinden JSON dosyasına yazar/okur
+// GitHub Pages için JSON dosyalarından okur, localStorage'a yazar
+// Local development için API kullanır
 
 class KararKayitSistemi {
     constructor() {
-        this.API_URL = 'http://localhost:3000/api';
+        // GitHub Pages'ta localhost olmaz, otomatik algıla
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.port === '3000' ||
+                           window.location.port === '5500';
+        
+        this.API_URL = isLocalhost ? 'http://localhost:3000/api' : null;
         this.kayitlar = [];
         this.maxKayitSayisi = 100;
+        this.isGitHubPages = !isLocalhost;
+        
+        console.log(`📊 Karar Kayıt Sistemi başlatıldı`);
+        console.log(`🌐 Mod: ${this.isGitHubPages ? 'GitHub Pages (JSON + localStorage)' : 'Local API'}`);
+        
         this.kayitlariYukle();
     }
 
-    // API'den kayıtları yükle
+    // API'den veya JSON dosyasından kayıtları yükle
     async kayitlariYukle() {
         try {
-            const res = await fetch(`${this.API_URL}/kayitlar`);
-            const data = await res.json();
-            this.kayitlar = data.kayitlar || [];
+            if (this.isGitHubPages) {
+                // GitHub Pages: JSON dosyasından oku
+                console.log('📂 coin_islem.json dosyası yükleniyor...');
+                const response = await fetch('./coin_islem.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log(`✅ JSON yüklendi: ${data.kayitSayisi || 0} kayıt`);
+                
+                // localStorage'dan ek kayıtları al
+                const localData = this.getLocalStorageData();
+                
+                // JSON ve localStorage verilerini birleştir
+                const jsonKayitlar = data.kayitlar || [];
+                const localKayitlar = localData.kayitlar || [];
+                
+                // localStorage'daki kayıtları JSON'a ekle (ID çakışması kontrolü ile)
+                const jsonIds = new Set(jsonKayitlar.map(k => k.id));
+                const uniqueLocal = localKayitlar.filter(k => !jsonIds.has(k.id));
+                
+                this.kayitlar = [...jsonKayitlar, ...uniqueLocal];
+                console.log(`📊 Toplam: ${this.kayitlar.length} kayıt (${jsonKayitlar.length} JSON + ${uniqueLocal.length} localStorage)`);
+            } else {
+                // Local development: API'den oku
+                console.log(`📡 API'den yükleniyor: ${this.API_URL}`);
+                const res = await fetch(`${this.API_URL}/kayitlar`);
+                const data = await res.json();
+                this.kayitlar = data.kayitlar || [];
+                console.log(`✅ API'den yüklendi: ${this.kayitlar.length} kayıt`);
+            }
         } catch (error) {
-            console.error('Kayıtlar yüklenemedi:', error);
-            this.kayitlar = [];
+            console.error('❌ Kayıtlar yüklenemedi:', error);
+            console.error('Hata detayı:', error.message);
+            
+            // Fallback: localStorage'dan oku
+            try {
+                const localData = this.getLocalStorageData();
+                this.kayitlar = localData.kayitlar || [];
+                console.log(`💾 localStorage'dan kurtarıldı: ${this.kayitlar.length} kayıt`);
+            } catch (localError) {
+                console.error('💾 localStorage da okunamadı:', localError);
+                this.kayitlar = [];
+            }
         }
         return this.kayitlar;
+    }
+
+    // localStorage'dan veri oku
+    getLocalStorageData() {
+        try {
+            const data = localStorage.getItem('karar_kayitlari');
+            return data ? JSON.parse(data) : { kayitlar: [] };
+        } catch (error) {
+            console.error('localStorage okunamadı:', error);
+            return { kayitlar: [] };
+        }
+    }
+
+    // localStorage'a veri yaz
+    saveLocalStorageData(kayitlar) {
+        try {
+            const data = {
+                versiyon: '1.0',
+                tarih: new Date().toISOString(),
+                kayitSayisi: kayitlar.length,
+                kayitlar: kayitlar
+            };
+            localStorage.setItem('karar_kayitlari', JSON.stringify(data));
+            return true;
+        } catch (error) {
+            console.error('localStorage yazılamadı:', error);
+            return false;
+        }
     }
 
     // Karar kaydet
@@ -41,17 +121,39 @@ class KararKayitSistemi {
         };
 
         try {
-            const res = await fetch(`${this.API_URL}/kayitlar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(kayitData)
-            });
-            const result = await res.json();
-            // Kayıtları yeniden yükle
-            await this.kayitlariYukle();
-            return result.kayit;
+            if (this.isGitHubPages) {
+                // GitHub Pages: localStorage'a kaydet
+                console.log('💾 localStorage\'a kaydediliyor...');
+                const yeniKayit = {
+                    id: Date.now(),
+                    tarih: new Date().toISOString(),
+                    ...kayitData
+                };
+                
+                this.kayitlar.unshift(yeniKayit);
+                const saved = this.saveLocalStorageData(this.kayitlar);
+                
+                if (saved) {
+                    console.log('✅ localStorage\'a kaydedildi:', yeniKayit.symbol);
+                    return yeniKayit;
+                } else {
+                    throw new Error('localStorage kaydedilemedi');
+                }
+            } else {
+                // Local development: API'ye kaydet
+                console.log('📡 API\'ye kaydediliyor...');
+                const res = await fetch(`${this.API_URL}/kayitlar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(kayitData)
+                });
+                const result = await res.json();
+                // Kayıtları yeniden yükle
+                await this.kayitlariYukle();
+                return result.kayit;
+            }
         } catch (error) {
-            console.error('Kayıt kaydedilemedi:', error);
+            console.error('❌ Kayıt kaydedilemedi:', error);
             throw error;
         }
     }
@@ -180,10 +282,20 @@ class KararKayitSistemi {
     // Kayıt sil
     async kayitSil(kayitId) {
         try {
-            await fetch(`${this.API_URL}/kayitlar/${kayitId}`, { method: 'DELETE' });
-            await this.kayitlariYukle();
+            if (this.isGitHubPages) {
+                // GitHub Pages: localStorage'dan sil
+                console.log('💾 localStorage\'dan siliniyor:', kayitId);
+                this.kayitlar = this.kayitlar.filter(k => k.id !== kayitId);
+                this.saveLocalStorageData(this.kayitlar);
+                console.log('✅ localStorage\'dan silindi');
+            } else {
+                // Local development: API'den sil
+                console.log('📡 API\'den siliniyor:', kayitId);
+                await fetch(`${this.API_URL}/kayitlar/${kayitId}`, { method: 'DELETE' });
+                await this.kayitlariYukle();
+            }
         } catch (error) {
-            console.error('Kayıt silinemedi:', error);
+            console.error('❌ Kayıt silinemedi:', error);
             throw error;
         }
     }
@@ -191,10 +303,20 @@ class KararKayitSistemi {
     // Tüm kayıtları temizle
     async tumKayitlariTemizle() {
         try {
-            await fetch(`${this.API_URL}/kayitlar`, { method: 'DELETE' });
-            this.kayitlar = [];
+            if (this.isGitHubPages) {
+                // GitHub Pages: localStorage'ı temizle
+                console.log('💾 localStorage temizleniyor...');
+                this.kayitlar = [];
+                localStorage.removeItem('karar_kayitlari');
+                console.log('✅ localStorage temizlendi');
+            } else {
+                // Local development: API'den temizle
+                console.log('📡 API\'den temizleniyor...');
+                await fetch(`${this.API_URL}/kayitlar`, { method: 'DELETE' });
+                this.kayitlar = [];
+            }
         } catch (error) {
-            console.error('Kayıtlar temizlenemedi:', error);
+            console.error('❌ Kayıtlar temizlenemedi:', error);
             throw error;
         }
     }
