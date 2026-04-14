@@ -1424,7 +1424,7 @@
             const mevcutFiyat = analysisData.price;
 
             // Kararı kaydet
-            const kayit = window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
+            const kayit = await window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
 
             // Karar analizini yap
             const analiz = window.kararKayitSistemi.kararAnaliziYap(symbol, mevcutFiyat);

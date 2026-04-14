@@ -1,110 +1,89 @@
 // Karar Kayıt ve Analiz Sistemi
-// GitHub Pages için JSON dosyalarından okur, localStorage'a yazar
-// Local development için API kullanır
+// Tamamen JSONBin.io API (Frontend) üzerinden çalışır
+// GitHub Pages uyumlu
 
 class KararKayitSistemi {
     constructor() {
-        // GitHub Pages'ta localhost olmaz, otomatik algıla
-        const isLocalhost = window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1' ||
-                           window.location.port === '3000' ||
-                           window.location.port === '5500';
+        this.JSONBIN_API_KEY = '$2a$10$QktBwuRvzkwJz80digmRQeloC2dYzzK7gpR2GgV3t1nFXY/AUIgaW';
+        this.BIN_ISLEM = '69deaf66aaba882197fc8e6f';
+        this.BIN_CUZDAN = '69deb11c856a6821893456df';
+        this.JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
         
-        this.API_URL = isLocalhost ? 'http://localhost:3000/api' : null;
         this.kayitlar = [];
-        this.maxKayitSayisi = 100;
-        this.isGitHubPages = !isLocalhost;
+        this.cuzdanKayitlari = [];
         
-        console.log(`📊 Karar Kayıt Sistemi başlatıldı`);
-        console.log(`🌐 Mod: ${this.isGitHubPages ? 'GitHub Pages (JSON + localStorage)' : 'Local API'}`);
+        console.log(`📊 Karar Kayıt Sistemi başlatıldı (JSONBin.io Modu)`);
         
         this.kayitlariYukle();
     }
 
-    // API'den veya JSON dosyasından kayıtları yükle
-    async kayitlariYukle() {
+    // JSONBin'den Fetch Data Yardımcı Fonksiyonu
+    async fetchFromBin(binId) {
         try {
-            if (this.isGitHubPages) {
-                // GitHub Pages: JSON dosyasından oku
-                console.log('📂 coin_islem.json dosyası yükleniyor...');
-                const response = await fetch('./coin_islem.json');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            const res = await fetch(`${this.JSONBIN_BASE_URL}/${binId}/latest`, {
+                method: 'GET',
+                headers: {
+                    'X-Access-Key': this.JSONBIN_API_KEY
                 }
-                
-                const data = await response.json();
-                console.log(`✅ JSON yüklendi: ${data.kayitSayisi || 0} kayıt`);
-                
-                // localStorage'dan ek kayıtları al
-                const localData = this.getLocalStorageData();
-                
-                // JSON ve localStorage verilerini birleştir
-                const jsonKayitlar = data.kayitlar || [];
-                const localKayitlar = localData.kayitlar || [];
-                
-                // localStorage'daki kayıtları JSON'a ekle (ID çakışması kontrolü ile)
-                const jsonIds = new Set(jsonKayitlar.map(k => k.id));
-                const uniqueLocal = localKayitlar.filter(k => !jsonIds.has(k.id));
-                
-                this.kayitlar = [...jsonKayitlar, ...uniqueLocal];
-                console.log(`📊 Toplam: ${this.kayitlar.length} kayıt (${jsonKayitlar.length} JSON + ${uniqueLocal.length} localStorage)`);
-            } else {
-                // Local development: API'den oku
-                console.log(`📡 API'den yükleniyor: ${this.API_URL}`);
-                const res = await fetch(`${this.API_URL}/kayitlar`);
-                const data = await res.json();
-                this.kayitlar = data.kayitlar || [];
-                console.log(`✅ API'den yüklendi: ${this.kayitlar.length} kayıt`);
-            }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            const data = await res.json();
+            // JSONBin V3 format: { record: { ... } }
+            return data.record || { kayitlar: [] };
         } catch (error) {
-            console.error('❌ Kayıtlar yüklenemedi:', error);
-            console.error('Hata detayı:', error.message);
+            console.error(`❌ JSONBin'den veri çekilemedi (Bin: ${binId}):`, error);
+            // Fallback to local storage on read error so UI doesn't crash completely
+            const localData = localStorage.getItem(`bin_${binId}`);
+            return localData ? JSON.parse(localData) : { kayitlar: [] };
+        }
+    }
+
+    // JSONBin'e Data Güncelleme Yardımcı Fonksiyonu
+    async putToBin(binId, data) {
+        try {
+            // Optimistic update of local cache
+            localStorage.setItem(`bin_${binId}`, JSON.stringify(data));
             
-            // Fallback: localStorage'dan oku
-            try {
-                const localData = this.getLocalStorageData();
-                this.kayitlar = localData.kayitlar || [];
-                console.log(`💾 localStorage'dan kurtarıldı: ${this.kayitlar.length} kayıt`);
-            } catch (localError) {
-                console.error('💾 localStorage da okunamadı:', localError);
-                this.kayitlar = [];
-            }
-        }
-        return this.kayitlar;
-    }
-
-    // localStorage'dan veri oku
-    getLocalStorageData() {
-        try {
-            const data = localStorage.getItem('karar_kayitlari');
-            return data ? JSON.parse(data) : { kayitlar: [] };
-        } catch (error) {
-            console.error('localStorage okunamadı:', error);
-            return { kayitlar: [] };
-        }
-    }
-
-    // localStorage'a veri yaz
-    saveLocalStorageData(kayitlar) {
-        try {
-            const data = {
-                versiyon: '1.0',
-                tarih: new Date().toISOString(),
-                kayitSayisi: kayitlar.length,
-                kayitlar: kayitlar
-            };
-            localStorage.setItem('karar_kayitlari', JSON.stringify(data));
+            const res = await fetch(`${this.JSONBIN_BASE_URL}/${binId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Access-Key': this.JSONBIN_API_KEY
+                },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
             return true;
         } catch (error) {
-            console.error('localStorage yazılamadı:', error);
+            console.error(`❌ JSONBin'e veri yazılamadı (Bin: ${binId}):`, error);
+            // Can be queued for retry here, but basic error management for now
             return false;
         }
     }
 
+    // JSONBin'den aktif işlemleri yükle
+    async kayitlariYukle() {
+        console.log('📡 JSONBin.io coin_islem okunuyor...');
+        const data = await this.fetchFromBin(this.BIN_ISLEM);
+        this.kayitlar = data.kayitlar || [];
+        console.log(`✅ Aktif işlemler yüklendi: ${this.kayitlar.length} kayıt`);
+        return this.kayitlar;
+    }
+
+    // JSONBin'den cüzdan geçmişini yükle
+    async cuzdanYukle() {
+        console.log('📡 JSONBin.io coin_cuzdan okunuyor...');
+        const data = await this.fetchFromBin(this.BIN_CUZDAN);
+        this.cuzdanKayitlari = data.kayitlar || [];
+        console.log(`✅ Cüzdan geçmişi yüklendi: ${this.cuzdanKayitlari.length} kayıt`);
+        return this.cuzdanKayitlari;
+    }
+
     // Karar kaydet
     async kararKayit(symbol, sonuc, mevcutFiyat) {
-        const kayitData = {
+        const yeniKayit = {
+            id: Date.now(),
+            tarih: new Date().toISOString(),
             symbol: symbol,
             karar: sonuc.karar,
             kararSinif: sonuc.kararSinif,
@@ -121,39 +100,81 @@ class KararKayitSistemi {
         };
 
         try {
-            if (this.isGitHubPages) {
-                // GitHub Pages: localStorage'a kaydet
-                console.log('💾 localStorage\'a kaydediliyor...');
-                const yeniKayit = {
-                    id: Date.now(),
-                    tarih: new Date().toISOString(),
-                    ...kayitData
-                };
-                
-                this.kayitlar.unshift(yeniKayit);
-                const saved = this.saveLocalStorageData(this.kayitlar);
-                
-                if (saved) {
-                    console.log('✅ localStorage\'a kaydedildi:', yeniKayit.symbol);
-                    return yeniKayit;
-                } else {
-                    throw new Error('localStorage kaydedilemedi');
-                }
-            } else {
-                // Local development: API'ye kaydet
-                console.log('📡 API\'ye kaydediliyor...');
-                const res = await fetch(`${this.API_URL}/kayitlar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(kayitData)
-                });
-                const result = await res.json();
-                // Kayıtları yeniden yükle
-                await this.kayitlariYukle();
-                return result.kayit;
-            }
+            console.log('📡 JSONBin.io veritabanına ekleniyor...');
+            // Veriyi al, listeye unshift et, sonra push yap
+            await this.kayitlariYukle(); 
+            this.kayitlar.unshift(yeniKayit);
+            
+            const dataToSave = {
+                versiyon: '1.0',
+                tarih: new Date().toISOString(),
+                kayitSayisi: this.kayitlar.length,
+                kayitlar: this.kayitlar
+            };
+            
+            await this.putToBin(this.BIN_ISLEM, dataToSave);
+            console.log('✅ Veritabanına başarıyla kaydedildi:', symbol);
+            return yeniKayit;
         } catch (error) {
             console.error('❌ Kayıt kaydedilemedi:', error);
+            throw error;
+        }
+    }
+
+    async islemKapat(kayitId, mevcutFiyat) {
+        try {
+            console.log('📡 İşlem kapatılıyor ve JSONBin.io güncelleniyor...', kayitId);
+            
+            // Güncel veriyi çek
+            await Promise.all([this.kayitlariYukle(), this.cuzdanYukle()]);
+            
+            const kayit = this.kayitlar.find(k => k.id === kayitId);
+            if (!kayit) throw new Error('Kayıt bulunamadı');
+
+            // Kar/Zarar hesapla
+            const giris = kayit.girisFiyati;
+            const yon = kayit.karar === 'LONG' ? 1 : -1;
+            const pnlYuzde = yon * ((mevcutFiyat - giris) / giris) * 100;
+            const pnlDolar = (pnlYuzde / 100) * 100; // $100 pozisyon
+
+            // Cüzdana eklenecek veri prepare
+            const kapaliKayit = {
+                id: kayit.id,
+                symbol: kayit.symbol,
+                karar: kayit.karar,
+                girisFiyati: kayit.girisFiyati,
+                kapanisFiyati: mevcutFiyat,
+                karZararDolar: parseFloat(pnlDolar.toFixed(2)),
+                karZararYuzde: parseFloat(pnlYuzde.toFixed(2)),
+                karZararYon: pnlDolar >= 0 ? 'KAR' : 'ZARAR',
+                acilisTarihi: kayit.tarih,
+                kapanisTarihi: new Date().toISOString()
+            };
+
+            // Aktif tablodan sil, cüzdana ekle
+            this.kayitlar = this.kayitlar.filter(k => k.id !== kayitId);
+            this.cuzdanKayitlari.unshift(kapaliKayit);
+
+            // API çağrılarını paralel execute et (beklemeyi azaltmak için)
+            await Promise.all([
+                this.putToBin(this.BIN_ISLEM, {
+                    versiyon: '1.0',
+                    tarih: new Date().toISOString(),
+                    kayitSayisi: this.kayitlar.length,
+                    kayitlar: this.kayitlar
+                }),
+                this.putToBin(this.BIN_CUZDAN, {
+                    versiyon: '1.0',
+                    tarih: new Date().toISOString(),
+                    kayitSayisi: this.cuzdanKayitlari.length,
+                    kayitlar: this.cuzdanKayitlari
+                })
+            ]);
+            
+            console.log('✅ İşlem kapatıldı ve JSONBin güncellendi.');
+            return kapaliKayit;
+        } catch (error) {
+            console.error('❌ İşlem kapatılamadı:', error);
             throw error;
         }
     }
@@ -171,7 +192,7 @@ class KararKayitSistemi {
         return mevcutFiyat * carpim;
     }
 
-    // Karar geçmişini getir
+    // Karar geçmişini getir (aktif kayıtlar için, grafikte veya analizde kullanılıyordu)
     kararGecmisiniGetir(symbol, gunSayisi = 7) {
         const sonTarih = new Date();
         sonTarih.setDate(sonTarih.getDate() - gunSayisi);
@@ -183,11 +204,18 @@ class KararKayitSistemi {
     }
 
     // Karar analizi yap
-    kararAnaliziYap(symbol, mevcutFiyat) {
-        const gecmis = this.kararGecmisiniGetir(symbol, 30);
+    kararAnaliziYap(symbolOrKayitlar, mevcutFiyat = null) {
+        let gecmis = [];
+        if (Array.isArray(symbolOrKayitlar)) {
+            // Eğer doğrudan kayıt listesi verildiyse (karar-analizi.html vs)
+            gecmis = symbolOrKayitlar;
+        } else if (typeof symbolOrKayitlar === 'string') {
+            gecmis = this.kararGecmisiniGetir(symbolOrKayitlar, 30);
+        }
 
         if (gecmis.length === 0) {
             return {
+                basariliOran: 0,
                 basariOrani: 0,
                 toplamIslem: 0,
                 basariliIslem: 0,
@@ -204,26 +232,36 @@ class KararKayitSistemi {
 
         gecmis.forEach(kayit => {
             const tp1 = kayit.takeProfit1;
-            const sl = kayit.stopLoss;
-
-            let basarili = false;
-            if (kayit.karar === 'LONG') {
-                basarili = mevcutFiyat >= tp1;
-            } else if (kayit.karar === 'SHORT') {
-                basarili = mevcutFiyat <= tp1;
+            // Eger bu aktif bir işlem analiziyse (mevcutFiyat gerekli):
+            if (mevcutFiyat) {
+                let basarili = false;
+                if (kayit.karar === 'LONG') {
+                    basarili = mevcutFiyat >= tp1;
+                } else if (kayit.karar === 'SHORT') {
+                    basarili = mevcutFiyat <= tp1;
+                }
+                if (basarili) basariliIslem++;
             }
-
-            if (basarili) basariliIslem++;
-            toplamRisk += kayit.riskSkor;
-            kararSayilari[kayit.karar] = (kararSayilari[kayit.karar] || 0) + 1;
+            // Kayıt zaten kapanmış bir kayıt ise kar/zarar belli (cüzdan verisiyse):
+            else if (kayit.karZararDolar !== undefined) {
+                if (kayit.karZararDolar > 0) basariliIslem++;
+            } 
+            
+            toplamRisk += (kayit.riskSkor || 0);
+            if (kayit.karar) {
+                kararSayilari[kayit.karar] = (kararSayilari[kayit.karar] || 0) + 1;
+            }
         });
 
         const basariOrani = (basariliIslem / toplamIslem) * 100;
         const ortalamaRisk = toplamRisk / toplamIslem;
 
-        const enCokKarar = Object.keys(kararSayilari).reduce((a, b) =>
-            kararSayilari[a] > kararSayilari[b] ? a : b
-        );
+        let enCokKarar = 'Yok';
+        if (Object.keys(kararSayilari).length > 0) {
+            enCokKarar = Object.keys(kararSayilari).reduce((a, b) =>
+                kararSayilari[a] > kararSayilari[b] ? a : b
+            );
+        }
 
         let analiz = '';
         if (basariOrani >= 70) analiz = '🟢 Çok başarılı - strateji çalışıyor';
@@ -233,9 +271,10 @@ class KararKayitSistemi {
 
         return {
             basariOrani: basariOrani.toFixed(1),
+            basariliOran: basariOrani,
             toplamIslem,
             basariliIslem,
-            ortalamaRisk: ortalamaRisk.toFixed(1),
+            ortalamaRisk,
             enCokKarar,
             kararSayilari,
             analiz,
@@ -282,18 +321,19 @@ class KararKayitSistemi {
     // Kayıt sil
     async kayitSil(kayitId) {
         try {
-            if (this.isGitHubPages) {
-                // GitHub Pages: localStorage'dan sil
-                console.log('💾 localStorage\'dan siliniyor:', kayitId);
-                this.kayitlar = this.kayitlar.filter(k => k.id !== kayitId);
-                this.saveLocalStorageData(this.kayitlar);
-                console.log('✅ localStorage\'dan silindi');
-            } else {
-                // Local development: API'den sil
-                console.log('📡 API\'den siliniyor:', kayitId);
-                await fetch(`${this.API_URL}/kayitlar/${kayitId}`, { method: 'DELETE' });
-                await this.kayitlariYukle();
-            }
+            console.log('📡 JSONBin.io\'dan siliniyor:', kayitId);
+            await this.kayitlariYukle();
+            this.kayitlar = this.kayitlar.filter(k => k.id !== kayitId);
+            
+            const dataToSave = {
+                versiyon: '1.0',
+                tarih: new Date().toISOString(),
+                kayitSayisi: this.kayitlar.length,
+                kayitlar: this.kayitlar
+            };
+            
+            await this.putToBin(this.BIN_ISLEM, dataToSave);
+            console.log('✅ JSONBin\'den silindi');
         } catch (error) {
             console.error('❌ Kayıt silinemedi:', error);
             throw error;
@@ -303,18 +343,15 @@ class KararKayitSistemi {
     // Tüm kayıtları temizle
     async tumKayitlariTemizle() {
         try {
-            if (this.isGitHubPages) {
-                // GitHub Pages: localStorage'ı temizle
-                console.log('💾 localStorage temizleniyor...');
-                this.kayitlar = [];
-                localStorage.removeItem('karar_kayitlari');
-                console.log('✅ localStorage temizlendi');
-            } else {
-                // Local development: API'den temizle
-                console.log('📡 API\'den temizleniyor...');
-                await fetch(`${this.API_URL}/kayitlar`, { method: 'DELETE' });
-                this.kayitlar = [];
-            }
+            console.log('📡 JSONBin.io temizleniyor...');
+            this.kayitlar = [];
+            await this.putToBin(this.BIN_ISLEM, {
+                versiyon: '1.0',
+                tarih: new Date().toISOString(),
+                kayitSayisi: 0,
+                kayitlar: []
+            });
+            console.log('✅ API kayıtları temizlendi');
         } catch (error) {
             console.error('❌ Kayıtlar temizlenemedi:', error);
             throw error;
