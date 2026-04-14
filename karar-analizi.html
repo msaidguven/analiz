@@ -184,6 +184,47 @@
             padding: 15px;
             margin-bottom: 12px;
             border-left: 4px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .kayit-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .kayit-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .kayit-tarih {
+            color: var(--text2);
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .btn-sil {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--error);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .btn-sil:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
         }
 
         .kayit-header {
@@ -205,8 +246,14 @@
 
         .kayit-detay {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .kayit-detay {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .detay-item {
@@ -549,6 +596,13 @@
         `;
         }
 
+        function kayitSil(kayitId) {
+            if (confirm('Bu kaydı silmek istediğinizden emin misiniz?')) {
+                window.kararKayitSistemi.kayitSil(kayitId);
+                tumKayitlariYukle();
+            }
+        }
+
         /* ─────────────────────────────────────────────
            KAYIT LİSTESİ GÖSTERİMİ
         ───────────────────────────────────────────── */
@@ -601,12 +655,12 @@
 
                 return `
                 <div class="kayit-item" style="border-left-color:${durumRenk};">
-                    <div class="kayit-header">
+                    <div class="kayit-main">
+                        <div class="kayit-header">
                         <div class="kayit-symbol">
                             ${durumIkon} ${kayit.symbol}
                             ${mp ? `<span style="color:var(--text2); font-size:12px; margin-left:8px;">$${fmtPrice(mp)}</span>` : ''}
                         </div>
-                        <div class="kayit-tarih">${tarihStr}</div>
                     </div>
                     <div class="kayit-detay">
                         <div class="detay-item">
@@ -644,6 +698,13 @@
                         <div class="detay-item">
                             <div class="detay-label">Performans</div>
                             <div class="detay-value">${performans}</div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="kayit-actions">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span class="kayit-tarih">${tarihStr}</span>
+                            <button onclick="kayitSil(${kayit.id})" class="btn-sil">🗑️ Sil</button>
                         </div>
                     </div>
                 </div>

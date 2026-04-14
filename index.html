@@ -1034,7 +1034,7 @@
 
                 // Process coins
                 allCoinsData = exchangeData.symbols
-                    .filter(s => s.contractType === 'PERPETUAL' && s.quoteAsset === 'USDT')
+                    .filter(s => s.contractType === 'PERPETUAL' && s.quoteAsset === 'USDT' && s.status === 'TRADING')
                     .map(s => {
                         const ticker = tickerMap[s.symbol] || {};
                         const gData = geckoMap[s.baseAsset] || {};
