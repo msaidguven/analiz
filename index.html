@@ -1203,7 +1203,7 @@
                         </div>
                         <div class="card-actions">
                             <button class="action-btn btn-analiz" onclick="goToAnalysis('${coin.baseAsset}')">Analiz Sayfası</button>
-                            <button class="action-btn btn-karar" onclick="showQuickDecision('${coin.baseAsset}')">Hızlı Karar</button>
+                            <button class="action-btn btn-karar karar-kaydet-btn" data-symbol="${coin.baseAsset}" onclick="showQuickDecision('${coin.baseAsset}')" disabled style="opacity:0.4;cursor:not-allowed;">Coin Kaydet</button>
                         </div>
                     </div>
                 `;
@@ -1238,7 +1238,7 @@
             try {
                 // API cagrilarini ayri ayri yap, hatalari ignore et
                 const ticker = await fetch(`${BASE_F}/fapi/v1/ticker/24hr?symbol=${currentSymbol}`).then(r => r.json()).catch(() => null);
-                
+
                 // OpenInterest bazen 400 verir, ignore et
                 let oiCurrent = null, oiHist = null;
                 try {
@@ -1247,11 +1247,11 @@
                 } catch (e) {
                     // OpenInterest verisi olmayan coin'ler var, ignore et
                 }
-                
+
                 const lsRaw = await fetch(`${BASE_F}/futures/data/topLongShortAccountRatio?symbol=${currentSymbol}&period=5m&limit=1`).then(r => r.json()).catch(() => null);
                 const fundingRaw = await fetch(`${BASE_F}/fapi/v1/fundingRate?symbol=${currentSymbol}&limit=8`).then(r => r.json()).catch(() => []);
                 const liqRaw = await fetch(`${BASE_F}/futures/data/topLongShortPositionRatio?symbol=${currentSymbol}&period=5m&limit=1`).then(r => r.json()).catch(() => null);
-                
+
                 const [klines1d, klines4h, klines15m, klines1h, klines1w, klines15m_long] = await Promise.all([
                     fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1d&limit=100`).then(r => r.json()).catch(() => []),
                     fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=4h&limit=100`).then(r => r.json()).catch(() => []),
@@ -1328,7 +1328,8 @@
             if (window.kararMotoru) {
                 const sonuc = window.kararMotoru(analysisData);
                 const riskSinif = sonuc.riskSkor >= 8 ? 'risk-crit' : sonuc.riskSkor >= 6 ? 'risk-high' : sonuc.riskSkor >= 4 ? 'risk-mid' : 'risk-low';
-                
+                const isBekle = sonuc.karar === 'BEKLE';
+
                 previewElement.innerHTML = `
                     <div class="karar-preview-content">
                         <div class="karar-preview-decision">
@@ -1342,6 +1343,22 @@
                         </div>
                     </div>
                 `;
+
+                // Coin Kaydet butonunu güncelle
+                const kaydetBtn = document.querySelector(`.karar-kaydet-btn[data-symbol="${symbol}"]`);
+                if (kaydetBtn) {
+                    if (isBekle) {
+                        kaydetBtn.disabled = true;
+                        kaydetBtn.style.opacity = '0.4';
+                        kaydetBtn.style.cursor = 'not-allowed';
+                        kaydetBtn.title = 'Karar: BEKLE - Kaydedilemez';
+                    } else {
+                        kaydetBtn.disabled = false;
+                        kaydetBtn.style.opacity = '1';
+                        kaydetBtn.style.cursor = 'pointer';
+                        kaydetBtn.title = 'Coin Kaydet';
+                    }
+                }
             } else {
                 previewElement.innerHTML = `
                     <div class="karar-preview-content">
@@ -1381,13 +1398,20 @@
                         </div>
                     </div>
                 `;
+                // Hata durumunda butonu pasif yap
+                const kaydetBtn = document.querySelector(`.karar-kaydet-btn[data-symbol="${symbol}"]`);
+                if (kaydetBtn) {
+                    kaydetBtn.disabled = true;
+                    kaydetBtn.style.opacity = '0.4';
+                    kaydetBtn.style.cursor = 'not-allowed';
+                }
             }
         }
 
         async function showQuickDecision(symbol) {
             // Analiz verisini çek
             const analysisData = await fetchAnalysisData(symbol);
-            
+
             if (!analysisData) {
                 alert('Analiz verisi yüklenemedi!');
                 return;
@@ -1395,19 +1419,19 @@
 
             // Karar motoru ile hesapla
             const sonuc = window.kararMotoru(analysisData);
-            
+
             // Mevcut fiyatı al
             const mevcutFiyat = analysisData.price;
-            
+
             // Kararı kaydet
             const kayit = window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
-            
+
             // Karar analizini yap
             const analiz = window.kararKayitSistemi.kararAnaliziYap(symbol, mevcutFiyat);
-            
+
             // Modal yerine detaylı göster
             const riskSinif = sonuc.riskSkor >= 8 ? 'risk-crit' : sonuc.riskSkor >= 6 ? 'risk-high' : sonuc.riskSkor >= 4 ? 'risk-mid' : 'risk-low';
-            
+
             const message = `
 📊 ${symbol.toUpperCase()} Analiz Sonuçları
 
@@ -1429,7 +1453,7 @@ ${analiz.analiz}
 ─────────────────
 💾 Karar kaydedildi! (ID: ${kayit.id})
             `;
-            
+
             // Detaylı modal göster
             this.kararDetayModalGoster(message, symbol, analiz);
         }
@@ -1442,14 +1466,14 @@ ${analiz.analiz}
                 background: rgba(0,0,0,0.8); display: flex; align-items: center;
                 justify-content: center; z-index: 10000;
             `;
-            
+
             const icerik = document.createElement('div');
             icerik.style.cssText = `
                 background: var(--surface); border-radius: 12px; padding: 20px;
                 max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
                 border: 1px solid var(--border);
             `;
-            
+
             icerik.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="color: var(--text); margin: 0;">� ${symbol.toUpperCase()} Detaylı Analiz</h3>
@@ -1469,10 +1493,10 @@ ${analiz.analiz}
                                    padding: 10px; border-radius: 6px; cursor: pointer;">🗑️ Kayıtları Temizle</button>
                 </div>
             `;
-            
+
             modal.appendChild(icerik);
             document.body.appendChild(modal);
-            
+
             // Dışarı tıklayınca kapat
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.remove();

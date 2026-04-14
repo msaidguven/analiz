@@ -1,17 +1,30 @@
 // Karar Kayıt ve Analiz Sistemi
-// Tüm kararları kaydeder ve geçmişle karşılaştırır
+// Backend API üzerinden JSON dosyasına yazar/okur
 
 class KararKayitSistemi {
     constructor() {
-        this.kayitlar = this.kayitlariYukle();
+        this.API_URL = 'http://localhost:3000/api';
+        this.kayitlar = [];
         this.maxKayitSayisi = 100;
+        this.kayitlariYukle();
+    }
+
+    // API'den kayıtları yükle
+    async kayitlariYukle() {
+        try {
+            const res = await fetch(`${this.API_URL}/kayitlar`);
+            const data = await res.json();
+            this.kayitlar = data.kayitlar || [];
+        } catch (error) {
+            console.error('Kayıtlar yüklenemedi:', error);
+            this.kayitlar = [];
+        }
+        return this.kayitlar;
     }
 
     // Karar kaydet
-    kararKayit(symbol, sonuc, mevcutFiyat) {
-        const kayit = {
-            id: Date.now(),
-            tarih: new Date().toISOString(),
+    async kararKayit(symbol, sonuc, mevcutFiyat) {
+        const kayitData = {
             symbol: symbol,
             karar: sonuc.karar,
             kararSinif: sonuc.kararSinif,
@@ -27,26 +40,31 @@ class KararKayitSistemi {
             analizZamani: sonuc.analysisTime || new Date().toISOString()
         };
 
-        this.kayitlar.unshift(kayit);
-        
-        // Maksimum kayıt sayısını koru
-        if (this.kayitlar.length > this.maxKayitSayisi) {
-            this.kayitlar = this.kayitlar.slice(0, this.maxKayitSayisi);
+        try {
+            const res = await fetch(`${this.API_URL}/kayitlar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(kayitData)
+            });
+            const result = await res.json();
+            // Kayıtları yeniden yükle
+            await this.kayitlariYukle();
+            return result.kayit;
+        } catch (error) {
+            console.error('Kayıt kaydedilemedi:', error);
+            throw error;
         }
-
-        this.kayitlariKaydet();
-        return kayit;
     }
 
     // Stop Loss hesapla
     stopLossHesapla(karar, mevcutFiyat) {
-        const yuzde = karar === 'LONG' ? -0.05 : 0.05; // %5 SL
+        const yuzde = karar === 'LONG' ? -0.05 : 0.05;
         return mevcutFiyat * (1 + yuzde);
     }
 
     // Take Profit hesapla
     takeProfitHesapla(karar, mevcutFiyat, seviye) {
-        const yuzde = seviye === 1 ? 0.08 : 0.15; // TP1: %8, TP2: %15
+        const yuzde = seviye === 1 ? 0.08 : 0.15;
         const carpim = karar === 'LONG' ? (1 + yuzde) : (1 - yuzde);
         return mevcutFiyat * carpim;
     }
@@ -55,17 +73,17 @@ class KararKayitSistemi {
     kararGecmisiniGetir(symbol, gunSayisi = 7) {
         const sonTarih = new Date();
         sonTarih.setDate(sonTarih.getDate() - gunSayisi);
-        
-        return this.kayitlar.filter(kayit => 
-            kayit.symbol === symbol && 
+
+        return this.kayitlar.filter(kayit =>
+            kayit.symbol === symbol &&
             new Date(kayit.tarih) >= sonTarih
         );
     }
 
     // Karar analizi yap
     kararAnaliziYap(symbol, mevcutFiyat) {
-        const gecmis = this.kararGecmisiniGetir(symbol, 30); // Son 30 gün
-        
+        const gecmis = this.kararGecmisiniGetir(symbol, 30);
+
         if (gecmis.length === 0) {
             return {
                 basariOrani: 0,
@@ -83,44 +101,33 @@ class KararKayitSistemi {
         const kararSayilari = {};
 
         gecmis.forEach(kayit => {
-            // Başarı kontrolü (TP'ye ulaştı mı?)
             const tp1 = kayit.takeProfit1;
-            const tp2 = kayit.takeProfit2;
             const sl = kayit.stopLoss;
-            const giris = kayit.girisFiyati;
-            
-            // Mevcut fiyatla karşılaştır
+
             let basarili = false;
             if (kayit.karar === 'LONG') {
-                basarili = mevcutFiyat >= tp1; // TP1'e ulaştı
+                basarili = mevcutFiyat >= tp1;
             } else if (kayit.karar === 'SHORT') {
-                basarili = mevcutFiyat <= tp1; // TP1'e ulaştı
+                basarili = mevcutFiyat <= tp1;
             }
-            
+
             if (basarili) basariliIslem++;
-            
             toplamRisk += kayit.riskSkor;
             kararSayilari[kayit.karar] = (kararSayilari[kayit.karar] || 0) + 1;
         });
 
         const basariOrani = (basariliIslem / toplamIslem) * 100;
         const ortalamaRisk = toplamRisk / toplamIslem;
-        
-        // En çok verilen karar
-        const enCokKarar = Object.keys(kararSayilari).reduce((a, b) => 
+
+        const enCokKarar = Object.keys(kararSayilari).reduce((a, b) =>
             kararSayilari[a] > kararSayilari[b] ? a : b
         );
 
         let analiz = '';
-        if (basariOrani >= 70) {
-            analiz = '🟢 Çok başarılı - strateji çalışıyor';
-        } else if (basariOrani >= 50) {
-            analiz = '🟡 Orta başarılı - strateji kısmen çalışıyor';
-        } else if (basariOrani >= 30) {
-            analiz = '🟠 Düşük başarılı - strateji gözden geçirilmeli';
-        } else {
-            analiz = '🔴 Başarısız - strateji değiştirilmeli';
-        }
+        if (basariOrani >= 70) analiz = '🟢 Çok başarılı - strateji çalışıyor';
+        else if (basariOrani >= 50) analiz = '🟡 Orta başarılı - strateji kısmen çalışıyor';
+        else if (basariOrani >= 30) analiz = '🟠 Düşük başarılı - strateji gözden geçirilmeli';
+        else analiz = '🔴 Başarısız - strateji değiştirilmeli';
 
         return {
             basariOrani: basariOrani.toFixed(1),
@@ -130,14 +137,13 @@ class KararKayitSistemi {
             enCokKarar,
             kararSayilari,
             analiz,
-            sonIslemler: gecmis.slice(0, 5) // Son 5 işlem
+            sonIslemler: gecmis.slice(0, 5)
         };
     }
 
     // Fiyat performans analizi
     fiyatPerformansAnalizi(symbol, mevcutFiyat) {
         const gecmis = this.kararGecmisiniGetir(symbol, 30);
-        
         if (gecmis.length === 0) return null;
 
         let toplamKar = 0;
@@ -146,16 +152,10 @@ class KararKayitSistemi {
 
         gecmis.forEach(kayit => {
             const giris = kayit.girisFiyati;
-            const tp1 = kayit.takeProfit1;
-            const sl = kayit.stopLoss;
-            
             let kar = 0;
-            if (kayit.karar === 'LONG') {
-                kar = mevcutFiyat - giris;
-            } else if (kayit.karar === 'SHORT') {
-                kar = giris - mevcutFiyat;
-            }
-            
+            if (kayit.karar === 'LONG') kar = mevcutFiyat - giris;
+            else if (kayit.karar === 'SHORT') kar = giris - mevcutFiyat;
+
             toplamKar += kar;
             if (kar > 0) kârlıIslem++;
             else zararliIslem++;
@@ -172,41 +172,31 @@ class KararKayitSistemi {
         };
     }
 
-    // Kayıtları localStorage'a kaydet
-    kayitlariKaydet() {
-        try {
-            localStorage.setItem('kararKayitlari', JSON.stringify(this.kayitlar));
-        } catch (error) {
-            console.error('Kayıtlar kaydedilemedi:', error);
-        }
-    }
-
-    // Kayıtları localStorage'dan yükle
-    kayitlariYukle() {
-        try {
-            const kayitlar = localStorage.getItem('kararKayitlari');
-            return kayitlar ? JSON.parse(kayitlar) : [];
-        } catch (error) {
-            console.error('Kayıtlar yüklenemedi:', error);
-            return [];
-        }
-    }
-
     // Tüm kayıtları getir
     tumKayitlariGetir() {
         return this.kayitlar;
     }
 
     // Kayıt sil
-    kayitSil(kayitId) {
-        this.kayitlar = this.kayitlar.filter(kayit => kayit.id !== kayitId);
-        this.kayitlariKaydet();
+    async kayitSil(kayitId) {
+        try {
+            await fetch(`${this.API_URL}/kayitlar/${kayitId}`, { method: 'DELETE' });
+            await this.kayitlariYukle();
+        } catch (error) {
+            console.error('Kayıt silinemedi:', error);
+            throw error;
+        }
     }
 
     // Tüm kayıtları temizle
-    tumKayitlariTemizle() {
-        this.kayitlar = [];
-        this.kayitlariKaydet();
+    async tumKayitlariTemizle() {
+        try {
+            await fetch(`${this.API_URL}/kayitlar`, { method: 'DELETE' });
+            this.kayitlar = [];
+        } catch (error) {
+            console.error('Kayıtlar temizlenemedi:', error);
+            throw error;
+        }
     }
 }
 

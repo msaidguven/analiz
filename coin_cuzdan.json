@@ -1,0 +1,43 @@
+{
+  "versiyon": "1.0",
+  "tarih": "2026-04-14T20:25:51.312Z",
+  "kayitSayisi": 3,
+  "kayitlar": [
+    {
+      "id": 1776193348259,
+      "symbol": "GIGGLE",
+      "karar": "SHORT",
+      "girisFiyati": 47.46,
+      "kapanisFiyati": 45.73,
+      "karZararDolar": 3.65,
+      "karZararYuzde": 3.65,
+      "karZararYon": "KAR",
+      "acilisTarihi": "2026-04-14T19:02:28.259Z",
+      "kapanisTarihi": "2026-04-14T20:25:51.312Z"
+    },
+    {
+      "id": 1776192131185,
+      "symbol": "ENJ",
+      "karar": "LONG",
+      "girisFiyati": 0.05233,
+      "kapanisFiyati": 0.05545,
+      "karZararDolar": 5.96,
+      "karZararYuzde": 5.96,
+      "karZararYon": "KAR",
+      "acilisTarihi": "2026-04-14T18:42:11.185Z",
+      "kapanisTarihi": "2026-04-14T20:25:36.817Z"
+    },
+    {
+      "id": 1776192114532,
+      "symbol": "IN",
+      "karar": "LONG",
+      "girisFiyati": 0.07239,
+      "kapanisFiyati": 0.08124,
+      "karZararDolar": 12.23,
+      "karZararYuzde": 12.23,
+      "karZararYon": "KAR",
+      "acilisTarihi": "2026-04-14T18:41:54.532Z",
+      "kapanisTarihi": "2026-04-14T20:25:13.579Z"
+    }
+  ]
+}
