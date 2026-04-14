@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Futures Coin Listesi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="chart-engine.js"></script>
+    <script src="karar-motoru.js"></script>
+    <script src="karar-kayit.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0b0e11;
+            --bg-card: #1a1d23;
+            --accent: #f0b90b;
+            --text-primary: #eaeaea;
+            --text-secondary: #848e9c;
+            --purple: #e040fb;
+            --border: #2b3139;
+            --success: #0ecb81;
+            --error: #ef1945;
+            --hover: #252932;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+        }
+
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-text h1 .accent {
+            color: var(--accent);
+        }
+
+        .header-text p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stats-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-badge .label {
+            color: var(--text-secondary);
+        }
+
+        .stat-badge .value {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Sort Controls */
+        .sort-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .sort-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sort-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .sort-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+            font-weight: 600;
+        }
+
+        /* Search */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px 10px 40px;
+            color: var(--text-primary);
+            font-size: 14px;
+            width: 250px;
+            transition: border-color 0.15s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Coin Grid */
+        .coin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1200px) {
+            .coin-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .coin-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box input,
+            .sort-controls {
+                width: 100%;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .sort-controls {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Coin Card */
+        .coin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .coin-card:hover {
+            background: var(--hover);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .action-btn.btn-analiz {
+            background: rgba(240, 185, 11, 0.1);
+            color: var(--accent);
+            border-color: rgba(240, 185, 11, 0.3);
+        }
+
+        .action-btn.btn-analiz:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .action-btn.btn-karar {
+            background: rgba(224, 64, 251, 0.1);
+            color: var(--purple);
+            border-color: rgba(224, 64, 251, 0.3);
+        }
+
+        .action-btn.btn-karar:hover {
+            background: var(--purple);
+            color: #fff;
+        }
+
+        /* Modal Styles */
+        .decision-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            padding: 10px;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            max-width: 800px;
+            margin: 20px auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            z-index: 1100;
+            line-height: 1;
+        }
+
+        #decisionIframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            border-radius: 12px;
+        }
+
+        .analyze-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(240, 185, 11, 0.1);
+            color: var(--accent);
+            transition: all 0.2s ease;
+        }
+
+        .coin-card:hover .analyze-icon {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .coin-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .coin-symbol-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin-rank {
+            background: var(--border);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .coin-symbol {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .coin-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .coin-status.trading {
+            background: rgba(14, 203, 129, 0.15);
+            color: var(--success);
+        }
+
+        .coin-status.halted {
+            background: rgba(239, 25, 69, 0.15);
+            color: var(--error);
+        }
+
+        .coin-status.other {
+            background: rgba(132, 142, 156, 0.15);
+            color: var(--text-secondary);
+        }
+
+        /* Price Section */
+        .price-section {
+            margin-bottom: 16px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .coin-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .coin-change {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .coin-change.positive {
+            background: rgba(14, 203, 129, 0.15);
+            color: var(--success);
+        }
+
+        .coin-change.negative {
+            background: rgba(239, 25, 69, 0.15);
+            color: var(--error);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
+
+        .stat-item .label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        /* Funding Section */
+        .funding-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .funding-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .funding-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .funding-value {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .funding-value.positive {
+            color: var(--success);
+        }
+
+        .funding-value.negative {
+            color: var(--error);
+        }
+
+        .next-funding {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Volume Bar */
+        .volume-bar {
+            margin-top: 12px;
+        }
+
+        .volume-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .volume-track {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Error */
+        .error-box {
+            background: rgba(239, 25, 69, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .error-box h3 {
+            color: var(--error);
+            margin-bottom: 8px;
+        }
+
+        .error-box p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .retry-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .retry-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--hover);
+            border-color: var(--accent);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .page-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .page-ellipsis {
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Last Update */
+        .last-update {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Karar Preview */
+        .karar-preview {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .karar-preview-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            min-height: 56px;
+        }
+
+        .karar-preview-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .karar-preview-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .karar-preview-decision {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .karar-preview-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .karar-preview-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .karar-preview-value.long {
+            color: #0ecb81;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(14, 203, 129, 0.3);
+        }
+
+        .karar-preview-value.short {
+            color: #ef1945;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(239, 25, 69, 0.3);
+        }
+
+        .karar-preview-value.bekle {
+            color: #f0b90b;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(240, 185, 11, 0.3);
+        }
+
+        .karar-preview-percents {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .karar-preview-risk {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .karar-preview-risk-label {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .karar-preview-risk-score {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            border: 2px solid;
+        }
+
+        .karar-preview-risk-score.low {
+            color: #0ecb81;
+            border-color: #0ecb81;
+            background: rgba(14, 203, 129, 0.15);
+            box-shadow: 0 0 12px rgba(14, 203, 129, 0.2);
+        }
+
+        .karar-preview-risk-score.mid {
+            color: #f0b90b;
+            border-color: #f0b90b;
+            background: rgba(240, 185, 11, 0.15);
+            box-shadow: 0 0 12px rgba(240, 185, 11, 0.2);
+        }
+
+        .karar-preview-risk-score.high {
+            color: #ff9100;
+            border-color: #ff9100;
+            background: rgba(255, 145, 0, 0.15);
+            box-shadow: 0 0 12px rgba(255, 145, 0, 0.2);
+        }
+
+        .karar-preview-risk-score.crit {
+            color: #ef1945;
+            border-color: #ef1945;
+            background: rgba(239, 25, 69, 0.15);
+            box-shadow: 0 0 12px rgba(239, 25, 69, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <svg class="logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 4L42 14V34L24 44L6 34V14L24 4Z" fill="#F0B90B" />
+                <path d="M24 8L38 16V32L24 40L10 32V16L24 8Z" fill="#0B0E11" />
+                <path d="M24 14L32 18.5V27.5L24 32L16 27.5V18.5L24 14Z" fill="#F0B90B" />
+                <circle cx="24" cy="23" r="4" fill="#0B0E11" />
+            </svg>
+            <div class="header-text">
+                <h1>Binance <span class="accent">Futures</span> Coin Listesi</h1>
+                <p>Binance USDⓈ-M Perpetual Futures verileri</p>
+                <p class="last-update" id="lastUpdate">Son güncelleme: -</p>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stats-left">
+                <div class="stat-badge">
+                    <span class="label">Toplam:</span>
+                    <span class="value" id="totalCoins">-</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="label">Sayfa:</span>
+                    <span class="value" id="pageInfo">-</span>
+                </div>
+            </div>
+            <div class="sort-controls">
+                <button class="sort-btn active" data-sort="volume" onclick="setSort('volume')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    Hacim
+                </button>
+                <button class="sort-btn" data-sort="marketcap" onclick="setSort('marketcap')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    Piyasa Değeri
+                </button>
+                <button class="sort-btn" data-sort="price" onclick="setSort('price')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    </svg>
+                    Fiyat
+                </button>
+                <button class="sort-btn" data-sort="change" onclick="setSort('change')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    </svg>
+                    Değişim
+                </button>
+                <button class="sort-btn" data-sort="name" onclick="setSort('name')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 7h16M4 12h16M4 17h10" />
+                    </svg>
+                    İsim
+                </button>
+            </div>
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Coin ara... (örn: BTC)">
+            </div>
+        </div>
+
+        <!-- Error Box -->
+        <div class="error-box" id="errorBox" style="display: none;">
+            <h3>Veri Yüklenemedi</h3>
+            <p id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+            <button class="retry-btn" onclick="fetchAllData()">Tekrar Dene</button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loadingBox">
+            <div class="spinner"></div>
+            <p class="loading-text">Binance API'den veriler yükleniyor...</p>
+        </div>
+
+        <!-- Coin Grid -->
+        <div class="coin-grid" id="coinGrid"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 15s1.5 2 4 2 4-2 4-2" />
+                <line x1="9" y1="9" x2="9.01" y2="9" />
+                <line x1="15" y1="9" x2="15.01" y2="9" />
+            </svg>
+            <p>Aramanıza uygun coin bulunamadı.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Decision Modal -->
+    <div class="decision-modal" id="decisionModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDecisionModal()">&times;</span>
+            <iframe id="decisionIframe" src="" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Veriler <a href="https://www.binance.com" target="_blank">Binance</a> API'sinden alınmaktadır.</p>
+    </footer>
+
+    <script>
+        // State
+        let allCoinsData = [];
+        let filteredCoins = [];
+        let currentPage = 1;
+        let currentSort = 'volume';
+        const itemsPerPage = 18;
+        let maxVolume = 0;
+
+        // DOM Elements
+        const coinGrid = document.getElementById('coinGrid');
+        const loadingBox = document.getElementById('loadingBox');
+        const errorBox = document.getElementById('errorBox');
+        const emptyState = document.getElementById('emptyState');
+        const pagination = document.getElementById('pagination');
+        const totalCoinsEl = document.getElementById('totalCoins');
+        const pageInfoEl = document.getElementById('pageInfo');
+        const searchInput = document.getElementById('searchInput');
+        const errorMessage = document.getElementById('errorMessage');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+
+        // Format helpers
+        function formatPrice(price, symbol) {
+            if (!price || price === 'undefined') return '-';
+            const p = parseFloat(price);
+            if (isNaN(p)) return '-';
+
+            if (p >= 1000) return '$' + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (p >= 1) return '$' + p.toFixed(4);
+            if (p >= 0.01) return '$' + p.toFixed(6);
+            return '$' + p.toFixed(8);
+        }
+
+        function formatVolume(vol) {
+            if (!vol) return '-';
+            const v = parseFloat(vol);
+            if (isNaN(v)) return '-';
+
+            if (v >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+            if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+            if (v >= 1e3) return '$' + (v / 1e3).toFixed(2) + 'K';
+            return '$' + v.toFixed(2);
+        }
+
+        function formatMarketCap(mcap) {
+            if (!mcap || mcap === 0) return '-';
+            const v = parseFloat(mcap);
+            if (isNaN(v)) return '-';
+
+            if (v >= 1e12) return '$' + (v / 1e12).toFixed(2) + 'T';
+            if (v >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+            if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+            return '$' + v.toLocaleString('en-US');
+        }
+
+        function formatPercent(val) {
+            if (!val) return '-';
+            const v = parseFloat(val);
+            if (isNaN(v)) return '-';
+            const sign = v >= 0 ? '+' : '';
+            return sign + v.toFixed(2) + '%';
+        }
+
+        function formatFunding(rate) {
+            if (!rate) return '-';
+            const r = parseFloat(rate);
+            if (isNaN(r)) return '-';
+            return (r * 100).toFixed(4) + '%';
+        }
+
+        // Fetch all data
+        async function fetchAllData() {
+            loadingBox.style.display = 'flex';
+            errorBox.style.display = 'none';
+            emptyState.style.display = 'none';
+            coinGrid.innerHTML = '';
+
+            try {
+                // Fetch exchange info
+                const exchangeRes = await fetch('https://fapi.binance.com/fapi/v1/exchangeInfo');
+                const exchangeData = await exchangeRes.json();
+
+                // Fetch 24hr tickers
+                const tickerRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
+                const tickerData = await tickerRes.json();
+
+                // Piyasa değeri verilerini Coingecko'dan çek
+                let geckoMap = {};
+                try {
+                    const geckoRes = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1');
+                    const geckoData = await geckoRes.json();
+                    geckoData.forEach(g => geckoMap[g.symbol.toUpperCase()] = g);
+                } catch (e) { console.warn('Piyasa değeri verisi alınamadı.'); }
+
+                // Create ticker map
+                const tickerMap = {};
+                tickerData.forEach(t => tickerMap[t.symbol] = t);
+
+                // Process coins
+                allCoinsData = exchangeData.symbols
+                    .filter(s => s.contractType === 'PERPETUAL' && s.quoteAsset === 'USDT')
+                    .map(s => {
+                        const ticker = tickerMap[s.symbol] || {};
+                        const gData = geckoMap[s.baseAsset] || {};
+                        return {
+                            symbol: s.symbol,
+                            baseAsset: s.baseAsset,
+                            status: s.status,
+                            price: ticker.lastPrice || '0',
+                            priceChange: ticker.priceChangePercent || '0',
+                            highPrice: ticker.highPrice || '0',
+                            lowPrice: ticker.lowPrice || '0',
+                            volume: ticker.quoteVolume || '0',
+                            fundingRate: ticker.fundingRate || '0',
+                            nextFundingTime: ticker.nextFundingTime || null,
+                            marketCap: gData.market_cap || 0,
+                            rank: gData.market_cap_rank || '-'
+                        };
+                    });
+
+                // Calculate max volume for bar width
+                maxVolume = Math.max(...allCoinsData.map(c => parseFloat(c.volume) || 0));
+
+                filteredCoins = [...allCoinsData];
+
+                // Update last update time
+                const now = new Date();
+                lastUpdateEl.textContent = `Son güncelleme: ${now.toLocaleTimeString('tr-TR')}`;
+
+                loadingBox.style.display = 'none';
+                sortCoins();
+                updateStats();
+                handleSearch();
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                loadingBox.style.display = 'none';
+                errorBox.style.display = 'block';
+                errorMessage.textContent = error.message || 'Bağlantı hatası oluştu.';
+            }
+        }
+
+        // Sort coins
+        function setSort(sortType) {
+            currentSort = sortType;
+
+            // Update active button
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sort === sortType);
+            });
+
+            sortCoins();
+            handleSearch();
+        }
+
+        function sortCoins() {
+            switch (currentSort) {
+                case 'volume':
+                    filteredCoins.sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume));
+                    break;
+                case 'marketcap':
+                    filteredCoins.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0));
+                    break;
+                case 'price':
+                    filteredCoins.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+                    break;
+                case 'change':
+                    filteredCoins.sort((a, b) => parseFloat(b.priceChange) - parseFloat(a.priceChange));
+                    break;
+                case 'name':
+                    filteredCoins.sort((a, b) => a.symbol.localeCompare(b.symbol));
+                    break;
+            }
+        }
+
+        // Render coin cards
+        function renderCoins() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageCoins = filteredCoins.slice(start, end);
+
+            if (pageCoins.length === 0 && filteredCoins.length === 0) {
+                emptyState.style.display = 'block';
+                coinGrid.innerHTML = '';
+                pagination.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            coinGrid.innerHTML = pageCoins.map(coin => {
+                const statusClass = coin.status === 'TRADING' ? 'trading' :
+                    coin.status === 'HALT' ? 'halted' : 'other';
+                const priceChange = parseFloat(coin.priceChange) || 0;
+                const changeClass = priceChange >= 0 ? 'positive' : 'negative';
+                const funding = parseFloat(coin.fundingRate) || 0;
+                const fundingClass = funding >= 0 ? 'positive' : 'negative';
+                const volumePercent = maxVolume > 0 ? (parseFloat(coin.volume) / maxVolume * 100) : 0;
+
+                return `
+                    <div class="coin-card">
+                        <div class="coin-header">
+                            <div class="coin-symbol-row">
+                                <span class="coin-rank">#${coin.rank}</span>
+                                <span class="coin-symbol">${coin.symbol}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="analyze-icon" title="Analiz Et">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 3v18h18"/>
+                                        <path d="M18 9l-5 5-2-2-4 4"/>
+                                    </svg>
+                                </div>
+                                <span class="coin-status ${statusClass}">${coin.status}</span>
+                            </div>
+                        </div>
+
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="coin-price">${formatPrice(coin.price)}</span>
+                                <span class="coin-change ${changeClass}">${formatPercent(coin.priceChange)}</span>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="label">24s Yüksek</div>
+                                <div class="value">${formatPrice(coin.highPrice)}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">24s Düşük</div>
+                                <div class="value">${formatPrice(coin.lowPrice)}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">24s Hacim</div>
+                                <div class="value">${formatVolume(coin.volume)}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="label">Piyasa Değeri</div>
+                                <div class="value">${formatMarketCap(coin.marketCap)}</div>
+                            </div>
+                        </div>
+
+                        <div class="funding-section">
+                            <div class="funding-info">
+                                <span class="funding-label">Funding Rate</span>
+                                <span class="funding-value ${fundingClass}">${formatFunding(coin.fundingRate)}</span>
+                            </div>
+                            <span class="next-funding">8h</span>
+                        </div>
+
+                        <div class="volume-bar">
+                            <div class="volume-label">
+                                <span>Hacim</span>
+                                <span>${volumePercent.toFixed(1)}%</span>
+                            </div>
+                            <div class="volume-track">
+                                <div class="volume-fill" style="width: ${volumePercent}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="karar-preview" id="karar-preview-${coin.baseAsset}">
+                            <div class="karar-preview-loading">
+                                <div class="karar-preview-spinner"></div>
+                                <span>Yükleniyor...</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="action-btn btn-analiz" onclick="goToAnalysis('${coin.baseAsset}')">Analiz Sayfası</button>
+                            <button class="action-btn btn-karar" onclick="showQuickDecision('${coin.baseAsset}')">Hızlı Karar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderPagination();
+
+            // Karar preview'lerini yükle (biraz gecikme ile)
+            setTimeout(() => {
+                pageCoins.forEach(coin => {
+                    loadKararPreview(coin.baseAsset);
+                });
+            }, 500);
+        }
+
+        // Update stats
+        function updateStats() {
+            totalCoinsEl.textContent = filteredCoins.length;
+            const totalPages = Math.ceil(filteredCoins.length / itemsPerPage);
+            pageInfoEl.textContent = totalPages > 0 ? `${currentPage} / ${totalPages}` : '-';
+        }
+
+        function goToAnalysis(symbol) {
+            // Karar analiz sayfasına yönlendir
+            window.location.href = `karar-analizi.html?symbol=${symbol}`;
+        }
+
+        async function fetchAnalysisData(symbol) {
+            const BASE_F = 'https://fapi.binance.com';
+            const currentSymbol = symbol + 'USDT';
+
+            try {
+                // API cagrilarini ayri ayri yap, hatalari ignore et
+                const ticker = await fetch(`${BASE_F}/fapi/v1/ticker/24hr?symbol=${currentSymbol}`).then(r => r.json()).catch(() => null);
+                
+                // OpenInterest bazen 400 verir, ignore et
+                let oiCurrent = null, oiHist = null;
+                try {
+                    oiCurrent = await fetch(`${BASE_F}/fapi/v1/openInterest?symbol=${currentSymbol}`).then(r => r.json());
+                    oiHist = await fetch(`${BASE_F}/futures/data/openInterestHist?symbol=${currentSymbol}&period=1h&limit=2`).then(r => r.json());
+                } catch (e) {
+                    // OpenInterest verisi olmayan coin'ler var, ignore et
+                }
+                
+                const lsRaw = await fetch(`${BASE_F}/futures/data/topLongShortAccountRatio?symbol=${currentSymbol}&period=5m&limit=1`).then(r => r.json()).catch(() => null);
+                const fundingRaw = await fetch(`${BASE_F}/fapi/v1/fundingRate?symbol=${currentSymbol}&limit=8`).then(r => r.json()).catch(() => []);
+                const liqRaw = await fetch(`${BASE_F}/futures/data/topLongShortPositionRatio?symbol=${currentSymbol}&period=5m&limit=1`).then(r => r.json()).catch(() => null);
+                
+                const [klines1d, klines4h, klines15m, klines1h, klines1w, klines15m_long] = await Promise.all([
+                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1d&limit=100`).then(r => r.json()).catch(() => []),
+                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=4h&limit=100`).then(r => r.json()).catch(() => []),
+                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=15m&limit=100`).then(r => r.json()).catch(() => []),
+                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1h&limit=100`).then(r => r.json()).catch(() => []),
+                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1w&limit=50`).then(r => r.json()).catch(() => []),
+                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=15m&limit=2`).then(r => r.json()).catch(() => []),
+                ]);
+
+                if (ticker.code) throw new Error('Coin bulunamadı: ' + currentSymbol);
+
+                const processTF = (klines) => {
+                    if (!klines || klines.length < 20 || !window.chartEngine) return null;
+                    const cls = klines.map(k => parseFloat(k[4]));
+                    const vols = klines.map(k => parseFloat(k[5]));
+                    const rsiArr = window.chartEngine.calcRSIWilder(cls, 14);
+                    const ema20 = window.chartEngine.calcEMA(cls, 20).pop();
+                    const macdObj = window.chartEngine.calcMACDSeries(cls);
+
+                    return {
+                        rsi: rsiArr.pop(),
+                        macd: {
+                            macd: macdObj.macdLine.pop(),
+                            signal: macdObj.signal.pop(),
+                            histogram: macdObj.histogram.pop()
+                        },
+                        ema20: ema20,
+                        volume: vols[vols.length - 1],
+                        volumeAvg: vols.slice(-20).reduce((a, b) => a + b, 0) / 20,
+                        smc: { trend: cls[cls.length - 1] > ema20 ? 'BULLISH' : 'BEARISH' },
+                        delta: parseFloat(klines[klines.length - 1][9]) - (parseFloat(klines[klines.length - 1][5]) - parseFloat(klines[klines.length - 1][9]))
+                    };
+                };
+
+                const currentOI = parseFloat(oiCurrent?.openInterest || 0);
+                const prevOI = oiHist && oiHist.length > 1 ? parseFloat(oiHist[0].sumOpenInterest) : currentOI;
+
+                const analysisData = {
+                    symbol: symbol,
+                    price: parseFloat(ticker.lastPrice),
+                    chg24: parseFloat(ticker.priceChangePercent),
+                    highDay: parseFloat(ticker.highPrice),
+                    lowDay: parseFloat(ticker.lowPrice),
+                    volatility: 0,
+                    fundingAvg: fundingRaw.length > 0 ? fundingRaw.reduce((sum, f) => sum + parseFloat(f.fundingRate), 0) / fundingRaw.length : 0,
+                    oiChange: prevOI > 0 ? ((currentOI - prevOI) / prevOI * 100) : 0,
+                    longPct: lsRaw.length > 0 ? parseFloat(lsRaw[0].longShortRatio) * 100 / (1 + parseFloat(lsRaw[0].longShortRatio)) : 50,
+                    shortPct: 0, // Aşağıda hesaplanıyor
+                    multiTF: {
+                        '15m': processTF(klines15m),
+                        '1h': processTF(klines1h),
+                        '4h': processTF(klines4h),
+                        '1d': processTF(klines1d),
+                        '1w': processTF(klines1w)
+                    },
+                    supports: [],
+                    resistances: [],
+                };
+                analysisData.shortPct = 100 - analysisData.longPct;
+                analysisData.rsi = analysisData.multiTF['1h']?.rsi || 50;
+
+                return analysisData;
+            } catch (error) {
+                console.error('Analiz verisi çekilemedi:', error);
+                return null;
+            }
+        }
+
+        function updateKararPreview(symbol, analysisData) {
+            const previewElement = document.getElementById(`karar-preview-${symbol}`);
+            if (!previewElement) return;
+
+            // Karar motoru.js dosyasindan sonuclari al
+            if (window.kararMotoru) {
+                const sonuc = window.kararMotoru(analysisData);
+                const riskSinif = sonuc.riskSkor >= 8 ? 'risk-crit' : sonuc.riskSkor >= 6 ? 'risk-high' : sonuc.riskSkor >= 4 ? 'risk-mid' : 'risk-low';
+                
+                previewElement.innerHTML = `
+                    <div class="karar-preview-content">
+                        <div class="karar-preview-decision">
+                            <div class="karar-preview-label">Karar</div>
+                            <div class="karar-preview-value ${sonuc.kararSinif}">${sonuc.karar}</div>
+                            <div class="karar-preview-percents">Long %${sonuc.finalLongOran.toFixed(0)} · Short %${sonuc.finalShortOran.toFixed(0)}</div>
+                        </div>
+                        <div class="karar-preview-risk">
+                            <div class="karar-preview-risk-label">Risk</div>
+                            <div class="karar-preview-risk-score ${riskSinif}">${sonuc.riskSkor}/10</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                previewElement.innerHTML = `
+                    <div class="karar-preview-content">
+                        <div class="karar-preview-decision">
+                            <div class="karar-preview-label">Hata</div>
+                            <div class="karar-preview-value bekle">BEKLE</div>
+                            <div class="karar-preview-percents">Karar motoru yüklenmedi</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadKararPreview(symbol) {
+            const previewElement = document.getElementById(`karar-preview-${symbol}`);
+            if (!previewElement) return;
+
+            // Show loading
+            previewElement.innerHTML = `
+                <div class="karar-preview-loading">
+                    <div class="karar-preview-spinner"></div>
+                    <span>Yükleniyor...</span>
+                </div>
+            `;
+
+            // Fetch analysis data and update preview
+            const analysisData = await fetchAnalysisData(symbol);
+            if (analysisData) {
+                updateKararPreview(symbol, analysisData);
+            } else {
+                previewElement.innerHTML = `
+                    <div class="karar-preview-content">
+                        <div class="karar-preview-decision">
+                            <div class="karar-preview-label">Hata</div>
+                            <div class="karar-preview-value bekle">BEKLE</div>
+                            <div class="karar-preview-percents">Veri yüklenemedi</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function showQuickDecision(symbol) {
+            // Analiz verisini çek
+            const analysisData = await fetchAnalysisData(symbol);
+            
+            if (!analysisData) {
+                alert('Analiz verisi yüklenemedi!');
+                return;
+            }
+
+            // Karar motoru ile hesapla
+            const sonuc = window.kararMotoru(analysisData);
+            
+            // Mevcut fiyatı al
+            const mevcutFiyat = analysisData.price;
+            
+            // Kararı kaydet
+            const kayit = window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
+            
+            // Karar analizini yap
+            const analiz = window.kararKayitSistemi.kararAnaliziYap(symbol, mevcutFiyat);
+            
+            // Modal yerine detaylı göster
+            const riskSinif = sonuc.riskSkor >= 8 ? 'risk-crit' : sonuc.riskSkor >= 6 ? 'risk-high' : sonuc.riskSkor >= 4 ? 'risk-mid' : 'risk-low';
+            
+            const message = `
+📊 ${symbol.toUpperCase()} Analiz Sonuçları
+
+⚡ Karar: ${sonuc.karar}
+📈 Long: %${sonuc.finalLongOran.toFixed(0)} · Short: %${sonuc.finalShortOran.toFixed(0)}
+⚠️ Risk: ${sonuc.riskSkor}/10
+
+💰 Fiyat Seviyeleri:
+🔵 Giriş: ${mevcutFiyat.toFixed(4)}
+🔴 Stop Loss: ${kayit.stopLoss.toFixed(4)}
+🟢 TP1: ${kayit.takeProfit1.toFixed(4)}
+🟢 TP2: ${kayit.takeProfit2.toFixed(4)}
+
+📈 Strateji Performansı (${analiz.toplamIslem} işlem):
+✅ Başarı Oranı: %${analiz.basariOrani}
+🎯 En Çok Karar: ${analiz.enCokKarar}
+${analiz.analiz}
+
+─────────────────
+💾 Karar kaydedildi! (ID: ${kayit.id})
+            `;
+            
+            // Detaylı modal göster
+            this.kararDetayModalGoster(message, symbol, analiz);
+        }
+
+        function kararDetayModalGoster(mesaj, symbol, analiz) {
+            // Modal oluştur
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                justify-content: center; z-index: 10000;
+            `;
+            
+            const icerik = document.createElement('div');
+            icerik.style.cssText = `
+                background: var(--surface); border-radius: 12px; padding: 20px;
+                max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
+                border: 1px solid var(--border);
+            `;
+            
+            icerik.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--text); margin: 0;">� ${symbol.toUpperCase()} Detaylı Analiz</h3>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                            style="background: var(--error); color: white; border: none; 
+                                   padding: 8px 12px; border-radius: 6px; cursor: pointer;">✕</button>
+                </div>
+                <pre style="color: var(--text2); font-size: 12px; line-height: 1.4; white-space: pre-wrap; 
+                           background: var(--bg-secondary); padding: 15px; border-radius: 8px;">${mesaj}</pre>
+                
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button onclick="window.open('karar-analizi.html', '_blank')" 
+                            style="flex: 1; background: var(--accent); color: white; border: none; 
+                                   padding: 10px; border-radius: 6px; cursor: pointer;">📋 Tüm Kayıtlar</button>
+                    <button onclick="if(confirm('Tüm kayıtları silmek istediğinizden emin misiniz?')) { window.kararKayitSistemi.tumKayitlariTemizle(); alert('Kayıtlar temizlendi!'); }" 
+                            style="flex: 1; background: var(--error); color: white; border: none; 
+                                   padding: 10px; border-radius: 6px; cursor: pointer;">🗑️ Kayıtları Temizle</button>
+                </div>
+            `;
+            
+            modal.appendChild(icerik);
+            document.body.appendChild(modal);
+            
+            // Dışarı tıklayınca kapat
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        }
+
+        function closeDecisionModal() {
+            // Modal'ı gizle
+            const modal = document.getElementById('decisionModal');
+            const iframe = document.getElementById('decisionIframe');
+
+            modal.style.display = 'none';
+            iframe.src = 'about:blank'; // iframe'i tamamen temizle
+
+            // Body scroll'u geri getir
+            document.body.style.overflow = 'auto';
+
+            // Event listener'ı temizle
+            iframe.onload = null;
+        }
+
+        // Modal dışına tıklandığında kapat
+        document.addEventListener('click', function (event) {
+            const modal = document.getElementById('decisionModal');
+            if (event.target === modal) {
+                closeDecisionModal();
+            }
+        });
+
+        // ESC tuşuna basıldığında modalı kapat
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('decisionModal');
+                if (modal.style.display === 'block') {
+                    closeDecisionModal();
+                }
+            }
+        });
+
+        // Render pagination
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredCoins.length / itemsPerPage);
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // First & Prev buttons
+            html += `
+                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="11 17 6 12 11 7"/>
+                        <polyline points="18 17 13 12 18 7"/>
+                    </svg>
+                </button>
+                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+            `;
+
+            // Page numbers
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="page-ellipsis">...</span>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="page-ellipsis">...</span>`;
+                }
+                html += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // Next & Last buttons
+            html += `
+                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${totalPages})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="13 17 18 12 13 7"/>
+                        <polyline points="6 17 11 12 6 7"/>
+                    </svg>
+                </button>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        // Go to page
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredCoins.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+            renderCoins();
+            updateStats();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Search
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            if (query === '') {
+                filteredCoins = [...allCoinsData];
+            } else {
+                filteredCoins = allCoinsData.filter(coin =>
+                    coin.symbol.toLowerCase().includes(query) ||
+                    coin.baseAsset.toLowerCase().includes(query)
+                );
+            }
+
+            // Re-sort after filtering
+            sortCoins();
+
+            currentPage = 1;
+            updateStats();
+            renderCoins();
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+
+        // Debounce helper
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Initial load
+        fetchAllData();
+
+        // Auto refresh every 60 seconds
+        setInterval(fetchAllData, 60000);
+    </script>
+
+    <script>
+        /**
+         * Iframe 元素高亮注入脚本
+         * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+         *
+         * 使用方法：
+         * 1. 将此脚本添加到目标网站的 HTML 中
+         * 2. 或通过浏览器扩展、用户脚本等方式注入
+         */
+
+        (function () {
+            "use strict";
+
+            // 检查是否在 iframe 中
+            if (window.self === window.top) {
+                return; // 不在 iframe 中，不执行
+            }
+
+            // 检查是否已经初始化过
+            if (window.__iframeHighlightInitialized) {
+                return;
+            }
+            window.__iframeHighlightInitialized = true;
+            console.log("Iframe 高亮脚本已加载");
+
+            // 创建高亮覆盖层
+            var overlay = document.createElement("div");
+            overlay.id = "iframe-highlight-overlay";
+            overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+            // 创建悬停高亮框（虚线边框）
+            var highlightBox = document.createElement("div");
+            highlightBox.id = "iframe-highlight-box";
+            highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+            // 创建选中节点的常驻高亮框（实线边框）
+            var selectedBox = document.createElement("div");
+            selectedBox.id = "iframe-selected-box";
+            selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+            // 创建悬停标签显示
+            var tagLabel = document.createElement("div");
+            tagLabel.id = "iframe-tag-label";
+            tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+            // 创建选中节点标签
+            var selectedLabel = document.createElement("div");
+            selectedLabel.id = "iframe-selected-label";
+            selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+            overlay.appendChild(highlightBox);
+            overlay.appendChild(selectedBox);
+            overlay.appendChild(tagLabel);
+            overlay.appendChild(selectedLabel);
+            document.body.appendChild(overlay);
+
+            // 存储当前选中的元素
+            var selectedElement = null;
+            var highlightEnabled = false;
+
+            // 更新选中元素的高亮显示
+            function updateSelectedHighlight(element) {
+                console.log("updateSelectedHighlight called with:", element);
+                if (!element) {
+                    selectedBox.style.display = "none";
+                    selectedLabel.style.display = "none";
+                    selectedElement = null;
+                    console.log("Cleared selected highlight");
+                    return;
+                }
+                selectedElement = element;
+                var rect = element.getBoundingClientRect();
+                console.log("Selected element rect:", rect);
+
+                // 更新选中高亮框位置
+                selectedBox.style.display = "block";
+                selectedBox.style.left = "".concat(rect.left - 2, "px");
+                selectedBox.style.top = "".concat(rect.top - 2, "px");
+                selectedBox.style.width = "".concat(rect.width + 4, "px");
+                selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+                // 更新选中标签位置和内容
+                selectedLabel.style.display = "block";
+                selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
+
+                // 计算标签位置，确保不超出视窗
+                var labelTop = rect.top - 28;
+                var labelLeft = rect.left;
+
+                // 如果标签会超出顶部，显示在元素下方
+                if (labelTop < 5) {
+                    labelTop = rect.bottom + 5;
+                }
+
+                // 如果标签会超出右侧，向左调整
+                var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+                if (labelLeft + labelWidth > window.innerWidth - 10) {
+                    labelLeft = window.innerWidth - labelWidth - 10;
+                }
+                selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
+                selectedLabel.style.top = "".concat(labelTop, "px");
+                console.log("Selected highlight positioned at:", {
+                    left: selectedBox.style.left,
+                    top: selectedBox.style.top,
+                    width: selectedBox.style.width,
+                    height: selectedBox.style.height
+                });
+            }
+            function getElementSelector(element) {
+                if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
+                var segments = [];
+                var current = element;
+                while (current !== document.documentElement) {
+                    var selector = '';
+                    // 优先检查唯一ID
+                    if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
+                        segments.unshift("#".concat(current.id));
+                        break; // ID唯一，无需继续向上
+                    }
+
+                    // 生成类名选择器（取第一个有效类名）
+                    var classes = Array.from(current.classList).filter(function (c) {
+                        return !c.startsWith('js-');
+                    });
+                    var className = classes.length > 0 ? ".".concat(classes[0]) : '';
+
+                    // 生成位置索引（nth-child）
+                    var tag = current.tagName.toLowerCase();
+                    if (!className) {
+                        var siblings = Array.from(current.parentNode.children);
+                        var index = siblings.findIndex(function (el) {
+                            return el === current;
+                        }) + 1;
+                        selector = "".concat(tag, ":nth-child(").concat(index, ")");
+                    } else {
+                        selector = className;
+                    }
+                    segments.unshift(selector);
+                    current = current.parentElement;
+                }
+
+                // 处理根元素
+                if (current === document.documentElement) {
+                    segments.unshift('html');
+                }
+                return segments.join(' > ');
+            }
+
+            // 获取元素文本内容
+            function getElementText(element) {
+                var _element$textContent;
+                if (element.tagName === "INPUT") {
+                    return element.value || element.placeholder || "";
+                }
+                if (element.tagName === "TEXTAREA") {
+                    return element.value || element.placeholder || "";
+                }
+                var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
+                return text.length > 50 ? text.substring(0, 50) + "..." : text;
+            }
+
+            // 获取元素属性信息
+            function getElementAttributes(element) {
+                var attrs = {};
+                for (var i = 0; i < element.attributes.length; i++) {
+                    var attr = element.attributes[i];
+                    attrs[attr.name] = attr.value;
+                }
+                return attrs;
+            }
+
+            // 鼠标悬停事件处理
+            function handleMouseOver(e) {
+                if (!highlightEnabled) return;
+                var target = e.target;
+                if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+                    return;
+                }
+
+                // 避免高亮 html 和 body 元素
+                if (target === document.documentElement || target === document.body) {
+                    return;
+                }
+
+                // 如果是已选中的元素，不显示悬停高亮
+                if (target === selectedElement) {
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    return;
+                }
+                var rect = target.getBoundingClientRect();
+                var selector = getElementSelector(target);
+                var text = getElementText(target);
+                var attributes = getElementAttributes(target);
+
+                // 更新悬停高亮框位置
+                highlightBox.style.display = "block";
+                highlightBox.style.left = "".concat(rect.left - 2, "px");
+                highlightBox.style.top = "".concat(rect.top - 2, "px");
+                highlightBox.style.width = "".concat(rect.width + 4, "px");
+                highlightBox.style.height = "".concat(rect.height + 4, "px");
+
+                // 更新标签位置和内容
+                tagLabel.style.display = "block";
+                tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
+
+                // 计算标签位置，确保不超出视窗
+                var labelTop = rect.top - 22;
+                var labelLeft = rect.left;
+
+                // 如果标签会超出顶部，显示在元素下方
+                if (labelTop < 0) {
+                    labelTop = rect.bottom + 5;
+                }
+
+                // 如果标签会超出右侧，向左调整
+                if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+                    labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
+                }
+                tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
+                tagLabel.style.top = "".concat(labelTop, "px");
+
+                // 发送消息到父窗口
+                var elementInfo = {
+                    tagName: target.tagName.toLowerCase(),
+                    rect: {
+                        left: rect.left,
+                        top: rect.top,
+                        right: rect.right,
+                        bottom: rect.bottom,
+                        width: rect.width,
+                        height: rect.height,
+                        x: rect.x,
+                        y: rect.y
+                    },
+                    selector: selector,
+                    text: text,
+                    attributes: attributes,
+                    url: window.location.href,
+                    path: window.location.pathname,
+                    timestamp: Date.now()
+                };
+                try {
+                    window.parent.postMessage({
+                        type: "iframe-element-hover",
+                        data: elementInfo,
+                        source: "iframe-highlight-injector"
+                    }, "*");
+                } catch (error) {
+                    console.warn("无法发送消息到父窗口:", error);
+                }
+            }
+
+            // 鼠标离开事件处理
+            function handleMouseOut(e) {
+                if (!highlightEnabled) return;
+                var relatedTarget = e.relatedTarget;
+
+                // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+                if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
+                    return;
+                }
+                highlightBox.style.display = "none";
+                tagLabel.style.display = "none";
+                try {
+                    window.parent.postMessage({
+                        type: "iframe-element-hover",
+                        data: null,
+                        source: "iframe-highlight-injector"
+                    }, "*");
+                } catch (error) {
+                    console.warn("无法发送消息到父窗口:", error);
+                }
+            }
+
+            // 点击事件处理
+            function handleClick(e) {
+                var target = e.target;
+                if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+                    return;
+                }
+
+                // 避免处理 html 和 body 元素
+                if (target === document.documentElement || target === document.body) {
+                    return;
+                }
+
+                // 检查是否是交互元素，这些元素需要保留默认行为
+                var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
+
+                // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+                if (highlightEnabled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                var rect = target.getBoundingClientRect();
+                var selector = getElementSelector(target);
+                var text = getElementText(target);
+                var attributes = getElementAttributes(target);
+                console.log("Element clicked:", {
+                    tagName: target.tagName,
+                    selector: selector,
+                    rect: rect
+                });
+
+                // 立即更新选中高亮
+                updateSelectedHighlight(target);
+
+                // 隐藏悬停高亮，因为现在是选中状态
+                highlightBox.style.display = "none";
+                tagLabel.style.display = "none";
+                var elementInfo = {
+                    tagName: target.tagName.toLowerCase(),
+                    rect: {
+                        left: rect.left,
+                        top: rect.top,
+                        right: rect.right,
+                        bottom: rect.bottom,
+                        width: rect.width,
+                        height: rect.height,
+                        x: rect.x,
+                        y: rect.y
+                    },
+                    selector: selector,
+                    text: text,
+                    attributes: attributes,
+                    url: window.location.href,
+                    path: window.location.pathname,
+                    timestamp: Date.now()
+                };
+                try {
+                    window.parent.postMessage({
+                        type: "iframe-element-click",
+                        data: elementInfo,
+                        source: "iframe-highlight-injector"
+                    }, "*");
+                } catch (error) {
+                    console.warn("无法发送消息到父窗口:", error);
+                }
+            }
+
+            // 监听来自父窗口的消息
+            function handleParentMessage(event) {
+                console.log("Received message from parent:", event.data);
+                if (event.data.type === "iframe-highlight-toggle") {
+                    var enabled = event.data.enabled;
+                    console.log("Highlight toggle:", enabled);
+                    if (enabled) {
+                        enableHighlight();
+                    } else {
+                        disableHighlight();
+                    }
+                } else if (event.data.type === "enable-iframe-highlight") {
+                    console.log("Enable iframe highlight");
+                    enableHighlight();
+                } else if (event.data.type === "disable-iframe-highlight") {
+                    console.log("Disable iframe highlight");
+                    disableHighlight();
+                } else if (event.data.type === "toggle-iframe-highlight") {
+                    var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
+                    console.log("Toggle iframe highlight to:", _enabled);
+                    if (_enabled) {
+                        enableHighlight();
+                    } else {
+                        disableHighlight();
+                    }
+                } else if (event.data.type === "update-selected-element") {
+                    var selector = event.data.selector;
+                    console.log("Update selected element with selector:", selector);
+                    if (selector) {
+                        try {
+                            var element = document.querySelector(selector);
+                            console.log("Found element by selector:", element);
+                            updateSelectedHighlight(element);
+                        } catch (error) {
+                            console.warn("Failed to select element:", error);
+                            updateSelectedHighlight(null);
+                        }
+                    } else {
+                        updateSelectedHighlight(null);
+                    }
+                } else if (event.data.type === "clear-selected-element") {
+                    console.log("Clear selected element");
+                    updateSelectedHighlight(null);
+                }
+            }
+
+            // 启用高亮功能
+            function enableHighlight() {
+                console.log("Enabling highlight");
+                document.addEventListener("mouseover", handleMouseOver, true);
+                document.addEventListener("mouseout", handleMouseOut, true);
+                document.addEventListener("click", handleClick, true);
+                highlightEnabled = true;
+                overlay.style.display = "block";
+            }
+
+            // 禁用高亮功能
+            function disableHighlight() {
+                console.log("Disabling highlight");
+                highlightEnabled = false;
+                // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+                // 这样可以保留选中状态的显示
+                highlightBox.style.display = "none";
+                tagLabel.style.display = "none";
+                // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+            }
+
+            // 完全禁用高亮功能（移除所有监听器）
+            function fullyDisableHighlight() {
+                console.log("Fully disabling highlight");
+                highlightEnabled = false;
+                document.removeEventListener("mouseover", handleMouseOver, true);
+                document.removeEventListener("mouseout", handleMouseOut, true);
+                document.removeEventListener("click", handleClick, true);
+                overlay.style.display = "none";
+                highlightBox.style.display = "none";
+                tagLabel.style.display = "none";
+                selectedBox.style.display = "none";
+                selectedLabel.style.display = "none";
+            }
+
+            // 添加事件监听
+            enableHighlight();
+            window.addEventListener("message", handleParentMessage);
+
+            // 暴露全局函数供外部调用
+            window.__iframeHighlightControl = {
+                enable: enableHighlight,
+                disable: disableHighlight,
+                fullyDisable: fullyDisableHighlight,
+                isEnabled: function isEnabled() {
+                    return highlightEnabled;
+                },
+                getSelectedElement: function getSelectedElement() {
+                    return selectedElement;
+                },
+                updateSelected: updateSelectedHighlight,
+                // 通过消息发送开关控制
+                sendToggleMessage: function sendToggleMessage(enabled) {
+                    window.parent.postMessage({
+                        type: 'iframe-highlight-status',
+                        enabled: enabled || highlightEnabled,
+                        source: 'iframe-highlight-injector'
+                    }, '*');
+                }
+            };
+
+            // 通知父窗口脚本已加载
+            try {
+                window.parent.postMessage({
+                    type: "iframe-highlight-ready",
+                    data: {
+                        url: window.location.href,
+                        userAgent: navigator.userAgent,
+                        timestamp: Date.now()
+                    },
+                    source: "iframe-highlight-injector"
+                }, "*");
+            } catch (error) {
+                console.warn("无法发送就绪消息到父窗口:", error);
+            }
+
+            // 清理函数
+            window.__iframeHighlightCleanup = function () {
+                fullyDisableHighlight();
+                window.removeEventListener("message", handleParentMessage);
+                if (overlay.parentElement) {
+                    overlay.parentElement.removeChild(overlay);
+                }
+                delete window.__iframeHighlightInitialized;
+                delete window.__iframeHighlightCleanup;
+            };
+        })();
+
+    </script>
+</body>
+
+</html>
