@@ -1066,7 +1066,7 @@
                 loadingBox.style.display = 'none';
                 sortCoins();
                 updateStats();
-                handleSearch();
+                handleSearch(false);
 
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -1624,7 +1624,7 @@ ${analiz.analiz}
         }
 
         // Search
-        function handleSearch() {
+        function handleSearch(resetPage = true) {
             const query = searchInput.value.toLowerCase().trim();
 
             if (query === '') {
@@ -1639,7 +1639,9 @@ ${analiz.analiz}
             // Re-sort after filtering
             sortCoins();
 
-            currentPage = 1;
+            if (resetPage) {
+                currentPage = 1;
+            }
             updateStats();
             renderCoins();
         }
