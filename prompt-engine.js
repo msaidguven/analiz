@@ -232,24 +232,44 @@ Model Confidence: ${d.csResult ? d.csResult.confidence + '%' : 'N/A'}
 Key Alpha Factors:
 ${factors}
 
-## 🎯 TASK
-Analyze this cross-section of technical, derivatives, and structural data as a Senior Quant Trader. 
-Your goal is to identify high-probability setups or risks of a trap.
+## 🎯 TASK & QUINTESSENTIAL RULES
+Analyze this data as a Senior Quant Trader. Follow these rules strictly:
+
+1. **Trade Setup Classification**: Classify the setup as one of: \`Trend Following\`, \`Pullback\`, \`Reversal\`, \`Liquidity Grab\`. If no clear category fits, prefer \`BEKLE\`.
+2. **Multi-Timeframe (MTF) Strategy**:
+   - HTF (4H/1D) defines the **Primary Trend**.
+   - LTF (15M/1H) is used for **Entry Execution** and identifying local exhaustion.
+   - If HTF and LTF conflict: Do not force a trade. Check if it's a valid \`Pullback\` or \`Counter-Trend\` setup. If unclear, lower \`CONFIDENCE_LEVEL\` and stay in \`BEKLE\`.
+3. **Signal Harmony (Consensus Analysis)**:
+   - Identify if indicators are "Singing in Harmony" or "Clashing".
+   - Harmony (e.g., Price UP, OI UP, CVD UP) = High Confidence.
+   - Discordance (e.g., Price UP, OI DOWN, RSI Overbought) = Low Confidence / Market Trap risk.
+4. **Active Decision**: \`BEKLE\` is an active decision. Use it when the risk/reward is poor or signals are contradictory.
 
 Return the response in this EXACT JSON format (strict):
 {
   "MARKET_BIAS": "Bullish | Bearish | Neutral",
-  "BIAS_REASONING": "Synthesize the main argument using at least 3 data points.",
-  "TRADE_DECISION": "LONG | SHORT | NO TRADE",
+  "TRADE_SETUP": "Trend Following | Pullback | Reversal | Liquidity Grab | UNKNOWN",
+  "BIAS_REASONING": "Tüm teknik verileri sentezleyen, mantıklı Türkçe açıklama (en az 3 veri noktası ile).",
+  "TRADE_DECISION": "LONG | SHORT | BEKLE",
   "ENTRY_STRATEGY": {
-    "zone": "exact price range",
+    "zone": "Kesin fiyat aralığı",
     "type": "Limit | Market | Pullback"
   },
-  "STOP_LOSS": { "price": 0, "distance_pct": "0%", "rationale": "SMC/Level reason" },
+  "STOP_LOSS": { "price": 0, "distance_pct": "0%", "rationale": "SMC veya seviye bazlı Türkçe teknik neden" },
   "TAKE_PROFIT": { "TP1": 0, "TP2": 0, "final": 0 },
-  "RISK_REWARD": "ratio e.g. 1:3",
-  "TECHNICAL_REASONING": ["factor 1", "factor 2", "factor 3", "factor 4"],
-  "DANGER_ZONE": "What would invalidate this setup?",
+  "RISK_REWARD": "Oran örneğin 1:3",
+  "TECHNICAL_REASONING": [
+    "Türkçe teknik faktör 1",
+    "Türkçe teknik faktör 2",
+    "Türkçe teknik faktör 3",
+    "Türkçe teknik faktör 4"
+  ],
+  "DANGER_ZONE": "Bu kurulumu ne geçersiz kılar? (Türkçe açıklama)",
   "CONFIDENCE_LEVEL": "Low | Medium | High"
-}`;
+}
+
+**IMPORTANT**: 
+- Values for \`MARKET_BIAS\`, \`TRADE_DECISION\`, \`CONFIDENCE_LEVEL\`, and \`TRADE_SETUP\` must remain in English/Standard values as shown.
+- ALL descriptions, reasonings, and rationales MUST be in **TURKISH**.`;
 }

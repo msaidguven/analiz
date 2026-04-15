@@ -73,10 +73,99 @@
             color: var(--accent);
         }
 
-        .header-text p {
-            color: var(--text-secondary);
+        /* Header Nav */
+        .header-nav {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 18px;
+            border-radius: 8px;
             font-size: 14px;
-            margin-top: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent);
+            background: var(--hover);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Toast System */
+        #toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            color: var(--text-primary);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlideIn 0.3s ease-out;
+            pointer-events: auto;
+            transition: all 0.3s;
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.warning { border-left-color: var(--warning); }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.fade-out {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
         /* Stats Bar */
@@ -835,6 +924,24 @@
                 <p>Binance USDⓈ-M Perpetual Futures verileri</p>
                 <p class="last-update" id="lastUpdate">Son güncelleme: -</p>
             </div>
+            <nav class="header-nav">
+                <a href="analiz_v3.html" class="nav-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"/>
+                        <path d="M18 9l-5 5-2-2-4 4"/>
+                    </svg>
+                    Detaylı Analiz Aracı
+                </a>
+                <a href="karar-analizi.html" class="nav-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Karar Analiz Merkezi
+                </a>
+            </nav>
         </header>
 
         <!-- Stats Bar -->
@@ -1005,6 +1112,31 @@
         }
 
         // Fetch all data
+        // Toast System
+        function showToast(message, type = 'success', title = 'Bildirim') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         async function fetchAllData() {
             loadingBox.style.display = 'flex';
             errorBox.style.display = 'none';
@@ -1202,8 +1334,8 @@
                             </div>
                         </div>
                         <div class="card-actions">
-                            <button class="action-btn btn-analiz" onclick="goToAnalysis('${coin.baseAsset}')">Analiz Sayfası</button>
-                            <button class="action-btn btn-karar karar-kaydet-btn" data-symbol="${coin.baseAsset}" onclick="showQuickDecision('${coin.baseAsset}')" disabled style="opacity:0.4;cursor:not-allowed;">Coin Kaydet</button>
+                            <button class="action-btn btn-analiz" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Detaylı Analiz</button>
+                            <button class="action-btn btn-karar karar-kaydet-btn" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}')" disabled style="opacity:0.4;cursor:not-allowed;">Coin Kaydet</button>
                         </div>
                     </div>
                 `;
@@ -1226,9 +1358,31 @@
             pageInfoEl.textContent = totalPages > 0 ? `${currentPage} / ${totalPages}` : '-';
         }
 
-        function goToAnalysis(symbol) {
-            // Karar analiz sayfasına yönlendir
-            window.location.href = `karar-analizi.html?symbol=${symbol}`;
+        function goToDetailedAnalysis(symbol) {
+            // Detaylı analiz sayfasına (analiz_v3.html) yönlendir
+            window.location.href = `analiz_v3.html?symbol=${symbol}`;
+        }
+
+        async function saveCoin(symbol) {
+            // Karar analiz verisini çek
+            const analysisData = await fetchAnalysisData(symbol);
+
+            if (!analysisData) {
+                showToast('Veri yüklenemedi!', 'error', 'Hata');
+                return;
+            }
+
+            // Karar motoru ile hesapla
+            const sonuc = window.kararMotoru(analysisData);
+            const mevcutFiyat = analysisData.price;
+
+            // Kararı kaydet
+            try {
+                const kayit = await window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
+                showToast(`${symbol.toUpperCase()} başarıyla kaydedildi! (Karar: ${sonuc.karar})`, 'success', 'Başarılı');
+            } catch (err) {
+                showToast('Kayıt sırasında hata oluştu!', 'error', 'Hata');
+            }
         }
 
         async function fetchAnalysisData(symbol) {
@@ -1407,136 +1561,6 @@
                 }
             }
         }
-
-        async function showQuickDecision(symbol) {
-            // Analiz verisini çek
-            const analysisData = await fetchAnalysisData(symbol);
-
-            if (!analysisData) {
-                alert('Analiz verisi yüklenemedi!');
-                return;
-            }
-
-            // Karar motoru ile hesapla
-            const sonuc = window.kararMotoru(analysisData);
-
-            // Mevcut fiyatı al
-            const mevcutFiyat = analysisData.price;
-
-            // Kararı kaydet
-            const kayit = await window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
-
-            // Karar analizini yap
-            const analiz = window.kararKayitSistemi.kararAnaliziYap(symbol, mevcutFiyat);
-
-            // Modal yerine detaylı göster
-            const riskSinif = sonuc.riskSkor >= 8 ? 'risk-crit' : sonuc.riskSkor >= 6 ? 'risk-high' : sonuc.riskSkor >= 4 ? 'risk-mid' : 'risk-low';
-
-            const message = `
-📊 ${symbol.toUpperCase()} Analiz Sonuçları
-
-⚡ Karar: ${sonuc.karar}
-📈 Long: %${sonuc.finalLongOran.toFixed(0)} · Short: %${sonuc.finalShortOran.toFixed(0)}
-⚠️ Risk: ${sonuc.riskSkor}/10
-
-💰 Fiyat Seviyeleri:
-🔵 Giriş: ${mevcutFiyat.toFixed(4)}
-🔴 Stop Loss: ${kayit.stopLoss.toFixed(4)}
-🟢 TP1: ${kayit.takeProfit1.toFixed(4)}
-🟢 TP2: ${kayit.takeProfit2.toFixed(4)}
-
-📈 Strateji Performansı (${analiz.toplamIslem} işlem):
-✅ Başarı Oranı: %${analiz.basariOrani}
-🎯 En Çok Karar: ${analiz.enCokKarar}
-${analiz.analiz}
-
-─────────────────
-💾 Karar kaydedildi! (ID: ${kayit.id})
-            `;
-
-            // Detaylı modal göster
-            this.kararDetayModalGoster(message, symbol, analiz);
-        }
-
-        function kararDetayModalGoster(mesaj, symbol, analiz) {
-            // Modal oluştur
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.8); display: flex; align-items: center;
-                justify-content: center; z-index: 10000;
-            `;
-
-            const icerik = document.createElement('div');
-            icerik.style.cssText = `
-                background: var(--surface); border-radius: 12px; padding: 20px;
-                max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
-                border: 1px solid var(--border);
-            `;
-
-            icerik.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="color: var(--text); margin: 0;">� ${symbol.toUpperCase()} Detaylı Analiz</h3>
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                            style="background: var(--error); color: white; border: none; 
-                                   padding: 8px 12px; border-radius: 6px; cursor: pointer;">✕</button>
-                </div>
-                <pre style="color: var(--text2); font-size: 12px; line-height: 1.4; white-space: pre-wrap; 
-                           background: var(--bg-secondary); padding: 15px; border-radius: 8px;">${mesaj}</pre>
-                
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button onclick="window.open('karar-analizi.html', '_blank')" 
-                            style="flex: 1; background: var(--accent); color: white; border: none; 
-                                   padding: 10px; border-radius: 6px; cursor: pointer;">📋 Tüm Kayıtlar</button>
-                    <button onclick="if(confirm('Tüm kayıtları silmek istediğinizden emin misiniz?')) { window.kararKayitSistemi.tumKayitlariTemizle(); alert('Kayıtlar temizlendi!'); }" 
-                            style="flex: 1; background: var(--error); color: white; border: none; 
-                                   padding: 10px; border-radius: 6px; cursor: pointer;">🗑️ Kayıtları Temizle</button>
-                </div>
-            `;
-
-            modal.appendChild(icerik);
-            document.body.appendChild(modal);
-
-            // Dışarı tıklayınca kapat
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.remove();
-            });
-        }
-
-        function closeDecisionModal() {
-            // Modal'ı gizle
-            const modal = document.getElementById('decisionModal');
-            const iframe = document.getElementById('decisionIframe');
-
-            modal.style.display = 'none';
-            iframe.src = 'about:blank'; // iframe'i tamamen temizle
-
-            // Body scroll'u geri getir
-            document.body.style.overflow = 'auto';
-
-            // Event listener'ı temizle
-            iframe.onload = null;
-        }
-
-        // Modal dışına tıklandığında kapat
-        document.addEventListener('click', function (event) {
-            const modal = document.getElementById('decisionModal');
-            if (event.target === modal) {
-                closeDecisionModal();
-            }
-        });
-
-        // ESC tuşuna basıldığında modalı kapat
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                const modal = document.getElementById('decisionModal');
-                if (modal.style.display === 'block') {
-                    closeDecisionModal();
-                }
-            }
-        });
-
-        // Render pagination
         function renderPagination() {
             const totalPages = Math.ceil(filteredCoins.length / itemsPerPage);
 
@@ -2144,6 +2168,8 @@ ${analiz.analiz}
         })();
 
     </script>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 </body>
 
 </html>
