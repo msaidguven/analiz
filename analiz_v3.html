@@ -45,9 +45,9 @@
     src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.0/dist/chartjs-chart-financial.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
+  <script src="karar-motoru.js"></script>
   <script src="prompt-engine.js"></script>
   <script src="chart-engine.js"></script>
-  <script src="karar-motoru.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
   <style>
     /* Stil kodları öncekiyle aynı, değişiklik yok */
@@ -1341,16 +1341,22 @@
           <path d="M3 3v18h18"/>
           <path d="M18 9l-5 5-2-2-4 4"/>
         </svg>
-        Detaylı Analiz Aracı
+        Detaylı Analiz
       </a>
-      <a href="karar-analizi.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5">
+      <a href="karar-analizi.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-purple hover:bg-analiz-surface transform hover:-translate-y-0.5">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
           <line x1="16" y1="2" x2="16" y2="6"/>
           <line x1="8" y1="2" x2="8" y2="6"/>
           <line x1="3" y1="10" x2="21" y2="10"/>
         </svg>
-        Karar Analiz Merkezi
+        Karar Merkezi
+      </a>
+      <a href="uclu-analiz.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-blue hover:bg-analiz-surface transform hover:-translate-y-0.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+        Üçlü Analiz Paneli
       </a>
     </nav>
   </header>
@@ -1396,12 +1402,12 @@
       
       <div class="flex items-center gap-3 overflow-x-auto pb-1 lg:pb-0">
         <div class="flex items-center gap-1.5 p-1 bg-analiz-bg rounded-xl border border-analiz-border" id="tfBtns">
-          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('15m')">15D</button>
-          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1h')">1S</button>
-          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 bg-premium-green text-black shadow-lg shadow-premium-green/20" onclick="changeTF('4h')">4S</button>
-          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1d')">1G</button>
-          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1w')">1H</button>
-          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1M')">1A</button>
+          <button class="tf-btn px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" data-tf="15m" onclick="changeTF('15m')">15D</button>
+          <button class="tf-btn px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" data-tf="1h" onclick="changeTF('1h')">1S</button>
+          <button class="tf-btn px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 bg-premium-green text-black shadow-lg shadow-premium-green/20" data-tf="4h" onclick="changeTF('4h')">4S</button>
+          <button class="tf-btn px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" data-tf="1d" onclick="changeTF('1d')">1G</button>
+          <button class="tf-btn px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" data-tf="1w" onclick="changeTF('1w')">1H</button>
+          <button class="tf-btn px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" data-tf="1M" onclick="changeTF('1M')">1A</button>
         </div>
         <button class="px-3 py-1.5 rounded-lg text-[10px] font-black bg-premium-orange/10 text-premium-orange border border-premium-orange/20 hover:bg-premium-orange hover:text-white transition-all" onclick="resetZoom()" title="Zoom'u Sifirla">RESET</button>
       </div>
@@ -1447,21 +1453,26 @@
     </div>
   </div>
 
-  <!-- Verdict Panel -->
-  <div class="bg-analiz-card border border-analiz-border border-l-4 border-l-premium-green rounded-2xl p-6 mb-8 shadow-xl relative overflow-hidden group" id="verdict">
-    <div class="absolute top-0 right-0 w-32 h-32 bg-premium-green/5 blur-[50px] rounded-full group-hover:bg-premium-green/10 transition-all duration-500"></div>
-    <div class="inline-block px-3 py-1 rounded-lg bg-premium-green/10 text-premium-green text-[10px] font-black uppercase tracking-[2px] mb-4 border border-premium-green/20">Genel Değerlendirme</div>
-    <div class="text-2xl font-bebas tracking-[2px] text-white mb-4" id="verdictTitle"></div>
-    <div class="flex flex-wrap gap-4" id="verdictSignals"></div>
+  <!-- Comparison Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Left: Quick Evaluation (Local) -->
+    <div class="bg-analiz-card border border-analiz-border border-l-4 border-l-premium-blue rounded-2xl p-6 shadow-xl relative overflow-hidden group" id="verdict">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-premium-blue/5 blur-[50px] rounded-full group-hover:bg-premium-blue/10 transition-all duration-500"></div>
+      <div class="inline-block px-3 py-1 rounded-lg bg-premium-blue/10 text-premium-blue text-[10px] font-black uppercase tracking-[2px] mb-4 border border-premium-blue/20">Hızlı Değerlendirme (V3)</div>
+      <div class="text-2xl font-bebas tracking-[2px] text-white mb-4" id="verdictTitle"></div>
+      <div class="flex flex-wrap gap-4" id="verdictSignals"></div>
+    </div>
+
+    <!-- Right: Central Decision Engine (V5 External) -->
+    <div class="bg-analiz-card border border-analiz-border border-l-4 border-l-premium-purple rounded-2xl p-6 shadow-xl relative overflow-hidden group" id="verdictV5">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-premium-purple/5 blur-[50px] rounded-full group-hover:bg-premium-purple/10 transition-all duration-500"></div>
+      <div class="inline-block px-3 py-1 rounded-lg bg-premium-purple/10 text-premium-purple text-[10px] font-black uppercase tracking-[2px] mb-4 border border-premium-purple/20">Merkezi Karar Motoru (V5)</div>
+      <div id="verdictV5Content" class="flex flex-col gap-3">
+        <div class="text-analiz-text2 text-xs italic animate-pulse">Analiz bekleniyor...</div>
+      </div>
+    </div>
   </div>
 
-  <!-- KARAR MOTORU PANELİ -->
-  <div id="kararPanel" style="display:none; margin-bottom:12px;">
-    <div
-      style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--text2);margin:16px 0 8px;padding-left:10px;border-left:3px solid var(--purple);">
-      🧠 Akıllı Karar Motoru</div>
-    <div id="kararIcerik"></div>
-  </div>
 
   <div id="output"></div>
 
@@ -2428,6 +2439,20 @@
         Chart.register(rsiLinePlugin);
       }
 
+      // TF butonlarını başlat ve aktif olanı işaretle
+      function initTFButtons() {
+        document.querySelectorAll('.tf-btn').forEach(b => {
+          const isActive = b.getAttribute('data-tf') === currentTF;
+          if (isActive) {
+            b.classList.remove('text-analiz-text2', 'hover:text-white');
+            b.classList.add('bg-premium-green', 'text-black', 'shadow-lg', 'shadow-premium-green/20');
+          } else {
+            b.classList.remove('bg-premium-green', 'text-black', 'shadow-lg', 'shadow-premium-green/20');
+            b.classList.add('text-analiz-text2', 'hover:text-white');
+          }
+        });
+      }
+
       async function changeTF(tf) {
         console.log('Time frame değiştiriliyor:', tf, 'önceki:', currentTF);
 
@@ -2440,12 +2465,8 @@
         }
 
         currentTF = tf;
-        document.querySelectorAll('.tf-btn').forEach(b => {
-          b.classList.toggle('active', b.textContent === { 
-            '15m': '15D', '1h': '1S', '4h': '4S', '1d': '1G', 
-            '1w': '1H', '1M': '1A' 
-          }[tf]);
-        });
+        // Aktif buton stilini güncelle
+        initTFButtons();
 
         try {
           await analyze();
@@ -3437,11 +3458,10 @@ Rules:
           });
           lastAnalysisData.csResult = csResult;
 
-          // ──// MERKEZI KARAR MOTORU ENTEGRASYONU
-          // karar-motoru.html'den alýnan son sürümü kullan
+          // ── MERKEZİ KARAR MOTORU V5 ENTEGRASYONU
           if (window.kararMotoru && typeof window.kararMotoru === 'function') {
             try {
-              const kararData = {
+              const v5Data = {
                 symbol: currentSymbol,
                 price: price,
                 chg24: chg24,
@@ -3463,54 +3483,18 @@ Rules:
                 multiTF: lastAnalysisData.multiTF
               };
               
-              // Karar motorunu çaðýr
-              window.kararMotoru(kararData);
-              
-              // Karar panelini göster ve sonuçlarý doðrudan doldur
-              const kararPanel = document.getElementById('kararPanel');
-              const kararIcerik = document.getElementById('kararIcerik');
-              
-              if (kararPanel && kararIcerik) {
-                kararPanel.style.display = 'block';
-                
-                // Karar motorunu çalýþtýr ve sonuçlarý ana sayfaya yaz
-                updateKararPanelWithResults(kararData);
-              }
-              
-              // Kýsa toast bildirimi
-              const toastHtml = `
-                <div style="position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#0c1018,#1a2535);border:1px solid var(--green);border-radius:12px;padding:16px;color:var(--green);font-size:12px;max-width:400px;z-index:9999;box-shadow:0 8px 32px rgba(0,230,118,0.2);animation:slideIn 0.3s ease">
-                  <div style="font-weight:700;margin-bottom:8px;font-size:14px">â Merkezi Karar Motoru</div>
-                  <div style="line-height:1.6;color:var(--text)">
-                    <strong>${currentSymbol}</strong> için analiz tamamlandý<br>
-                    <span style="font-size:11px;color:var(--text2)">Karar panelinde detaylarý görebilirsiniz</span>
-                  </div>
-                </div>
-              `;
-              
-              // Mevcut toast'ý kaldýr yenisini ekle
-              const existingToast = document.getElementById('decisionToast');
-              if (existingToast) existingToast.remove();
-              
-              const toastDiv = document.createElement('div');
-              toastDiv.id = 'decisionToast';
-              toastDiv.innerHTML = toastHtml;
-              document.body.appendChild(toastDiv);
-              
-              // 4 saniye sonra otomatik kaldýr
-              setTimeout(() => {
-                if (document.getElementById('decisionToast')) {
-                  document.getElementById('decisionToast').remove();
-                }
-              }, 4000);
-              
+              const v5Result = window.kararMotoru(v5Data);
+              renderV5Decision(v5Result);
             } catch (e) {
-              console.error('Merkezi karar motoru hatasý:', e);
+              console.error('V5 Motor Hatası:', e);
+              document.getElementById('verdictV5Content').innerHTML = `<div class="text-premium-red text-[10px] font-bold">⚠️ V5 ANALİZ HATASI: ${e.message}</div>`;
             }
           }
-          
-          // ESKi KARAR MOTORU DEVRE DIÞI - Çeliþkileri önlemek için
-          // Artýk sadece yeni DecisionEngine kullanýlýyor
+
+          // YEREL MOTOR (V3) ÇALIŞTIR
+          if (typeof window.localKararMotoru === 'function') {
+             try { window.localKararMotoru(lastAnalysisData); } catch(e) {}
+          }
 
           document.getElementById('output').innerHTML = `
         <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-blue">
@@ -3758,6 +3742,9 @@ Rules:
         // Chart engine'in yüklendiğinden emin ol
         const checkChartEngine = () => {
           if (window.chartEngine && typeof window.chartEngine.buildCharts === 'function') {
+            // TF butonlarını başlat
+            if (typeof initTFButtons === 'function') initTFButtons();
+
             // URL'den symbol parametresini oku (örn: analiz_v3.html?symbol=BTC)
             const urlParams = new URLSearchParams(window.location.search);
             const symbol = urlParams.get('symbol');
@@ -3788,7 +3775,7 @@ Rules:
     }
     function pct_km(a, b) { return ((Math.abs(a - b) / b) * 100).toFixed(1); }
 
-    window.kararMotoru = function (d) {
+    window.localKararMotoru = function (d) {
       const { price, chg24, highDay, lowDay, volatility, rsi, rsi4h, macd, boll,
         supports, resistances, fundingAvg, oiChange, longPct, shortPct,
         volumeSpike, spikeRatio, lhResult, msResult, analysisTime, symbol } = d;
@@ -4211,7 +4198,7 @@ Rules:
     }
     
     // Ana karar motoru
-    function kararMotoru(d) {
+    function localKararMotoru(d) {
       const {
         price, chg24, volatility,
         rsi: rsiGlobal, macd: macdGlobal, boll,
@@ -4494,15 +4481,71 @@ Rules:
       }
     }
 
-    // Karar motorunu çaðýr ve sonuçlarý göster
-    function runKararMotoru(data) {
-      if (typeof window.kararMotoru === 'function') {
-        try {
-          window.kararMotoru(data);
-        } catch (e) {
-          console.error('Karar motoru hatasý:', e);
-        }
-      }
+    function renderV5Decision(sonuc) {
+      const el = document.getElementById('verdictV5Content');
+      if (!el) return;
+
+      const kColor = sonuc.karar === 'LONG' ? 'text-premium-green' : sonuc.karar === 'SHORT' ? 'text-premium-red' : 'text-premium-yellow';
+      const kEmoji = sonuc.karar === 'LONG' ? '🟢' : sonuc.karar === 'SHORT' ? '🔴' : '⚪';
+      
+      el.innerHTML = `
+        <div class="flex items-center justify-between scale-90 origin-left">
+          <div class="text-3xl font-bebas tracking-[2px] ${kColor}">${kEmoji} ${sonuc.karar}</div>
+          <div class="px-3 py-1.5 rounded-xl bg-analiz-surface border border-analiz-border text-[10px] items-center flex gap-3 shadow-lg">
+            <span class="text-analiz-text2 font-bold uppercase tracking-widest">Risk:</span>
+            <span class="${sonuc.riskSkor > 6 ? 'text-premium-red' : 'text-premium-green'} font-black text-xs">${sonuc.riskSkor}/10</span>
+          </div>
+        </div>
+        
+        <div class="mt-2 space-y-2">
+           <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+              <span class="text-analiz-text2">Güven Endeksi</span>
+              <span class="text-premium-blue">%${sonuc.guven}</span>
+           </div>
+           <div class="h-1.5 w-full bg-analiz-bg rounded-full overflow-hidden border border-analiz-border">
+              <div class="h-full bg-gradient-to-r from-premium-blue to-blue-400 transition-all duration-1000 shadow-[0_0_8px_rgba(64,196,255,0.4)]" style="width:${sonuc.guven}%"></div>
+           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          ${sonuc.uyarılar && sonuc.uyarılar.length ? `
+            <div class="p-3 rounded-xl bg-premium-orange/5 border border-premium-orange/20 hover:bg-premium-orange/10 transition-colors">
+              <div class="text-[9px] text-premium-orange font-black uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Uyarı
+              </div>
+              <div class="text-[10px] text-analiz-text leading-tight line-clamp-2 font-medium">${sonuc.uyarılar[0]}</div>
+            </div>
+          ` : `
+            <div class="p-3 rounded-xl bg-premium-green/5 border border-premium-green/20">
+              <div class="text-[9px] text-premium-green font-black uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Durum
+              </div>
+              <div class="text-[10px] text-analiz-text leading-tight font-medium">Veriler uyumlu, engel yok.</div>
+            </div>
+          `}
+          <div class="p-3 rounded-xl bg-analiz-surface border border-analiz-border hover:border-premium-blue/30 transition-colors">
+             <div class="text-[9px] text-analiz-text2 font-black uppercase tracking-widest mb-1.5">Market Duyarlılığı</div>
+             <div class="flex items-center gap-2">
+                <div class="flex flex-col">
+                  <span class="text-[10px] font-black text-premium-green">${sonuc.finalLongOran.toFixed(0)}%</span>
+                  <span class="text-[7px] text-analiz-text2 uppercase font-bold">LONG</span>
+                </div>
+                <div class="w-px h-6 bg-analiz-border"></div>
+                <div class="flex flex-col">
+                  <span class="text-[10px] font-black text-premium-red">${sonuc.finalShortOran.toFixed(0)}%</span>
+                  <span class="text-[7px] text-analiz-text2 uppercase font-bold">SHORT</span>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 mt-2">
+          <button onclick="showDecisionSummary()" class="flex-1 py-2 bg-premium-purple/10 border border-premium-purple/30 text-premium-purple text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-premium-purple hover:text-black transition-all">ÖZET</button>
+          <button onclick="openKararMotoru()" class="flex-1 py-2 bg-analiz-surface border border-analiz-border text-analiz-text2 text-[10px] font-black uppercase tracking-widest rounded-lg hover:border-premium-purple transition-all">DETAYLAR</button>
+        </div>
+      `;
     }
 
   </script>

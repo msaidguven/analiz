@@ -344,11 +344,13 @@ window.chartEngine = {
 };
 
 // RSI Çizgileri için global plugin (Chart.js'e bir kez kaydedilir)
-Chart.register({
-    id: 'rsiLines',
-    afterDraw(chart) {
-        if (chart.options.plugins.rsiLines && chart.options.plugins.rsiLines.afterDraw) {
-            chart.options.plugins.rsiLines.afterDraw(chart);
+if (typeof Chart !== 'undefined') {
+    Chart.register({
+        id: 'rsiLines',
+        afterDraw(chart) {
+            if (chart.options.plugins.rsiLines && chart.options.plugins.rsiLines.afterDraw) {
+                chart.options.plugins.rsiLines.afterDraw(chart);
+            }
         }
-    }
-});
+    });
+}

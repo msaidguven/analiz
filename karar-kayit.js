@@ -11,10 +11,25 @@ class KararKayitSistemi {
         
         this.kayitlar = [];
         this.cuzdanKayitlari = [];
+        this.islemKuyrugu = Promise.resolve();
         
         console.log(`📊 Karar Kayıt Sistemi başlatıldı (JSONBin.io Modu)`);
         
         this.kayitlariYukle();
+    }
+
+    // JSONBin İşlem Kuyruğu (Race condition önleyici)
+    async enqueue(task) {
+        return new Promise((resolve, reject) => {
+            this.islemKuyrugu = this.islemKuyrugu.finally(async () => {
+                try {
+                    const result = await task();
+                    resolve(result);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
     }
 
     // JSONBin'den Fetch Data Yardımcı Fonksiyonu
@@ -82,7 +97,7 @@ class KararKayitSistemi {
     // Karar kaydet
     async kararKayit(symbol, sonuc, mevcutFiyat) {
         const yeniKayit = {
-            id: Date.now(),
+            id: Date.now() + Math.floor(Math.random() * 1000), // Çakışma önleyici
             tarih: new Date().toISOString(),
             symbol: symbol,
             karar: sonuc.karar,
@@ -99,9 +114,8 @@ class KararKayitSistemi {
             analizZamani: sonuc.analysisTime || new Date().toISOString()
         };
 
-        try {
+        return this.enqueue(async () => {
             console.log('📡 JSONBin.io veritabanına ekleniyor...');
-            // Veriyi al, listeye unshift et, sonra push yap
             await this.kayitlariYukle(); 
             this.kayitlar.unshift(yeniKayit);
             
@@ -115,29 +129,23 @@ class KararKayitSistemi {
             await this.putToBin(this.BIN_ISLEM, dataToSave);
             console.log('✅ Veritabanına başarıyla kaydedildi:', symbol);
             return yeniKayit;
-        } catch (error) {
-            console.error('❌ Kayıt kaydedilemedi:', error);
-            throw error;
-        }
+        });
     }
 
     async islemKapat(kayitId, mevcutFiyat) {
-        try {
+        return this.enqueue(async () => {
             console.log('📡 İşlem kapatılıyor ve JSONBin.io güncelleniyor...', kayitId);
             
-            // Güncel veriyi çek
             await Promise.all([this.kayitlariYukle(), this.cuzdanYukle()]);
             
             const kayit = this.kayitlar.find(k => k.id === kayitId);
             if (!kayit) throw new Error('Kayıt bulunamadı');
 
-            // Kar/Zarar hesapla
             const giris = kayit.girisFiyati;
             const yon = kayit.karar === 'LONG' ? 1 : -1;
             const pnlYuzde = yon * ((mevcutFiyat - giris) / giris) * 100;
-            const pnlDolar = (pnlYuzde / 100) * 100; // $100 pozisyon
+            const pnlDolar = (pnlYuzde / 100) * 100;
 
-            // Cüzdana eklenecek veri prepare
             const kapaliKayit = {
                 id: kayit.id,
                 symbol: kayit.symbol,
@@ -151,11 +159,9 @@ class KararKayitSistemi {
                 kapanisTarihi: new Date().toISOString()
             };
 
-            // Aktif tablodan sil, cüzdana ekle
             this.kayitlar = this.kayitlar.filter(k => k.id !== kayitId);
             this.cuzdanKayitlari.unshift(kapaliKayit);
 
-            // API çağrılarını paralel execute et (beklemeyi azaltmak için)
             await Promise.all([
                 this.putToBin(this.BIN_ISLEM, {
                     versiyon: '1.0',
@@ -173,10 +179,7 @@ class KararKayitSistemi {
             
             console.log('✅ İşlem kapatıldı ve JSONBin güncellendi.');
             return kapaliKayit;
-        } catch (error) {
-            console.error('❌ İşlem kapatılamadı:', error);
-            throw error;
-        }
+        });
     }
 
     // Stop Loss hesapla
@@ -320,7 +323,7 @@ class KararKayitSistemi {
 
     // Kayıt sil
     async kayitSil(kayitId) {
-        try {
+        return this.enqueue(async () => {
             console.log('📡 JSONBin.io\'dan siliniyor:', kayitId);
             await this.kayitlariYukle();
             this.kayitlar = this.kayitlar.filter(k => k.id !== kayitId);
@@ -334,28 +337,32 @@ class KararKayitSistemi {
             
             await this.putToBin(this.BIN_ISLEM, dataToSave);
             console.log('✅ JSONBin\'den silindi');
-        } catch (error) {
-            console.error('❌ Kayıt silinemedi:', error);
-            throw error;
-        }
+        });
     }
 
-    // Tüm kayıtları temizle
+    // Tüm kayıtları temizle (aktif + geçmiş)
     async tumKayitlariTemizle() {
-        try {
+        return this.enqueue(async () => {
             console.log('📡 JSONBin.io temizleniyor...');
             this.kayitlar = [];
+            this.cuzdanKayitlari = [];
+
             await this.putToBin(this.BIN_ISLEM, {
                 versiyon: '1.0',
                 tarih: new Date().toISOString(),
                 kayitSayisi: 0,
                 kayitlar: []
             });
-            console.log('✅ API kayıtları temizlendi');
-        } catch (error) {
-            console.error('❌ Kayıtlar temizlenemedi:', error);
-            throw error;
-        }
+
+            await this.putToBin(this.BIN_CUZDAN, {
+                versiyon: '1.0',
+                tarih: new Date().toISOString(),
+                kayitSayisi: 0,
+                kayitlar: []
+            });
+
+            console.log('✅ Tüm kayıtlar temizlendi (aktif + geçmiş)');
+        });
     }
 }
 

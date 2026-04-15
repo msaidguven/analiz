@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Üçlü Karar Analiz Paneli | Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="chart-engine.js"></script>
+    <script src="karar-motoru.js"></script>
+    <script src="analysis-engine.js"></script>
+    <script src="karar-kayit.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'analiz-bg': '#06070a',
+                        'analiz-surface': '#0c1018',
+                        'analiz-card': '#111724',
+                        'analiz-border': '#1c2535',
+                        'analiz-border2': '#2a374d',
+                        'analiz-text': '#f0f3f8',
+                        'analiz-text2': '#90a4ae',
+                        'premium-green': '#00e676',
+                        'premium-red': '#ff1744',
+                        'premium-blue': '#40c4ff',
+                        'premium-purple': '#e040fb',
+                        'premium-orange': '#ff9100',
+                        'premium-yellow': '#ffea00',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #06070a;
+            color: #f0f3f8;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glass {
+            background: rgba(17, 23, 36, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(28, 37, 53, 0.5);
+        }
+        .animate-scan {
+            background: linear-gradient(to right, transparent, rgba(64, 196, 255, 0.1), transparent);
+            background-size: 200% 100%;
+            animation: scan 2s infinite linear;
+        }
+        @keyframes scan {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #06070a; }
+        ::-webkit-scrollbar-thumb { background: #1c2535; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a374d; }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass border-b border-analiz-border">
+        <div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-tr from-premium-blue to-premium-purple rounded-xl flex items-center justify-center shadow-lg shadow-premium-blue/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black font-outfit tracking-tight">ÜÇLÜ <span class="text-premium-blue">ANALİZ</span> PANELİ</h1>
+                    <p class="text-[10px] font-bold text-analiz-text2 uppercase tracking-widest">Binance Futures Market Scanner</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden xl:flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-blue hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                    Anasayfa
+                </a>
+                <a href="analiz_v3.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                    Detaylı Analiz
+                </a>
+                <a href="karar-analizi.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-purple hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                    Karar Merkezi
+                </a>
+                <a href="uclu-analiz.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-surface border border-premium-blue text-premium-blue shadow-[0_0_15px_rgba(64,196,255,0.15)] transform hover:-translate-y-0.5 uppercase">
+                    Üçlü Panel
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-6">
+                <!-- Stats -->
+                <div class="hidden lg:flex items-center gap-8 border-r border-analiz-border pr-8 mr-2">
+                    <div class="text-right">
+                        <div class="text-[9px] font-black text-analiz-text2 uppercase">Taranan</div>
+                        <div class="text-lg font-black font-mono text-white" id="scannedCount">0</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[9px] font-black text-analiz-text2 uppercase">Kalan</div>
+                        <div class="text-lg font-black font-mono text-premium-blue" id="remainingCount">-</div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-3">
+                    <button id="startBtn" onclick="startScan()" class="group flex items-center gap-3 px-6 py-3 bg-premium-blue text-black font-black text-xs rounded-xl hover:bg-white transition-all shadow-xl shadow-premium-blue/20">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        TARAMAYI BAŞLAT
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Global Progress Bar -->
+        <div class="h-1 w-full bg-analiz-bg">
+            <div id="globalProgress" class="h-full bg-premium-blue transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <main class="max-w-[1700px] mx-auto px-6 pt-10">
+        <!-- Grid Header -->
+        <div class="grid grid-cols-12 gap-4 px-6 mb-4 text-[10px] font-black text-analiz-text2 uppercase tracking-widest">
+            <div class="col-span-2">COİN / BİLGİ</div>
+            <div class="col-span-3">MODEL 1: SİMP-V5 (ANASAYFA)</div>
+            <div class="col-span-3">MODEL 2: YEREL-V3 (PUANLI)</div>
+            <div class="col-span-4">MODEL 3: PRO-V5 (TAM KAPASİTE)</div>
+        </div>
+
+        <!-- Results List -->
+        <div id="resultsList" class="space-y-4">
+            <!-- Initial State -->
+            <div id="emptyState" class="py-32 flex flex-col items-center justify-center border-2 border-dashed border-analiz-border rounded-3xl">
+                <div class="w-16 h-16 bg-analiz-card rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-analiz-text2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Henüz Analiz Yok</h3>
+                <p class="text-sm text-analiz-text2 text-center max-w-sm">Yukarıdaki butona tıklayarak hacme göre ilk 20 USDT-Futures paritesini analiz etmeye başlayabilirsiniz.</p>
+            </div>
+        </div>
+
+        <div id="loadMoreTrigger" class="h-20 flex items-center justify-center mt-8 hidden">
+             <div class="flex items-center gap-3">
+                 <div class="w-5 h-5 border-2 border-premium-blue/20 border-t-premium-blue rounded-full animate-spin"></div>
+                 <span class="text-xs font-bold text-analiz-text2 uppercase tracking-widest">Sıradaki Grup Hazırlanıyor...</span>
+             </div>
+        </div>
+
+        <div class="flex justify-center mt-8 mb-12">
+            <button id="nextBtn" onclick="scanNextBatch()" class="hidden group flex items-center gap-3 px-6 py-3 bg-analiz-card text-premium-blue border border-premium-blue/30 font-black text-xs rounded-xl hover:bg-premium-blue hover:text-black transition-all shadow-xl shadow-premium-blue/10">
+                SIRADAKİ 20 COİNİ TARA
+                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        const BASE_F = 'https://fapi.binance.com';
+        let allUsdtSymbols = [];
+        let currentIndex = 0;
+        let isScanning = false;
+
+        async function fetchSymbols() {
+            try {
+                // 1. exchangeInfo'dan sadece TRADING olanları al
+                const infoRes = await fetch(`${BASE_F}/fapi/v1/exchangeInfo`);
+                const infoData = await infoRes.json();
+                const tradingSymbols = infoData.symbols
+                    .filter(s => s.status === 'TRADING' && s.quoteAsset === 'USDT')
+                    .map(s => s.symbol);
+
+                // 2. 24s ticker verilerini çek
+                const tickerRes = await fetch(`${BASE_F}/fapi/v1/ticker/24hr`);
+                const tickerData = await tickerRes.json();
+                
+                // 3. Sadece TRADING listesinde olan USDT sembollerini hacme göre sırala
+                allUsdtSymbols = tickerData
+                    .filter(t => tradingSymbols.includes(t.symbol))
+                    .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume));
+
+                document.getElementById('remainingCount').textContent = allUsdtSymbols.length;
+                return true;
+            } catch (e) {
+                console.error('Symbol fetch error:', e);
+                return false;
+            }
+        }
+
+        async function startScan() {
+            if (isScanning) return;
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div> YÜKLENİYOR...';
+            
+            const success = await fetchSymbols();
+            if (success) {
+                document.getElementById('emptyState').remove();
+                await scanNextBatch();
+            } else {
+                alert('Sembol listesi alınamadı. Lütfen internet bağlantınızı kontrol edin.');
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> TARAMAYI BAŞLAT';
+            }
+        }
+
+        async function scanNextBatch() {
+            if (isScanning) return;
+            isScanning = true;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            const startBtn = document.getElementById('startBtn');
+            const loader = document.getElementById('loadMoreTrigger');
+            
+            startBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            const batch = allUsdtSymbols.slice(currentIndex, currentIndex + 20);
+            
+            for(let i=0; i < batch.length; i++) {
+                const symbol = batch[i].symbol;
+                await processSymbol(symbol);
+                currentIndex++;
+                updateProgress();
+                // API rate limit protection
+                await new Promise(r => setTimeout(r, 600));
+            }
+
+            isScanning = false;
+            loader.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            nextBtn.disabled = currentIndex >= allUsdtSymbols.length;
+            
+            document.getElementById('scannedCount').textContent = currentIndex;
+            document.getElementById('remainingCount').textContent = allUsdtSymbols.length - currentIndex;
+        }
+
+        function updateProgress() {
+            const pct = (currentIndex / allUsdtSymbols.length) * 100;
+            document.getElementById('globalProgress').style.width = pct + '%';
+        }
+
+        async function processSymbol(symbol) {
+            const rowId = `row-${symbol}`;
+            const resultsList = document.getElementById('resultsList');
+            
+            const row = document.createElement('div');
+            row.id = rowId;
+            row.className = 'grid grid-cols-12 gap-4 p-4 glass rounded-2xl animate-scan border-analiz-border transition-all duration-300';
+            row.innerHTML = `
+                <div class="col-span-2 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-analiz-bg rounded-xl flex items-center justify-center font-black text-xs text-premium-blue border border-analiz-border">${symbol.replace('USDT', '')}</div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-black text-white">${symbol}</span>
+                        <span class="text-[10px] text-analiz-text2 font-bold uppercase tracking-tight" id="price-${symbol}">Yükleniyor...</span>
+                    </div>
+                </div>
+                <div class="col-span-3 flex items-center justify-center border-l border-analiz-border/50" id="m1-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                <div class="col-span-3 flex items-center justify-center border-l border-analiz-border/50" id="m2-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                <div class="col-span-4 flex items-center justify-center border-l border-analiz-border/50" id="m3-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+            `;
+            resultsList.appendChild(row);
+
+            try {
+                // 1. Ham veriyi çek (Merkezi Motor)
+                const rawData = await window.AnalysisEngine.fetchScoutData(symbol);
+                if (!rawData) throw new Error('Data fetch failed');
+
+                // 2. Teknik Zekayı Üret (Merkezi Motor - SMC, SR, Likidite vb.)
+                const intel = window.AnalysisEngine.calculateIntelligence(rawData);
+                if (!intel) throw new Error('Intelligence calculation failed');
+
+                // Fiyat Bilgisini Güncelle
+                document.getElementById(`price-${symbol}`).innerHTML = `
+                    <span class="${intel.chg24 >= 0 ? 'text-premium-green' : 'text-premium-red'}">$${formatPrice(intel.price)} (%${intel.chg24.toFixed(2)})</span>
+                `;
+
+                // 3. Kararları Al (Merkezi Motor)
+                const m1Result = window.AnalysisEngine.decide(intel, 'v5Simple');
+                const m2Result = window.AnalysisEngine.decide(intel, 'v3Local');
+                const m3Result = window.AnalysisEngine.decide(intel, 'v5Full');
+
+                // Sonuçları Render Et
+                renderModelResult(`m1-${symbol}`, m1Result, symbol, false, intel.price);
+                renderModelResult(`m2-${symbol}`, m2Result, symbol, false, intel.price);
+                renderModelResult(`m3-${symbol}`, m3Result, symbol, true, intel.price);
+
+                row.classList.remove('animate-scan');
+            } catch (error) {
+                console.error(`${symbol} Process Error:`, error);
+                row.innerHTML += `<div class="absolute inset-0 bg-premium-red/5 flex items-center justify-center text-[10px] font-bold text-premium-red uppercase">ANALİZ HATASI</div>`;
+            }
+        }
+
+        function renderModelResult(containerId, result, symbol = null, isModel3 = false, price = null) {
+            const el = document.getElementById(containerId);
+            const isLong = result.karar === 'LONG';
+            const isShort = result.karar === 'SHORT';
+            const isWait = result.karar === 'BEKLE' || result.karar === 'NOTR';
+            const color = isLong ? 'text-premium-green' : isShort ? 'text-premium-red' : 'text-premium-yellow';
+            const bg = isLong ? 'bg-premium-green/10' : isShort ? 'bg-premium-red/10' : 'bg-premium-yellow/10';
+            const br = isLong ? 'border-premium-green/20' : isShort ? 'border-premium-red/20' : 'border-premium-yellow/20';
+
+            let btnHtml = '';
+            if (isModel3 && symbol) {
+                const disabledStr = isWait ? 'disabled opacity-40 cursor-not-allowed border-analiz-border' : 'hover:border-premium-blue hover:text-white cursor-pointer border-analiz-border/50';
+                const btnResultStr = encodeURIComponent(JSON.stringify(result));
+                btnHtml = `
+                    <button class="w-full mt-2 py-1.5 rounded-md border bg-analiz-card text-analiz-text2 text-[9px] font-black transition-all shadow-md ${disabledStr}"
+                        ${isWait ? 'disabled title="Karar: BEKLE - Kaydedilemez"' : `onclick="handleSaveCoin(event, '${symbol}', '${btnResultStr}', ${price})"`}>
+                        KAYDET
+                    </button>
+                `;
+            }
+
+            el.innerHTML = `
+                <div class="flex flex-col items-center justify-center gap-1 w-full max-w-[120px]">
+                    <div class="w-full text-center px-4 py-1.5 rounded-lg border ${bg} ${br} ${color} text-[11px] font-black tracking-widest">${result.karar}</div>
+                    <div class="text-[9px] font-bold text-analiz-text2 uppercase">GÜVEN: %${result.guven || 0}</div>
+                    ${btnHtml}
+                </div>
+            `;
+        }
+
+        async function handleSaveCoin(event, symbol, resultStr, price) {
+            try {
+                if (!window.kararKayitSistemi) {
+                    alert('Kayıt sistemi yüklenmedi!');
+                    return;
+                }
+                const result = JSON.parse(decodeURIComponent(resultStr));
+                const kayit = await window.kararKayitSistemi.kararKayit(symbol, result, price);
+                
+                const btn = event.currentTarget;
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = 'KAYDEDİLDİ';
+                    btn.classList.add('opacity-60', 'text-premium-green', 'border-premium-green/30');
+                    btn.classList.remove('hover:border-premium-blue', 'hover:text-white', 'text-analiz-text2', 'cursor-pointer');
+                }
+            } catch (err) {
+                console.error('Kayıt Hatası:', err);
+                alert('Kayıt sırasında hata oluştu!');
+            }
+        }
+
+        function formatPrice(p) {
+            if (p < 0.0001) return p.toFixed(8);
+            if (p < 0.01) return p.toFixed(6);
+            if (p < 1) return p.toFixed(4);
+            return p.toFixed(2);
+        }
+    </script>
+</body>
+</html>
