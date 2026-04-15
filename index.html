@@ -10,7 +10,36 @@
     <script src="chart-engine.js"></script>
     <script src="karar-motoru.js"></script>
     <script src="karar-kayit.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        binance: {
+                            yellow: '#f0b90b',
+                            dark: '#0b0e11',
+                            card: '#1a1d23',
+                            border: '#2b3139',
+                            hover: '#252932',
+                            text: '#eaeaea',
+                            muted: '#848e9c',
+                        },
+                        premium: {
+                            green: '#0ecb81',
+                            red: '#ef1945',
+                            purple: '#e040fb',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -914,37 +943,40 @@
     </style>
 </head>
 
-<body>
-    <div class="container">
+<body class="bg-binance-dark text-binance-text font-sans antialiased min-h-screen">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <!-- Header -->
-        <header class="header">
-            <svg class="logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M24 4L42 14V34L24 44L6 34V14L24 4Z" fill="#F0B90B" />
-                <path d="M24 8L38 16V32L24 40L10 32V16L24 8Z" fill="#0B0E11" />
-                <path d="M24 14L32 18.5V27.5L24 32L16 27.5V18.5L24 14Z" fill="#F0B90B" />
-                <circle cx="24" cy="23" r="4" fill="#0B0E11" />
-            </svg>
-            <div class="header-text">
-                <h1>Binance <span class="accent">Futures</span> Coin Listesi</h1>
-                <p>Binance USDⓈ-M Perpetual Futures verileri</p>
-                <p class="last-update" id="lastUpdate">Son güncelleme: -</p>
+        <header class="flex flex-col md:flex-row items-center gap-6 mb-8 pb-6 border-b border-binance-border">
+            <div class="flex items-center gap-4">
+                <svg class="w-12 h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4L42 14V34L24 44L6 34V14L24 4Z" fill="#F0B90B" />
+                    <path d="M24 8L38 16V32L24 40L10 32V16L24 8Z" fill="#0B0E11" />
+                    <path d="M24 14L32 18.5V27.5L24 32L16 27.5V18.5L24 14Z" fill="#F0B90B" />
+                    <circle cx="24" cy="23" r="4" fill="#0B0E11" />
+                </svg>
+                <div class="header-text">
+                    <h1 class="text-2xl md:text-3xl font-bold font-outfit tracking-tight">Binance <span class="text-binance-yellow">Futures</span> Coin Listesi</h1>
+                    <p class="text-binance-muted text-sm mt-1">Binance USDⓈ-M Perpetual Futures verileri</p>
+                    <p class="text-binance-muted text-xs mt-1 last-update" id="lastUpdate">Son güncelleme: -</p>
+                </div>
             </div>
-            <nav class="header-nav">
-                <a href="index.html" class="nav-btn active">
+            
+            <nav class="flex flex-wrap items-center gap-3 md:ml-auto">
+                <a href="index.html" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-binance-hover border border-binance-yellow text-binance-yellow shadow-[0_0_15px_rgba(240,185,11,0.15)] transform hover:-translate-y-0.5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                         <polyline points="9 22 9 12 15 12 15 22"/>
                     </svg>
                     Anasayfa
                 </a>
-                <a href="analiz_v3.html" class="nav-btn">
+                <a href="analiz_v3.html" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-binance-card border border-binance-border text-binance-text hover:border-binance-yellow hover:bg-binance-hover transform hover:-translate-y-0.5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 3v18h18"/>
                         <path d="M18 9l-5 5-2-2-4 4"/>
                     </svg>
                     Detaylı Analiz Aracı
                 </a>
-                <a href="karar-analizi.html" class="nav-btn">
+                <a href="karar-analizi.html" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-binance-card border border-binance-border text-binance-text hover:border-binance-yellow hover:bg-binance-hover transform hover:-translate-y-0.5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                         <line x1="16" y1="2" x2="16" y2="6"/>
@@ -957,87 +989,96 @@
         </header>
 
         <!-- Stats Bar -->
-        <div class="stats-bar">
-            <div class="stats-left">
-                <div class="stat-badge">
-                    <span class="label">Toplam:</span>
-                    <span class="value" id="totalCoins">-</span>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-3 px-4 py-2.5 bg-binance-card border border-binance-border rounded-xl">
+                    <span class="text-binance-muted text-sm font-medium">Toplam:</span>
+                    <span class="text-binance-yellow font-bold" id="totalCoins">-</span>
                 </div>
-                <div class="stat-badge">
-                    <span class="label">Sayfa:</span>
-                    <span class="value" id="pageInfo">-</span>
+                <div class="flex items-center gap-3 px-4 py-2.5 bg-binance-card border border-binance-border rounded-xl">
+                    <span class="text-binance-muted text-sm font-medium">Sayfa:</span>
+                    <span class="text-binance-yellow font-bold" id="pageInfo">-</span>
                 </div>
             </div>
-            <div class="sort-controls">
-                <button class="sort-btn active" data-sort="volume" onclick="setSort('volume')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            
+            <div class="flex flex-wrap items-center gap-3">
+                <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 bg-binance-yellow text-black border border-binance-yellow shadow-lg shadow-binance-yellow/10" data-sort="volume" onclick="setSort('volume')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                     Hacim
                 </button>
-                <button class="sort-btn" data-sort="marketcap" onclick="setSort('marketcap')">
+                <button class="nav-btn-inactive flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 bg-binance-card border border-binance-border text-binance-muted hover:border-binance-yellow hover:text-binance-text" data-sort="marketcap" onclick="setSort('marketcap')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                     </svg>
                     Piyasa Değeri
                 </button>
-                <button class="sort-btn" data-sort="price" onclick="setSort('price')">
+                <button class="nav-btn-inactive flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 bg-binance-card border border-binance-border text-binance-muted hover:border-binance-yellow hover:text-binance-text" data-sort="change" onclick="setSort('change')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <path d="M23 6l-9.5 9.5-5-5L1 18" />
+                        <path d="M17 6h6v6" />
                     </svg>
-                    Fiyat
+                    24s Değişim
                 </button>
-                <button class="sort-btn" data-sort="change" onclick="setSort('change')">
+                <button class="nav-btn-inactive flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 bg-binance-card border border-binance-border text-binance-muted hover:border-binance-yellow hover:text-binance-text" data-sort="funding" onclick="setSort('funding')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
                     </svg>
-                    Değişim
+                    Funding
                 </button>
-                <button class="sort-btn" data-sort="name" onclick="setSort('name')">
+                <button class="nav-btn-inactive flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 bg-binance-card border border-binance-border text-binance-muted hover:border-binance-yellow hover:text-binance-text" data-sort="symbol" onclick="setSort('symbol')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 7h16M4 12h16M4 17h10" />
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                     </svg>
                     İsim
                 </button>
             </div>
-            <div class="search-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        </div>
+        <!-- Search Box -->
+        <div class="relative max-w-2xl mx-auto mb-10 group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-binance-muted group-focus-within:text-binance-yellow transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8" />
                     <path d="M21 21l-4.35-4.35" />
                 </svg>
-                <input type="text" id="searchInput" placeholder="Coin ara... (örn: BTC)">
             </div>
+            <input type="text" id="searchInput" placeholder="Coin ara... (örn: BTC)" 
+                class="block w-full pl-12 pr-4 py-4 bg-binance-card border border-binance-border rounded-2xl text-binance-text placeholder-binance-muted focus:ring-2 focus:ring-binance-yellow/20 focus:border-binance-yellow transition-all duration-200 outline-none shadow-xl">
         </div>
 
         <!-- Error Box -->
-        <div class="error-box" id="errorBox" style="display: none;">
-            <h3>Veri Yüklenemedi</h3>
-            <p id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
-            <button class="retry-btn" onclick="fetchAllData()">Tekrar Dene</button>
+        <div class="hidden max-w-lg mx-auto p-8 text-center bg-premium-red/10 border border-premium-red/20 rounded-2xl" id="errorBox">
+            <h3 class="text-premium-red text-xl font-bold mb-3">Veri Yüklenemedi</h3>
+            <p class="text-binance-muted mb-6" id="errorMessage">Bir hata oluştu. Lütfen tekrar deneyin.</p>
+            <button class="px-8 py-3 bg-premium-red text-white font-bold rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-premium-red/20" onclick="fetchAllData()">Tekrar Dene</button>
         </div>
 
         <!-- Loading -->
-        <div class="loading" id="loadingBox">
-            <div class="spinner"></div>
-            <p class="loading-text">Binance API'den veriler yükleniyor...</p>
+        <div class="flex flex-col items-center justify-center py-20" id="loadingBox">
+            <div class="w-16 h-16 border-4 border-binance-yellow/20 border-t-binance-yellow rounded-full animate-spin mb-6"></div>
+            <p class="text-binance-muted font-medium animate-pulse">Binance API'den veriler yükleniyor...</p>
         </div>
 
         <!-- Coin Grid -->
-        <div class="coin-grid" id="coinGrid"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="coinGrid"></div>
 
         <!-- Empty State -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M8 15s1.5 2 4 2 4-2 4-2" />
-                <line x1="9" y1="9" x2="9.01" y2="9" />
-                <line x1="15" y1="9" x2="15.01" y2="9" />
-            </svg>
-            <p>Aramanıza uygun coin bulunamadı.</p>
+        <div class="hidden flex-col items-center justify-center py-20 text-center" id="emptyState">
+            <div class="w-24 h-24 text-binance-muted/30 mb-6">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 15s1.5 2 4 2 4-2 4-2" />
+                    <line x1="9" y1="9" x2="9.01" y2="9" />
+                    <line x1="15" y1="9" x2="15.01" y2="9" />
+                </svg>
+            </div>
+            <p class="text-binance-muted text-lg">Aramanıza uygun coin bulunamadı.</p>
         </div>
 
         <!-- Pagination -->
-        <div class="pagination" id="pagination"></div>
+        <div class="flex flex-wrap justify-center items-center gap-2 mt-12 mb-20" id="pagination"></div>
     </div>
 
     <!-- Decision Modal -->
@@ -1266,88 +1307,85 @@
                 return;
             }
 
-            emptyState.style.display = 'none';
-
-            coinGrid.innerHTML = pageCoins.map(coin => {
-                const statusClass = coin.status === 'TRADING' ? 'trading' :
-                    coin.status === 'HALT' ? 'halted' : 'other';
+                        coinGrid.innerHTML = pageCoins.map(coin => {
+                const statusClass = coin.status === 'TRADING' ? 'bg-premium-green/10 text-premium-green border-premium-green/20' :
+                    coin.status === 'HALT' ? 'bg-premium-red/10 text-premium-red border-premium-red/20' : 'bg-binance-muted/10 text-binance-muted border-binance-muted/20';
+                
                 const priceChange = parseFloat(coin.priceChange) || 0;
-                const changeClass = priceChange >= 0 ? 'positive' : 'negative';
+                const changeClass = priceChange >= 0 ? 'text-premium-green' : 'text-premium-red';
+                const changeBg = priceChange >= 0 ? 'bg-premium-green/10' : 'bg-premium-red/10';
+                
                 const funding = parseFloat(coin.fundingRate) || 0;
-                const fundingClass = funding >= 0 ? 'positive' : 'negative';
+                const fundingClass = funding >= 0 ? 'text-premium-green' : 'text-premium-red';
+                
                 const volumePercent = maxVolume > 0 ? (parseFloat(coin.volume) / maxVolume * 100) : 0;
 
                 return `
-                    <div class="coin-card">
-                        <div class="coin-header">
-                            <div class="coin-symbol-row">
-                                <span class="coin-rank">#${coin.rank}</span>
-                                <span class="coin-symbol">${coin.symbol}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div class="analyze-icon" title="Analiz Et">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 3v18h18"/>
-                                        <path d="M18 9l-5 5-2-2-4 4"/>
-                                    </svg>
+                    <div class="group bg-binance-card border border-binance-border rounded-2xl p-5 transition-all duration-300 hover:border-binance-yellow/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:-translate-y-1 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-binance-yellow/5 blur-[60px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-binance-yellow/10"></div>
+                        
+                        <div class="flex justify-between items-start mb-5">
+                            <div class="flex flex-col">
+                                <span class="text-binance-muted text-[10px] font-bold uppercase tracking-widest mb-1">RANK #${coin.rank}</span>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xl font-bold font-outfit text-white tracking-wide">${coin.symbol}</h3>
+                                    <div class="p-1 px-2 rounded text-[10px] font-bold border ${statusClass}">${coin.status}</div>
                                 </div>
-                                <span class="coin-status ${statusClass}">${coin.status}</span>
+                            </div>
+                            <div class="p-2 cursor-pointer hover:bg-binance-yellow/10 rounded-lg transition-colors text-binance-muted hover:text-binance-yellow" onclick="goToDetailedAnalysis('${coin.baseAsset}')" title="Detaylı Analiz">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 3v18h18"/>
+                                    <path d="M18 9l-5 5-2-2-4 4"/>
+                                </svg>
                             </div>
                         </div>
 
-                        <div class="price-section">
-                            <div class="price-row">
-                                <span class="coin-price">${formatPrice(coin.price)}</span>
-                                <span class="coin-change ${changeClass}">${formatPercent(coin.priceChange)}</span>
+                        <div class="flex items-baseline justify-between mb-6">
+                            <span class="text-2xl font-bold font-outfit text-binance-text">${formatPrice(coin.price)}</span>
+                            <span class="px-2 py-1 rounded text-xs font-bold ${changeBg} ${changeClass}">
+                                ${priceChange >= 0 ? '+' : ''}${formatPercent(coin.priceChange)}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-binance-muted uppercase font-bold tracking-wider">24s Hacim</p>
+                                <p class="text-xs font-semibold text-binance-text">${formatVolume(coin.volume)}</p>
+                            </div>
+                            <div class="space-y-1 text-right">
+                                <p class="text-[10px] text-binance-muted uppercase font-bold tracking-wider">Piyasa Değeri</p>
+                                <p class="text-xs font-semibold text-binance-text">${formatMarketCap(coin.marketCap)}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-binance-muted uppercase font-bold tracking-wider">Funding Rate</p>
+                                <p class="text-xs font-bold ${fundingClass}">${formatFunding(coin.fundingRate)}</p>
+                            </div>
+                            <div class="space-y-1 text-right">
+                                <p class="text-[10px] text-binance-muted uppercase font-bold tracking-wider">24s Y/D</p>
+                                <p class="text-[10px] font-semibold text-binance-text">${formatPrice(coin.highPrice)} / ${formatPrice(coin.lowPrice)}</p>
                             </div>
                         </div>
 
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <div class="label">24s Yüksek</div>
-                                <div class="value">${formatPrice(coin.highPrice)}</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="label">24s Düşük</div>
-                                <div class="value">${formatPrice(coin.lowPrice)}</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="label">24s Hacim</div>
-                                <div class="value">${formatVolume(coin.volume)}</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="label">Piyasa Değeri</div>
-                                <div class="value">${formatMarketCap(coin.marketCap)}</div>
-                            </div>
-                        </div>
-
-                        <div class="funding-section">
-                            <div class="funding-info">
-                                <span class="funding-label">Funding Rate</span>
-                                <span class="funding-value ${fundingClass}">${formatFunding(coin.fundingRate)}</span>
-                            </div>
-                            <span class="next-funding">8h</span>
-                        </div>
-
-                        <div class="volume-bar">
-                            <div class="volume-label">
-                                <span>Hacim</span>
+                        <div class="mb-6">
+                            <div class="flex justify-between text-[10px] font-bold text-binance-muted mb-2 uppercase tracking-tighter">
+                                <span>Relatif Hacim</span>
                                 <span>${volumePercent.toFixed(1)}%</span>
                             </div>
-                            <div class="volume-track">
-                                <div class="volume-fill" style="width: ${volumePercent}%"></div>
+                            <div class="h-1.5 w-full bg-binance-dark rounded-full overflow-hidden">
+                                <div class="h-full bg-binance-yellow rounded-full transition-all duration-1000 ease-out" style="width: ${volumePercent}%"></div>
                             </div>
                         </div>
 
-                        <div class="karar-preview" id="karar-preview-${coin.baseAsset}">
-                            <div class="karar-preview-loading">
-                                <div class="karar-preview-spinner"></div>
-                                <span>Yükleniyor...</span>
+                        <div id="karar-preview-${coin.baseAsset}" class="bg-binance-dark/50 rounded-xl p-3 mb-5 min-h-[60px] border border-binance-border/50">
+                            <div class="flex items-center justify-center gap-2 h-full py-2">
+                                <div class="w-4 h-4 border-2 border-binance-yellow/20 border-t-binance-yellow rounded-full animate-spin"></div>
+                                <span class="text-[10px] text-binance-muted font-bold tracking-widest uppercase">Analiz Ediliyor...</span>
                             </div>
                         </div>
-                        <div class="card-actions">
-                            <button class="action-btn btn-analiz" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Detaylı Analiz</button>
-                            <button class="action-btn btn-karar karar-kaydet-btn" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}')" disabled style="opacity:0.4;cursor:not-allowed;">Coin Kaydet</button>
+
+                        <div class="flex gap-2 mt-auto">
+                            <button class="flex-1 py-2 rounded-xl text-xs font-bold bg-binance-yellow text-black hover:bg-[#e0ab0a] transition-colors shadow-lg shadow-binance-yellow/10" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Analiz</button>
+                            <button class="karar-kaydet-btn flex-1 py-2 rounded-xl text-xs font-bold bg-binance-hover border border-binance-border text-binance-muted hover:text-binance-text hover:border-binance-yellow transition-all disabled:opacity-40 disabled:cursor-not-allowed" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}')" disabled>Kaydet</button>
                         </div>
                     </div>
                 `;
@@ -1490,22 +1528,33 @@
             const previewElement = document.getElementById(`karar-preview-${symbol}`);
             if (!previewElement) return;
 
-            // Karar motoru.js dosyasindan sonuclari al
             if (window.kararMotoru) {
                 const sonuc = window.kararMotoru(analysisData);
-                const riskSinif = sonuc.riskSkor >= 8 ? 'risk-crit' : sonuc.riskSkor >= 6 ? 'risk-high' : sonuc.riskSkor >= 4 ? 'risk-mid' : 'risk-low';
+
                 const isBekle = sonuc.karar === 'BEKLE';
+                const isLong = sonuc.karar === 'LONG';
+                const isShort = sonuc.karar === 'SHORT';
+
+                const colorClass = isLong ? 'text-premium-green' : isShort ? 'text-premium-red' : 'text-binance-yellow';
+                const bgClass = isLong ? 'bg-premium-green/10' : isShort ? 'bg-premium-red/10' : 'bg-binance-yellow/10';
+                
+                const riskColor = sonuc.riskSkor >= 7 ? 'text-premium-red' : sonuc.riskSkor >= 4 ? 'text-binance-yellow' : 'text-premium-green';
 
                 previewElement.innerHTML = `
-                    <div class="karar-preview-content">
-                        <div class="karar-preview-decision">
-                            <div class="karar-preview-label">Karar</div>
-                            <div class="karar-preview-value ${sonuc.kararSinif}">${sonuc.karar}</div>
-                            <div class="karar-preview-percents">Long %${sonuc.finalLongOran.toFixed(0)} · Short %${sonuc.finalShortOran.toFixed(0)}</div>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-1.5 h-1.5 rounded-full ${isLong ? 'bg-premium-green animate-pulse' : isShort ? 'bg-premium-red animate-pulse' : 'bg-binance-yellow'}"></span>
+                                <span class="text-[11px] font-black uppercase tracking-widest ${colorClass}">${sonuc.karar}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-premium-green/80">L: %${sonuc.finalLongOran.toFixed(0)}</span>
+                                <span class="text-[10px] font-bold text-premium-red/80">S: %${sonuc.finalShortOran.toFixed(0)}</span>
+                            </div>
                         </div>
-                        <div class="karar-preview-risk">
-                            <div class="karar-preview-risk-label">Risk</div>
-                            <div class="karar-preview-risk-score ${riskSinif}">${sonuc.riskSkor}/10</div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-[9px] text-binance-muted uppercase font-bold mb-0.5">RİSK</span>
+                            <span class="text-xs font-black ${riskColor}">${sonuc.riskSkor}/10</span>
                         </div>
                     </div>
                 `;
@@ -1515,24 +1564,18 @@
                 if (kaydetBtn) {
                     if (isBekle) {
                         kaydetBtn.disabled = true;
-                        kaydetBtn.style.opacity = '0.4';
-                        kaydetBtn.style.cursor = 'not-allowed';
                         kaydetBtn.title = 'Karar: BEKLE - Kaydedilemez';
                     } else {
                         kaydetBtn.disabled = false;
-                        kaydetBtn.style.opacity = '1';
-                        kaydetBtn.style.cursor = 'pointer';
+                        kaydetBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+                        kaydetBtn.classList.add('hover:border-binance-yellow', 'hover:text-binance-text');
                         kaydetBtn.title = 'Coin Kaydet';
                     }
                 }
             } else {
                 previewElement.innerHTML = `
-                    <div class="karar-preview-content">
-                        <div class="karar-preview-decision">
-                            <div class="karar-preview-label">Hata</div>
-                            <div class="karar-preview-value bekle">BEKLE</div>
-                            <div class="karar-preview-percents">Karar motoru yüklenmedi</div>
-                        </div>
+                    <div class="flex items-center justify-center py-2">
+                        <span class="text-[10px] text-premium-red font-bold uppercase">Motor Yüklenmedi</span>
                     </div>
                 `;
             }
@@ -1556,23 +1599,13 @@
                 updateKararPreview(symbol, analysisData);
             } else {
                 previewElement.innerHTML = `
-                    <div class="karar-preview-content">
-                        <div class="karar-preview-decision">
-                            <div class="karar-preview-label">Hata</div>
-                            <div class="karar-preview-value bekle">BEKLE</div>
-                            <div class="karar-preview-percents">Veri yüklenemedi</div>
-                        </div>
+                    <div class="flex items-center justify-center py-2 h-full">
+                        <span class="text-[10px] text-premium-red font-bold uppercase tracking-widest">Hata</span>
                     </div>
                 `;
-                // Hata durumunda butonu pasif yap
-                const kaydetBtn = document.querySelector(`.karar-kaydet-btn[data-symbol="${symbol}"]`);
-                if (kaydetBtn) {
-                    kaydetBtn.disabled = true;
-                    kaydetBtn.style.opacity = '0.4';
-                    kaydetBtn.style.cursor = 'not-allowed';
-                }
             }
         }
+
         function renderPagination() {
             const totalPages = Math.ceil(filteredCoins.length / itemsPerPage);
 
@@ -1583,16 +1616,20 @@
 
             let html = '';
 
+            const btnClass = "flex items-center justify-center w-10 h-10 rounded-xl text-sm font-bold transition-all duration-200 border border-binance-border bg-binance-card text-binance-muted hover:border-binance-yellow hover:text-binance-text";
+            const activeClass = "border-binance-yellow text-binance-yellow bg-binance-hover shadow-[0_0_15px_rgba(240,185,11,0.1)]";
+            const disabledClass = "opacity-30 cursor-not-allowed grayscale pointer-events-none";
+
             // First & Prev buttons
             html += `
-                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(1)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="${btnClass} ${currentPage === 1 ? disabledClass : ''}" onclick="goToPage(1)" title="İlk Sayfa">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polyline points="11 17 6 12 11 7"/>
                         <polyline points="18 17 13 12 18 7"/>
                     </svg>
                 </button>
-                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="${btnClass} ${currentPage === 1 ? disabledClass : ''}" onclick="goToPage(${currentPage - 1})" title="Önceki">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polyline points="15 18 9 12 15 6"/>
                     </svg>
                 </button>
@@ -1608,15 +1645,15 @@
             }
 
             if (startPage > 1) {
-                html += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
+                html += `<button class="${btnClass}" onclick="goToPage(1)">1</button>`;
                 if (startPage > 2) {
-                    html += `<span class="page-ellipsis">...</span>`;
+                    html += `<span class="px-2 text-binance-muted font-black">...</span>`;
                 }
             }
 
             for (let i = startPage; i <= endPage; i++) {
                 html += `
-                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+                    <button class="${btnClass} ${i === currentPage ? activeClass : ''}" onclick="goToPage(${i})">
                         ${i}
                     </button>
                 `;
@@ -1624,20 +1661,20 @@
 
             if (endPage < totalPages) {
                 if (endPage < totalPages - 1) {
-                    html += `<span class="page-ellipsis">...</span>`;
+                    html += `<span class="px-2 text-binance-muted font-black">...</span>`;
                 }
-                html += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+                html += `<button class="${btnClass}" onclick="goToPage(${totalPages})">${totalPages}</button>`;
             }
 
             // Next & Last buttons
             html += `
-                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="${btnClass} ${currentPage === totalPages ? disabledClass : ''}" onclick="goToPage(${currentPage + 1})" title="Sonraki">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polyline points="9 18 15 12 9 6"/>
                     </svg>
                 </button>
-                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${totalPages})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="${btnClass} ${currentPage === totalPages ? disabledClass : ''}" onclick="goToPage(${totalPages})" title="Son Sayfa">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <polyline points="13 17 18 12 13 7"/>
                         <polyline points="6 17 11 12 6 7"/>
                     </svg>

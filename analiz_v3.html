@@ -5,8 +5,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Futures Analiz Pro • AI Prompt (Otomatik Kopyala)</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap"
     rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        analiz: {
+                            bg: '#06080d',
+                            surface: '#0c1018',
+                            card: '#101520',
+                            border: '#1c2535',
+                            border2: '#243040',
+                            text: '#e0e0e0',
+                            text2: '#90a4ae',
+                        },
+                        premium: {
+                            green: '#00e676',
+                            red: '#ff1744',
+                            yellow: '#ffea00',
+                            blue: '#40c4ff',
+                            purple: '#e040fb',
+                            orange: '#ff9100',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
   <script
     src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.0/dist/chartjs-chart-financial.umd.min.js"></script>
@@ -1287,30 +1320,30 @@
   </style>
 </head>
 
-<body>
-
-  <header class="header-top">
-    <div>
-      <div class="logo">⚡ FUTURES ANALİZ PRO</div>
-      <div class="logo-sub">Advanced Trading Intelligence</div>
+<body class="bg-analiz-bg text-analiz-text font-mono antialiased p-3 md:p-6 min-h-screen">
+  <header class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 pb-6 border-b border-analiz-border">
+    <div class="flex flex-col items-center md:items-start">
+      <div class="text-3xl font-bebas tracking-[4px] text-premium-green">⚡ FUTURES ANALİZ PRO</div>
+      <div class="text-[10px] font-bold tracking-[4px] text-analiz-text2 uppercase">Advanced Trading Intelligence</div>
     </div>
-    <nav class="header-nav">
-      <a href="index.html" class="nav-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    
+    <nav class="flex flex-wrap items-center justify-center gap-3">
+      <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
         Anasayfa
       </a>
-      <a href="analiz_v3.html" class="nav-btn active">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <a href="analiz_v3.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-analiz-surface border border-premium-green text-premium-green shadow-[0_0_15px_rgba(0,230,118,0.15)] transform hover:-translate-y-0.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 3v18h18"/>
           <path d="M18 9l-5 5-2-2-4 4"/>
         </svg>
         Detaylı Analiz Aracı
       </a>
-      <a href="karar-analizi.html" class="nav-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <a href="karar-analizi.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
           <line x1="16" y1="2" x2="16" y2="6"/>
           <line x1="8" y1="2" x2="8" y2="6"/>
@@ -1321,59 +1354,104 @@
     </nav>
   </header>
 
-  <!-- Coin Dropdown (Header) -->
-  <div class="coin-dropdown-container">
-    <select id="symbolDropdown" size="1">
-      <option value="">-- Coinler yükleniyor... --</option>
-    </select>
+  <!-- Control Bar -->
+  <div class="flex flex-col md:flex-row gap-4 mb-8">
+    <div class="flex-1 group relative">
+       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-analiz-text2 group-focus-within:text-premium-green transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+       </div>
+       <input type="text" id="coinInput" placeholder="Coin yaz... (BTC, ETH, RAVE)" value="BTC"
+          class="block w-full pl-10 pr-4 py-3 bg-analiz-card border border-analiz-border rounded-xl text-analiz-text text-sm font-bold placeholder-analiz-text2 focus:ring-1 focus:ring-premium-green/30 focus:border-premium-green outline-none transition-all uppercase tracking-widest">
+    </div>
+    
+    <div class="w-full md:w-64">
+      <select id="symbolDropdown" class="block w-full px-4 py-3 bg-analiz-card border border-analiz-border rounded-xl text-analiz-text text-sm font-bold focus:ring-1 focus:ring-premium-green/30 focus:border-premium-green outline-none transition-all appearance-none cursor-pointer">
+        <option value="">-- Coin Seç --</option>
+      </select>
+    </div>
+
+    <button class="px-8 py-3 bg-premium-green text-black font-bebas text-lg tracking-[2px] rounded-xl hover:bg-[#00c865] transition-all transform active:scale-95 shadow-lg shadow-premium-green/10" onclick="analyze()" id="analyzeBtn">
+      ANALİZ ET
+    </button>
   </div>
 
-
-  <div class="search-bar">
-    <input type="text" id="coinInput" placeholder="Coin yaz... (BTC, ETH, RAVE)" value="BTC">
-    <button class="btn" onclick="analyze()" id="analyzeBtn">ANALİZ ET</button>
+  <div class="hidden mb-6 p-4 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-xs font-bold font-mono" id="errorMsg"></div>
+  <!-- Loading State -->
+  <div class="hidden flex-col items-center justify-center py-12" id="loading">
+    <div class="w-12 h-12 border-4 border-premium-green/20 border-t-premium-green rounded-full animate-spin mb-4"></div>
+    <p class="text-premium-green font-bebas text-lg tracking-[3px] animate-pulse uppercase">Veriler Çekiliyor...</p>
   </div>
 
-  <div class="error" id="errorMsg"></div>
-  <div class="loading" id="loading">VERİ ÇEKİLİYOR<span>.</span><span>.</span><span>.</span></div>
-
-  <div class="chart-panel" id="chartPanel">
-    <div class="chart-header">
-      <span class="chart-title">Mum Grafiği + Bollinger (20,2)</span>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div class="tf-btns" id="tfBtns">
-        <button class="tf-btn" onclick="changeTF('15m')">15D</button>
-        <button class="tf-btn" onclick="changeTF('1h')">1S</button>
-        <button class="tf-btn active" onclick="changeTF('4h')">4S</button>
-        <button class="tf-btn" onclick="changeTF('1d')">1G</button>
-        <button class="tf-btn" onclick="changeTF('1w')">1H</button>
-        <button class="tf-btn" onclick="changeTF('1M')">1A</button>
+  <!-- Chart Panel -->
+  <div class="bg-analiz-card border border-analiz-border rounded-2xl overflow-hidden mb-8 shadow-2xl" id="chartPanel">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between p-5 border-b border-analiz-border bg-analiz-surface/50 gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-6 bg-premium-green rounded-full"></div>
+        <span class="text-xs font-bold font-outfit uppercase tracking-widest text-analiz-text">Mum Grafiği + Bollinger (20,2)</span>
       </div>
-        <button class="tf-btn" onclick="resetZoom()" style="background:var(--orange);border-color:var(--orange);color:white;min-width:auto;padding:4px 10px;" title="Zoom'u Sifirla">Reset</button>
+      
+      <div class="flex items-center gap-3 overflow-x-auto pb-1 lg:pb-0">
+        <div class="flex items-center gap-1.5 p-1 bg-analiz-bg rounded-xl border border-analiz-border" id="tfBtns">
+          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('15m')">15D</button>
+          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1h')">1S</button>
+          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 bg-premium-green text-black shadow-lg shadow-premium-green/20" onclick="changeTF('4h')">4S</button>
+          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1d')">1G</button>
+          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1w')">1H</button>
+          <button class="px-3 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200 text-analiz-text2 hover:text-white" onclick="changeTF('1M')">1A</button>
+        </div>
+        <button class="px-3 py-1.5 rounded-lg text-[10px] font-black bg-premium-orange/10 text-premium-orange border border-premium-orange/20 hover:bg-premium-orange hover:text-white transition-all" onclick="resetZoom()" title="Zoom'u Sifirla">RESET</button>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="candleChart"></canvas></div>
-    <div class="chart-wrap-sub"><canvas id="rsiChart"></canvas></div>
-    <div class="chart-wrap-sub"><canvas id="macdChart"></canvas></div>
-  </div>
-
-  <div class="refresh-row" id="refreshRow">
-    <span class="refresh-info" id="refreshInfo"></span>
-    <div class="ai-btn-container">
-      <button class="btn-refresh" onclick="analyze()" style="margin-right: 8px;">â» YENILE</button>
-      <button class="btn-ai btn" onclick="copyAIPrompt()"
-        style="font-size: 12px; padding: 6px 16px; letter-spacing:1px;">ð AI PROMPT KOPYALA</button>
-      <button class="btn-ai btn" onclick="showDecisionSummary()"
-        style="font-size: 12px; padding: 6px 16px; letter-spacing:1px; background:linear-gradient(135deg, #00e676, #00c853);">ð KARAR ÖZETI</button>
-      <button class="btn-ai btn" onclick="openKararMotoru()"
-        style="font-size: 12px; padding: 6px 16px; letter-spacing:1px; background:linear-gradient(135deg, #40c4ff, #0288d1);">ð HIZLI KARAR</button>
+    
+    <div class="p-4 space-y-4">
+      <div class="h-[400px] w-full relative"><canvas id="candleChart"></canvas></div>
+      <div class="h-[120px] w-full relative border-t border-analiz-border pt-4"><canvas id="rsiChart"></canvas></div>
+      <div class="h-[120px] w-full relative border-t border-analiz-border pt-4"><canvas id="macdChart"></canvas></div>
     </div>
   </div>
 
-  <div class="verdict" id="verdict">
-    <div class="verdict-tag">Genel Değerlendirme</div>
-    <div class="verdict-title" id="verdictTitle"></div>
-    <div class="verdict-signals" id="verdictSignals"></div>
+  <!-- Action Bar -->
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 bg-analiz-surface/30 p-4 rounded-2xl border border-analiz-border" id="refreshRow">
+    <span class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest" id="refreshInfo"></span>
+    <div class="flex flex-wrap items-center gap-3">
+      <button class="flex items-center gap-2 px-5 py-2.5 bg-analiz-card border border-analiz-border rounded-xl text-xs font-bold text-white hover:border-premium-green transition-all shadow-lg hover:shadow-premium-green/5" onclick="analyze()">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L18 10M1 14l.64 2.34A9 9 0 0 0 20.49 15" />
+        </svg>
+        YENİLE
+      </button>
+      <button class="flex items-center gap-2 px-5 py-2.5 bg-analiz-card border border-analiz-border rounded-xl text-xs font-bold text-white hover:border-premium-yellow transition-all shadow-lg hover:shadow-premium-yellow/5" onclick="copyAIPrompt()">
+        <svg class="w-4 h-4 text-premium-yellow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        AI PROMPT KOPYALA
+      </button>
+      <button class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-premium-green/80 to-green-600 rounded-xl text-xs font-bold text-black border border-premium-green/20 hover:from-premium-green transition-all shadow-lg shadow-premium-green/10" onclick="showDecisionSummary()">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+        KARAR ÖZETİ
+      </button>
+      <button class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-premium-blue/80 to-blue-700 rounded-xl text-xs font-bold text-white border border-premium-blue/20 hover:from-premium-blue transition-all shadow-lg shadow-premium-blue/10" onclick="openKararMotoru()">
+         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 6v6l4 2" />
+        </svg>
+        HIZLI KARAR
+      </button>
+    </div>
+  </div>
+
+  <!-- Verdict Panel -->
+  <div class="bg-analiz-card border border-analiz-border border-l-4 border-l-premium-green rounded-2xl p-6 mb-8 shadow-xl relative overflow-hidden group" id="verdict">
+    <div class="absolute top-0 right-0 w-32 h-32 bg-premium-green/5 blur-[50px] rounded-full group-hover:bg-premium-green/10 transition-all duration-500"></div>
+    <div class="inline-block px-3 py-1 rounded-lg bg-premium-green/10 text-premium-green text-[10px] font-black uppercase tracking-[2px] mb-4 border border-premium-green/20">Genel Değerlendirme</div>
+    <div class="text-2xl font-bebas tracking-[2px] text-white mb-4" id="verdictTitle"></div>
+    <div class="flex flex-wrap gap-4" id="verdictSignals"></div>
   </div>
 
   <!-- KARAR MOTORU PANELİ -->
@@ -1706,58 +1784,62 @@
       }
 
       function renderLiquidityHunt(lh) {
-        const panelClass = `lh-panel lh-${lh.statusKey}`;
-        const badgeClass = `lh-badge badge-${lh.statusKey}`;
-        const scoreW = Math.min(100, lh.score);
+        const scoreColor = lh.score >= 80 ? 'text-premium-red' : lh.score >= 60 ? 'text-premium-orange' : lh.score >= 30 ? 'text-premium-yellow' : 'text-premium-blue';
+        const scoreBg = lh.score >= 80 ? 'bg-premium-red/10' : lh.score >= 60 ? 'bg-premium-orange/10' : lh.score >= 30 ? 'bg-premium-yellow/10' : 'bg-premium-blue/10';
+        const scoreBorder = lh.score >= 80 ? 'border-premium-red/20' : lh.score >= 60 ? 'border-premium-orange/20' : lh.score >= 30 ? 'border-premium-yellow/20' : 'border-premium-blue/20';
 
         const signalsHtml = lh.signals.map(s => {
           const isActive = s.pts > 0;
-          const itemCls = isActive ? `lh-signal-item active-${s.type}` : 'lh-signal-item';
-          const dotCls = isActive ? `lh-signal-dot dot-active-${s.type}` : 'lh-signal-dot';
-          return `<div class="${itemCls}">
-        <div class="${dotCls}"></div>
-        <div class="lh-signal-text">
-          <div style="font-weight:700;color:${isActive ? 'var(--white)' : 'var(--text2)'}">${s.label}</div>
-          <div style="color:var(--text2);font-size:9px;margin-top:2px">${s.detail}</div>
-        </div>
-        <div class="lh-signal-pts" style="color:${s.pts > 0 ? 'var(--orange)' : 'var(--border2)'}">+${s.pts}</div>
-      </div>`;
+          const dotColor = isActive ? (s.type === 'bull' ? 'bg-premium-green' : 'bg-premium-red') : 'bg-analiz-border2';
+          return `
+            <div class="flex items-center gap-4 p-3 rounded-xl border ${isActive ? 'bg-analiz-bg border-analiz-border' : 'bg-transparent border-transparent opacity-60'}">
+              <div class="w-2 h-2 rounded-full ${dotColor} ${isActive ? 'animate-pulse' : ''}"></div>
+              <div class="flex-1">
+                <div class="text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-white' : 'text-analiz-text2'}">${s.label}</div>
+                <div class="text-[9px] text-analiz-text2 mt-0.5">${s.detail}</div>
+              </div>
+              <div class="text-xs font-black ${isActive ? 'text-premium-orange' : 'text-analiz-border2'}">+${s.pts}</div>
+            </div>`;
         }).join('');
 
-        const dirClass = lh.liqSide === 'buy-side' ? 'buyside' : lh.liqSide === 'sell-side' ? 'sellside' : 'neutral';
-        const revColor = lh.reversalLikely ? 'var(--yellow)' : 'var(--text2)';
-        const revBg = lh.reversalLikely ? 'rgba(255,234,0,0.06)' : 'rgba(255,255,255,0.02)';
+        const dirColor = lh.liqSide === 'buy-side' ? 'text-premium-blue' : lh.liqSide === 'sell-side' ? 'text-premium-orange' : 'text-analiz-text2';
+        const dirBg = lh.liqSide === 'buy-side' ? 'bg-premium-blue/10' : lh.liqSide === 'sell-side' ? 'bg-premium-orange/10' : 'bg-analiz-bg';
 
-        return `<div class="${panelClass}">
-      <div class="lh-header">
-        <div class="lh-title">💣 LİKİDİTE AVI RADARARI</div>
-        <div class="${badgeClass}">${lh.emoji} ${lh.status}</div>
-      </div>
+        return `
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-6 shadow-xl mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-premium-red/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-premium-red/10 transition-all duration-500"></div>
+            
+            <div class="flex justify-between items-center mb-8">
+              <div class="text-xs font-black uppercase tracking-[3px] text-analiz-text2">💣 LİKİDİTE AVI RADARI</div>
+              <div class="px-3 py-1 rounded-lg text-[10px] font-black border ${scoreBg} ${scoreColor} ${scoreBorder} animate-pulse">${lh.emoji} ${lh.status.toUpperCase()}</div>
+            </div>
 
-      <div class="lh-score-wrap">
-        <div class="lh-score-label">
-          <span>STOP HUNT SKORU</span>
-          <span style="color:${lh.score >= 80 ? 'var(--red)' : lh.score >= 60 ? 'var(--orange)' : lh.score >= 30 ? 'var(--yellow)' : 'var(--blue)'};font-size:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px">${lh.score}</span>
-        </div>
-        <div class="lh-score-track">
-          <div class="lh-score-fill" style="width:${scoreW}%"></div>
-        </div>
-        <div class="lh-score-markers"><span>0</span><span>30</span><span>60</span><span>80</span><span>100</span></div>
-      </div>
+            <div class="mb-8 p-4 bg-analiz-bg rounded-xl border border-analiz-border">
+              <div class="flex justify-between items-end mb-3">
+                <span class="text-[9px] font-black uppercase tracking-widest text-analiz-text2">STOP HUNT SKORU</span>
+                <span class="text-3xl font-bebas tracking-[2px] ${scoreColor}">${lh.score}</span>
+              </div>
+              <div class="h-2 w-full bg-analiz-card rounded-full overflow-hidden border border-analiz-border">
+                <div class="h-full bg-gradient-to-r from-premium-blue via-premium-yellow to-premium-red transition-all duration-1000" style="width:${Math.min(100, lh.score)}%"></div>
+              </div>
+              <div class="flex justify-between text-[8px] font-bold text-analiz-text2/50 mt-2 px-1">
+                <span>0</span><span>30</span><span>60</span><span>80</span><span>100</span>
+              </div>
+            </div>
 
-      <div class="lh-signals">${signalsHtml}</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">${signalsHtml}</div>
 
-      <div class="lh-direction">
-        <div class="lh-dir-chip ${dirClass}">
-          <div class="lh-dir-label">LİKİDİTE YÖNÜ</div>
-          <div class="lh-dir-val">${lh.liqSideDesc}</div>
-        </div>
-      </div>
-
-      <div class="lh-reversal" style="color:${revColor};background:${revBg};border-color:${lh.reversalLikely ? 'rgba(255,234,0,0.3)' : 'var(--border2)'}">
-        ${lh.reversalDesc}
-      </div>
-    </div>`;
+            <div class="flex flex-col md:flex-row gap-4">
+              <div class="flex-1 p-4 rounded-xl text-center border border-analiz-border ${dirBg}">
+                <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Likidite Yönü</div>
+                <div class="text-sm font-black text-white italic tracking-wide">${lh.liqSideDesc.toUpperCase()}</div>
+              </div>
+              <div class="flex-1 p-4 rounded-xl text-center border ${lh.reversalLikely ? 'border-premium-yellow/30 bg-premium-yellow/5' : 'border-analiz-border bg-analiz-bg'}">
+                 <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Dönüş Potansiyeli</div>
+                 <div class="text-[10px] font-bold ${lh.reversalLikely ? 'text-premium-yellow' : 'text-analiz-text2'}">${lh.reversalDesc}</div>
+              </div>
+            </div>
+          </div>`;
       }
 
       // ── 📐 MARKET STRUCTURE CLASSIFIER (SMC) ─────────────────
@@ -1847,45 +1929,65 @@
       }
 
       function renderMarketStructure(ms) {
-        const badgeCls = `smc-badge ${ms.bias}`;
-        const trendColor = ms.bias === 'bull' ? 'var(--green)' : ms.bias === 'bear' ? 'var(--red)' : 'var(--yellow)';
+        const trendColor = ms.bias === 'bull' ? 'text-premium-green' : ms.bias === 'bear' ? 'text-premium-red' : 'text-premium-yellow';
+        const trendBg = ms.bias === 'bull' ? 'bg-premium-green/10' : ms.bias === 'bear' ? 'bg-premium-red/10' : 'bg-premium-yellow/10';
+        const trendBorder = ms.bias === 'bull' ? 'border-premium-green/30' : ms.bias === 'bear' ? 'border-premium-red/30' : 'border-premium-yellow/30';
 
-        const swingsHtml = ms.swings.slice(0, 6).map(s => `
-      <div class="smc-swing-row">
-        <span style="color:var(--text2)">${s.label}</span>
-        <span style="font-weight:700;color:var(--${s.color === 'green' ? 'green' : s.color === 'red' ? 'red' : 'text2'})">${s.type}</span>
-        <span style="color:var(--white)">${fp(s.price)}</span>
-      </div>`).join('');
+        const swingsHtml = ms.swings.slice(0, 6).map(s => {
+          const sColor = s.color === 'green' ? 'text-premium-green' : s.color === 'red' ? 'text-premium-red' : 'text-analiz-text2';
+          return `
+            <div class="flex items-center justify-between p-2 rounded-lg bg-analiz-bg/50 border border-analiz-border/50">
+              <span class="text-[9px] font-bold text-analiz-text2/70 uppercase">${s.label}</span>
+              <span class="text-[10px] font-black ${sColor}">${s.type}</span>
+              <span class="text-[10px] font-bold text-white">${fp(s.price)}</span>
+            </div>`;
+        }).join('');
 
-        const chochHtml = ms.choch
-          ? `<div class="smc-choch" style="background:rgba(${ms.choch.color === 'green' ? '0,230,118' : '255,23,68'},0.1);border:1px solid rgba(${ms.choch.color === 'green' ? '0,230,118' : '255,23,68'},0.4);color:var(--${ms.choch.color === 'green' ? 'green' : 'red'})">⚡ ${ms.choch.type}: ${ms.choch.detail}</div>`
-          : '';
-        const bosHtml = ms.bos
-          ? `<div class="smc-choch" style="background:rgba(${ms.bos.color === 'green' ? '0,230,118' : '255,23,68'},0.07);border:1px solid rgba(${ms.bos.color === 'green' ? '0,230,118' : '255,23,68'},0.3);color:var(--${ms.bos.color === 'green' ? 'green' : 'red'})">🔀 ${ms.bos.type}: ${ms.bos.detail}</div>`
-          : '';
+        const chochHtml = ms.choch ? `
+          <div class="flex items-center gap-3 p-4 rounded-xl mb-3 border ${ms.choch.color === 'green' ? 'bg-premium-green/10 border-premium-green/30 text-premium-green' : 'bg-premium-red/10 border-premium-red/30 text-premium-red'} animate-pulse">
+            <span class="text-xl">⚡</span>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest">${ms.choch.type}</p>
+              <p class="text-[9px] font-bold opacity-80">${ms.choch.detail}</p>
+            </div>
+          </div>` : '';
 
-        return `<div class="smc-panel">
-      <div class="smc-header">
-        <div class="smc-title">📐 MARKET STRUCTURE (SMC)</div>
-        <div class="${badgeCls}" style="color:${trendColor}">${ms.trend}</div>
-      </div>
-      <div class="smc-grid">
-        <div class="smc-item">
-          <div class="smc-item-label">Yapı Özeti</div>
-          <div class="smc-item-val" style="color:${trendColor};font-size:12px">${ms.label}</div>
-        </div>
-        <div class="smc-item">
-          <div class="smc-item-label">HH/HL vs LH/LL</div>
-          <div class="smc-item-val" style="font-size:12px">
-            <span class="c-green">HH:${ms.hhCount} HL:${ms.hlCount}</span>
-            <span style="color:var(--border2)"> / </span>
-            <span class="c-red">LH:${ms.lhCount} LL:${ms.llCount}</span>
-          </div>
-        </div>
-      </div>
-      <div class="smc-swings">${swingsHtml}</div>
-      ${chochHtml}${bosHtml}
-    </div>`;
+        const bosHtml = ms.bos ? `
+          <div class="flex items-center gap-3 p-4 rounded-xl border ${ms.bos.color === 'green' ? 'bg-premium-green/5 border-premium-green/20 text-premium-green' : 'bg-premium-red/5 border-premium-red/20 text-premium-red'}">
+            <span class="text-xl">🔀</span>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest">${ms.bos.type}</p>
+              <p class="text-[9px] font-bold opacity-80">${ms.bos.detail}</p>
+            </div>
+          </div>` : '';
+
+        return `
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-6 shadow-xl mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-premium-blue/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-premium-blue/10 transition-all duration-500"></div>
+            
+            <div class="flex justify-between items-center mb-8">
+              <div class="text-xs font-black uppercase tracking-[3px] text-analiz-text2">📐 MARKET STRUCTURE (SMC)</div>
+              <div class="px-3 py-1 rounded-lg text-[10px] font-black border ${trendBg} ${trendColor} ${trendBorder} shadow-sm uppercase tracking-widest">${ms.trend}</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="space-y-1">
+                <p class="text-[9px] font-black uppercase tracking-widest text-analiz-text2">Yapı Özeti</p>
+                <p class="text-xs font-bold ${trendColor}">${ms.label.toUpperCase()}</p>
+              </div>
+              <div class="space-y-1 md:text-right">
+                <p class="text-[9px] font-black uppercase tracking-widest text-analiz-text2">Fraktal Puanlar</p>
+                <div class="text-xs font-bold">
+                  <span class="text-premium-green">HH:${ms.hhCount} HL:${ms.hlCount}</span>
+                  <span class="text-analiz-border2 px-1">/</span>
+                  <span class="text-premium-red">LH:${ms.lhCount} LL:${ms.llCount}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-8">${swingsHtml}</div>
+            ${chochHtml}${bosHtml}
+          </div>`;
       }
 
       // ── 🔀 FUNDING + OI DIVERGENCE ENGINE ────────────────────
@@ -1955,47 +2057,57 @@
       }
 
       function renderFundingOIDivergence(foi) {
-        const stateColor = foi.stateClass === 'foi-bull' ? 'var(--green)'
-          : foi.stateClass === 'foi-bear' ? 'var(--red)'
-            : foi.stateClass === 'foi-divg' ? 'var(--orange)'
-              : 'var(--text2)';
+        const stateColor = foi.stateClass === 'foi-bull' ? 'text-premium-green'
+          : foi.stateClass === 'foi-bear' ? 'text-premium-red'
+            : foi.stateClass === 'foi-divg' ? 'text-premium-orange'
+              : 'text-analiz-text2';
+        
+        const stateBg = foi.stateClass === 'foi-bull' ? 'bg-premium-green/10'
+          : foi.stateClass === 'foi-bear' ? 'bg-premium-red/10'
+            : foi.stateClass === 'foi-divg' ? 'bg-premium-orange/10'
+              : 'bg-analiz-surface';
 
-        const fundColor = foi.fPct > 0 ? 'var(--red)' : 'var(--green)';
-        const oiColor = (foi.oiChange || 0) > 0 ? 'var(--green)' : 'var(--red)';
+        const fundColor = foi.fPct > 0 ? 'text-premium-red' : 'text-premium-green';
+        const oiColor = (foi.oiChange || 0) > 0 ? 'text-premium-green' : 'text-premium-red';
 
-        const alertHtml = foi.fundingAlert
-          ? `<div style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:10px;font-weight:700;color:var(--${foi.fundingAlert.color});background:rgba(${foi.fundingAlert.color === 'red' ? '255,23,68' : '0,230,118'},0.08);border:1px solid rgba(${foi.fundingAlert.color === 'red' ? '255,23,68' : '0,230,118'},0.3)">${foi.fundingAlert.msg}</div>`
-          : '';
+        const alertHtml = foi.fundingAlert ? `
+          <div class="mt-4 p-3 rounded-xl text-[11px] font-black border uppercase tracking-wider ${foi.fundingAlert.color === 'red' ? 'bg-premium-red/10 border-premium-red/30 text-premium-red' : 'bg-premium-green/10 border-premium-green/30 text-premium-green'}">
+            ⚠ ${foi.fundingAlert.msg}
+          </div>` : '';
 
-        const lsHtml = foi.lsInsight
-          ? `<div style="margin-top:6px;font-size:10px;color:var(--yellow);font-weight:700">🎯 ${foi.lsInsight}</div>`
-          : '';
+        const lsHtml = foi.lsInsight ? `
+          <div class="mt-3 text-[10px] font-bold text-premium-yellow italic uppercase">🎯 ${foi.lsInsight}</div>` : '';
 
-        return `<div class="foi-panel ${foi.stateClass}">
-      <div class="foi-header">
-        <div class="foi-title" style="color:${stateColor}">🔀 FUNDING + OI MOTOR</div>
-        <div class="foi-state-badge" style="color:${stateColor};border-color:${stateColor};background:${stateColor}18">${foi.stateLabel}</div>
-      </div>
-      <div class="foi-grid">
-        <div class="foi-cell">
-          <div class="foi-cell-label">Funding Ort.</div>
-          <div class="foi-cell-val" style="color:${fundColor}">%${foi.fPct.toFixed(4)}</div>
-        </div>
-        <div class="foi-cell">
-          <div class="foi-cell-label">OI Değişim</div>
-          <div class="foi-cell-val" style="color:${oiColor}">${(foi.oiChange || 0) > 0 ? '+' : ''}${(foi.oiChange || 0).toFixed(2)}%</div>
-        </div>
-        <div class="foi-cell">
-          <div class="foi-cell-label">Diverjans</div>
-          <div class="foi-cell-val" style="color:${foi.divergence ? 'var(--orange)' : 'var(--text2)'}">${foi.divergence ? '⚡ EVET' : '— YOK'}</div>
-        </div>
-      </div>
-      <div class="foi-desc">
-        <div style="margin-bottom:6px">${foi.description}</div>
-        <div style="font-weight:700;color:var(--blue)">→ ${foi.actionHint}</div>
-      </div>
-      ${alertHtml}${lsHtml}
-    </div>`;
+        return `
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-6 shadow-xl mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-premium-yellow/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-premium-yellow/10 transition-all duration-500"></div>
+            
+            <div class="flex justify-between items-center mb-8">
+              <div class="text-xs font-black uppercase tracking-[3px] text-analiz-text2">🔀 FUNDING + OI MOTOR</div>
+              <div class="px-3 py-1 rounded-lg text-[10px] font-black border ${stateBg} ${stateColor} border-current uppercase tracking-widest">${foi.stateLabel.replace(/🟢 |🔴 |🟠 |⚪ /, '')}</div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+               <div class="space-y-1">
+                 <p class="text-[9px] font-black uppercase tracking-widest text-analiz-text2">Funding Ort.</p>
+                 <p class="text-xs font-black ${fundColor}">%${foi.fPct.toFixed(4)}</p>
+               </div>
+               <div class="space-y-1">
+                 <p class="text-[9px] font-black uppercase tracking-widest text-analiz-text2">OI Değişim</p>
+                 <p class="text-xs font-black ${oiColor}">${(foi.oiChange || 0) > 0 ? '+' : ''}${(foi.oiChange || 0).toFixed(2)}%</p>
+               </div>
+               <div class="space-y-1 md:text-right">
+                 <p class="text-[9px] font-black uppercase tracking-widest text-analiz-text2">Diverjans</p>
+                 <p class="text-xs font-black ${foi.divergence ? 'text-premium-orange' : 'text-white'}">${foi.divergence ? '⚡ EVET' : '— YOK'}</p>
+               </div>
+            </div>
+
+            <div class="bg-analiz-bg/50 p-4 rounded-xl border border-analiz-border/50">
+               <p class="text-[10px] text-analiz-text leading-relaxed mb-3">${foi.description}</p>
+               <p class="text-[10px] font-black text-premium-blue uppercase tracking-widest">→ ${foi.actionHint}</p>
+            </div>
+            ${alertHtml}${lsHtml}
+          </div>`;
       }
 
       // ── 🏆 KOMPOZİT SKOR MOTORU (0–100) ─────────────────────
@@ -2084,28 +2196,45 @@
       }
 
       function renderCompositeScore(cs) {
-        const factorsHtml = cs.factors.slice(0, 8).map(f => `
-      <div class="comp-row">
-        <span style="color:var(--text2)">${f.k}</span>
-        <span style="font-weight:700;color:var(--${f.c === 'green' ? 'green' : f.c === 'red' ? 'red' : f.c === 'orange' ? 'orange' : 'text2'})">${f.v}</span>
-      </div>`).join('');
+        const factorsHtml = cs.factors.slice(0, 8).map(f => {
+          const fColor = f.c === 'green' ? 'text-premium-green' : f.c === 'red' ? 'text-premium-red' : f.c === 'orange' ? 'text-premium-orange' : 'text-analiz-text2';
+          return `
+            <div class="flex items-center justify-between p-2 rounded-lg bg-analiz-bg/50 border border-analiz-border/50">
+              <span class="text-[9px] font-bold text-analiz-text2/70 uppercase tracking-tighter">${f.k}</span>
+              <span class="text-[10px] font-black ${fColor}">${f.v}</span>
+            </div>`;
+        }).join('');
 
-        const barBull = `<div style="height:8px;border-radius:4px 0 0 4px;background:var(--green);width:${cs.bullPct}%;transition:width 1s ease;display:inline-block"></div>`;
-        const barBear = `<div style="height:8px;border-radius:0 4px 4px 0;background:var(--red);width:${cs.bearPct}%;transition:width 1s ease;display:inline-block"></div>`;
+        const decisionColor = cs.decisionColor === 'var(--green)' ? 'text-premium-green' : cs.decisionColor === 'var(--red)' ? 'text-premium-red' : 'text-premium-yellow';
+        const decisionBg = cs.decisionColor === 'var(--green)' ? 'bg-premium-green/10' : cs.decisionColor === 'var(--red)' ? 'bg-premium-red/10' : 'bg-premium-yellow/10';
+        const decisionBorder = cs.decisionColor === 'var(--green)' ? 'border-premium-green/30' : cs.decisionColor === 'var(--red)' ? 'border-premium-red/30' : 'border-premium-yellow/30';
 
-        return `<div class="comp-panel ${cs.decisionClass}">
-      <div class="comp-title" style="color:${cs.decisionColor}">🏆 KOMPOZİT ANALİZ SKORU</div>
-      <div style="display:flex;margin-bottom:6px;border-radius:4px;overflow:hidden;height:8px">${barBull}${barBear}</div>
-      <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:14px">
-        <span class="c-green">🟢 Bull: ${cs.bullPct}%</span>
-        <span style="color:var(--text2)">Güven: %${cs.confidence}</span>
-        <span class="c-red">Bear: ${cs.bearPct}% 🔴</span>
-      </div>
-      ${factorsHtml}
-      <div class="comp-verdict" style="color:${cs.decisionColor};background:${cs.decisionColor}14;border:1px solid ${cs.decisionColor}44">
-        ${cs.decision} — %${cs.confidence} GÜVEN
-      </div>
-    </div>`;
+        return `
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-6 shadow-xl mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-premium-purple/5 blur-[50px] rounded-full pointer-events-none group-hover:bg-premium-purple/10 transition-all duration-500"></div>
+            
+            <div class="text-xs font-black uppercase tracking-[3px] text-analiz-text2 mb-8">🏆 KOMPOZİT ANALİZ SKORU</div>
+
+            <div class="mb-8 p-5 bg-analiz-bg rounded-2xl border border-analiz-border">
+              <div class="flex h-3 w-full rounded-full overflow-hidden border border-analiz-border mb-4">
+                <div class="bg-premium-green transition-all duration-1000" style="width:${cs.bullPct}%"></div>
+                <div class="bg-premium-red transition-all duration-1000" style="width:${cs.bearPct}%"></div>
+              </div>
+              <div class="flex justify-between items-center text-[10px] font-black">
+                <span class="text-premium-green">🟢 BULL %${cs.bullPct}</span>
+                <span class="text-white bg-analiz-surface px-4 py-1 rounded-full border border-analiz-border">GÜVEN %${cs.confidence}</span>
+                <span class="text-premium-red">BEAR %${cs.bearPct} 🔴</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">${factorsHtml}</div>
+
+            <div class="p-5 rounded-2xl text-center border-2 border-dashed ${decisionBg} ${decisionColor} ${decisionBorder} transform hover:scale-[1.02] transition-transform duration-300">
+              <div class="text-[10px] font-black uppercase tracking-[10px] mb-2 opacity-60">FİNAL KARAR</div>
+              <div class="text-3xl font-bebas tracking-[5px]">${cs.decision.replace(/🟢 |🔴 |⚪ /, '')}</div>
+              <div class="text-[10px] font-bold mt-2 opacity-80">%${cs.confidence} GÜVEN ENDEKSİ</div>
+            </div>
+          </div>`;
       }
 
       // ── FORMAT ───────────────────────────────────────────────
@@ -2357,7 +2486,7 @@
           if (avgPct > 0.05 && slope > 0) { signals.push({ t: `Funding Yüksek & Artıyor (${avgPct.toFixed(3)}%)`, c: 'bear' }); score -= 2.0; }
           else if (avgPct < -0.03 && slope < 0) { signals.push({ t: `Funding Negatif & Düşüyor (${avgPct.toFixed(3)}%)`, c: 'bull' }); score += 2.0; }
           else if (avgPct > 0.05) { signals.push({ t: `Funding Yüksek (${avgPct.toFixed(3)}%)`, c: 'warn' }); score -= 1.0; }
-          else if (avgPct < -0.03) { signals.push({ t: `Funding Negatif (${avgPct.toFixed(3)}%)`, c: 'bull' }); score += 1.0; }
+          else if (avgPct < -0.03) { signals.push({ t: 'Funding Negatif (' + avgPct.toFixed(3) + '%)', c: 'bull' }); score += 1.0; }
         }
 
         if (lsRatio !== null) {
@@ -2996,10 +3125,27 @@ Rules:
 
           const verdict = buildVerdict(rsi, macd, boll, price, fundingAnalysis, lsRatio);
           const vEl = document.getElementById('verdict');
-          vEl.className = 'verdict ' + verdict.cls;
+          
+          // Tailwind styling for Verdict panel
+          const vBase = "bg-analiz-card border-analiz-border border-l-4 rounded-2xl p-6 mb-8 shadow-xl relative overflow-hidden group";
+          const vColors = {
+            'short': 'border-l-premium-red/80 bg-gradient-to-r from-premium-red/5 to-transparent',
+            'long': 'border-l-premium-green/80 bg-gradient-to-r from-premium-green/5 to-transparent',
+            'neutral': 'border-l-premium-yellow/80 bg-gradient-to-r from-premium-yellow/5 to-transparent'
+          };
+          vEl.className = `${vBase} ${vColors[verdict.cls] || vColors.neutral}`;
           vEl.style.display = 'block';
+
           document.getElementById('verdictTitle').textContent = verdict.title;
-          document.getElementById('verdictSignals').innerHTML = verdict.signals.map(s => `<span class="chip chip-${s.c}">${s.t}</span>`).join('');
+          document.getElementById('verdictSignals').innerHTML = verdict.signals.map(s => {
+            const chipColors = {
+              'bear': 'bg-premium-red/10 text-premium-red border-premium-red/20',
+              'bull': 'bg-premium-green/10 text-premium-green border-premium-green/20',
+              'warn': 'bg-premium-yellow/10 text-premium-yellow border-premium-yellow/20',
+              'info': 'bg-premium-blue/10 text-premium-blue border-premium-blue/20'
+            };
+            return `<span class="px-3 py-1 rounded-lg text-[10px] font-black border uppercase tracking-wider ${chipColors[s.c] || 'bg-analiz-bg text-analiz-text2 border-analiz-border'}">${s.t}</span>`;
+          }).join('');
 
           document.getElementById('chartPanel').style.display = 'block';
 
@@ -3272,37 +3418,195 @@ Rules:
           // Artýk sadece yeni DecisionEngine kullanýlýyor
 
           document.getElementById('output').innerHTML = `
-        <div class="section-title">Fiyat & Piyasa</div>
-        <div class="grid2">
-          <div class="card"><div class="card-label">Fiyat</div><div class="card-value c-white" style="font-size:26px">${fp(price)}</div><div class="card-sub ${chgC}">${chg24 >= 0 ? '+' : ''}${chg24.toFixed(2)}% (24s)</div></div>
-          <div class="card"><div class="card-label">24s Aralık</div><div class="card-value c-red" style="font-size:18px">${fp(highDay)}</div><div class="card-sub c-green">${fp(lowDay)}</div><div class="bar-wrap" style="margin-top:6px"><div class="bar-track"><div class="bar-fill" style="width:${((price - lowDay) / (highDay - lowDay) * 100).toFixed(1)}%;background:linear-gradient(90deg,var(--green),var(--yellow))"></div></div></div></div>
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-blue">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Fiyat & Piyasa</span>
         </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg hover:border-premium-blue/30 transition-all">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">Fiyat</div>
+            <div class="text-3xl font-bebas tracking-wider text-white mb-2">${fp(price)}</div>
+            <div class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold ${chg24 >= 0 ? 'bg-premium-green/10 text-premium-green' : 'bg-premium-red/10 text-premium-red'}">
+              ${chg24 >= 0 ? '+' : ''}${chg24.toFixed(2)}% (24s)
+            </div>
+          </div>
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg hover:border-premium-blue/30 transition-all">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">24s Aralık</div>
+            <div class="flex justify-between items-baseline mb-2">
+              <div class="text-lg font-bebas text-premium-red">${fp(highDay)}</div>
+              <div class="text-lg font-bebas text-premium-green">${fp(lowDay)}</div>
+            </div>
+            <div class="h-1.5 w-full bg-analiz-bg rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-premium-green to-premium-yellow transition-all duration-1000" style="width:${((price - lowDay) / (highDay - lowDay) * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+        </div>
+        
         ${volumeSpikeHtml}
-        ${mktCap || circSupply || ath ? `<div class="section-title">Market Verileri</div><div class="grid${(mktCap ? 1 : 0) + (circSupply ? 1 : 0) + (ath ? 1 : 0)}">${mktCap ? `<div class="card"><div class="card-label">Market Cap</div><div class="card-value c-purple" style="font-size:22px">${fn(mktCap)}</div><div class="card-sub">USD</div></div>` : ''}${circSupply ? `<div class="card"><div class="card-label">Dolaşımdaki Arz</div><div class="card-value c-orange" style="font-size:20px">${fn(circSupply)}</div><div class="card-sub">${maxSupply ? `Max: ${fn(maxSupply)}` : 'Max Arz Yok'}</div>${maxSupply ? `<div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${(circSupply / maxSupply * 100).toFixed(1)}%;background:var(--orange)"></div></div></div>` : ''}</div>` : ''}${ath ? `<div class="card"><div class="card-label">All Time High</div><div class="card-value c-yellow" style="font-size:20px">${fp(ath)}</div><div class="card-sub c-red">${athChange}% ATH'den uzakta</div>${athDate ? `<div class="card-sub">${new Date(athDate).toLocaleDateString('tr-TR', { year: 'numeric', month: 'short', day: 'numeric' })}</div>` : ''}</div>` : ''}</div>` : ''}
-        <div class="grid2">
-          <div class="card"><div class="card-label">24s Hacim</div><div class="card-value c-yellow" style="font-size:22px">${fn(vol24)}</div><div class="card-sub">USDT</div></div>
-          <div class="card"><div class="card-label">Open Interest</div><div class="card-value c-blue" style="font-size:22px">${fn(openIntValue)}</div><div class="card-sub">USDT değeri</div><div class="oi-change"><span class="oi-arrow ${oiColor}">${oiArrow}</span><span class="${oiColor}">%${oiChangeAbs.toFixed(2)} değişim</span></div><div class="card-sub" style="margin-top:4px">${oiTrendComment}</div></div>
+
+        ${mktCap || circSupply || ath ? `
+          <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-purple">
+            <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Market Verileri</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-${(mktCap ? 1 : 0) + (circSupply ? 1 : 0) + (ath ? 1 : 0)} gap-4 mb-4">
+            ${mktCap ? `
+              <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+                <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">Market Cap</div>
+                <div class="text-2xl font-bebas text-premium-purple">${fn(mktCap)}</div>
+                <div class="text-[10px] text-analiz-text2 mt-1">USD</div>
+              </div>` : ''}
+            ${circSupply ? `
+              <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+                <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">Dolaşımdaki Arz</div>
+                <div class="text-2xl font-bebas text-premium-orange">${fn(circSupply)}</div>
+                <div class="text-[10px] text-analiz-text2 mt-1">${maxSupply ? `Max: ${fn(maxSupply)}` : 'Max Arz Yok'}</div>
+                ${maxSupply ? `<div class="mt-3 h-1 w-full bg-analiz-bg rounded-full overflow-hidden"><div class="h-full bg-premium-orange" style="width:${(circSupply / maxSupply * 100).toFixed(1)}%"></div></div>` : ''}
+              </div>` : ''}
+            ${ath ? `
+              <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+                <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">All Time High</div>
+                <div class="text-2xl font-bebas text-premium-yellow">${fp(ath)}</div>
+                <div class="text-[10px] text-premium-red font-bold mt-1">${athChange}% ATH'den uzakta</div>
+              </div>` : ''}
+          </div>` : ''}
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-yellow">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Hacim & İlgi</span>
         </div>
-        ${liqLong !== null ? `<div class="section-title">Pozisyon Dağılımı</div><div class="grid2"><div class="card"><div class="card-label">Long</div><div class="card-value c-green" style="font-size:22px">${fn(liqLong)}</div></div><div class="card"><div class="card-label">Short</div><div class="card-value c-red" style="font-size:22px">${fn(liqShort)}</div></div></div>` : ''}
-        <div class="section-title">Teknik Göstergeler</div>
-        <div class="grid2">
-          <div class="card"><div class="card-label">RSI (Mevcut TF)</div><div class="card-value ${rsiC}">${rsi ? rsi.toFixed(1) : 'N/A'}</div><div class="card-sub">${rsi > 85 ? '⚠ Aşırı alım!' : rsi > 70 ? 'Yüksek' : rsi < 30 ? '⚠ Aşırı satım!' : rsi < 45 ? 'Düşük' : 'Normal'}</div><div class="bar-wrap"><div class="bar-labels"><span>0</span><span class="c-green">30</span><span class="c-red">70</span><span>100</span></div><div class="bar-track"><div class="bar-fill" style="width:${rsi ? rsi.toFixed(1) : 0}%;background:${rsi > 70 ? 'var(--red)' : rsi < 30 ? 'var(--green)' : 'var(--blue)'}"></div></div></div></div>
-          <div class="card"><div class="card-label">RSI (4 Saatlik)</div><div class="card-value ${rsi4hC}">${rsi4h ? rsi4h.toFixed(1) : 'N/A'}</div><div class="card-sub">${rsi4h > 70 ? 'Yüksek' : rsi4h < 30 ? 'Düşük' : 'Normal'}</div><div class="bar-wrap"><div class="bar-labels"><span>0</span><span class="c-green">30</span><span class="c-red">70</span><span>100</span></div><div class="bar-track"><div class="bar-fill" style="width:${rsi4h ? rsi4h.toFixed(1) : 0}%;background:${rsi4h > 70 ? 'var(--red)' : rsi4h < 30 ? 'var(--green)' : 'var(--blue)'}"></div></div></div><div class="card-sub" style="margin-top:8px; font-weight:600;">${multiRSIComment}</div></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">24s Hacim</div>
+            <div class="text-2xl font-bebas text-premium-yellow">${fn(vol24)}</div>
+            <div class="text-[10px] text-analiz-text2 mt-1">USDT</div>
+          </div>
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">Open Interest</div>
+            <div class="text-2xl font-bebas text-premium-blue">${fn(openIntValue)}</div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-xs font-bold ${oiColor === 'c-green' ? 'text-premium-green' : 'text-premium-red'}">${oiArrow} %${oiChangeAbs.toFixed(2)}</span>
+              <span class="text-[10px] text-analiz-text2">${oiTrendComment}</span>
+            </div>
+          </div>
         </div>
-        <div class="card full" style="margin-bottom:8px"><div class="card-label">MACD</div>${macd ? `<div class="macd-row"><div class="macd-item"><div class="macd-item-label">MACD</div><div class="macd-item-val ${macd.macd > 0 ? 'c-green' : 'c-red'}">${macd.macd.toFixed(4)}</div></div><div class="macd-item"><div class="macd-item-label">SİNYAL</div><div class="macd-item-val c-yellow">${macd.signal.toFixed(4)}</div></div><div class="macd-item"><div class="macd-item-label">HİSTOGRAM</div><div class="macd-item-val ${macd.histogram > 0 ? 'c-green' : 'c-red'}">${macd.histogram.toFixed(4)}</div></div></div><div class="card-sub" style="margin-top:8px">${macd.histogram > 0 && macd.macd > 0 ? '🟢 Momentum güçlü' : macd.histogram < 0 && macd.macd < 0 ? '🔴 Düşüş momentumu' : macd.histogram < 0 ? '🟡 Zayıflıyor' : '🔵 Güçleniyor'}</div>` : '<div class="card-sub">Yetersiz veri</div>'}</div>
-        <div class="card full" style="margin-bottom:8px"><div class="card-label">Bollinger Bantları (20,2)</div>${renderBoll(boll, price)}</div>
-        <div class="section-title">Destek & Direnç</div><div class="card full" style="margin-bottom:8px"><div class="card-label">Pivot Seviyeleri</div><div style="margin-top:8px">${renderSR(sr)}</div></div>
-        <div class="section-title">💣 Likidite Avı Analizi</div>
+
+        ${liqLong !== null ? `
+          <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-orange">
+            <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Pozisyon Dağılımı</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+              <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-2">Long</div>
+              <div class="text-2xl font-bebas text-premium-green">${fn(liqLong)}</div>
+            </div>
+            <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+              <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-2">Short</div>
+              <div class="text-2xl font-bebas text-premium-red">${fn(liqShort)}</div>
+            </div>
+          </div>` : ''}
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-blue">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Teknik Göstergeler</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">RSI (Mevcut TF)</div>
+            <div class="text-2xl font-bebas ${rsiC === 'c-green' ? 'text-premium-green' : rsiC === 'c-red' ? 'text-premium-red' : 'text-premium-blue'}">${rsi ? rsi.toFixed(1) : 'N/A'}</div>
+            <div class="text-[10px] font-bold mb-3 ${rsi > 70 ? 'text-premium-red' : rsi < 30 ? 'text-premium-green' : 'text-analiz-text2'}">
+              ${rsi > 85 ? '⚠ AŞIRI ALIM!' : rsi > 70 ? 'YÜKSEK' : rsi < 30 ? '⚠ AŞIRI SATIM!' : rsi < 45 ? 'DÜŞÜK' : 'NORMAL'}
+            </div>
+            <div class="h-1.5 w-full bg-analiz-bg rounded-full overflow-hidden">
+              <div class="h-full transition-all duration-1000" style="width:${rsi ? rsi.toFixed(1) : 0}%;background:${rsi > 70 ? '#ff1744' : rsi < 30 ? '#00e676' : '#40c4ff'}"></div>
+            </div>
+          </div>
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-3">RSI (4 Saatlik)</div>
+            <div class="text-2xl font-bebas ${rsi4hC === 'c-green' ? 'text-premium-green' : rsi4hC === 'c-red' ? 'text-premium-red' : 'text-premium-blue'}">${rsi4h ? rsi4h.toFixed(1) : 'N/A'}</div>
+            <div class="text-[10px] text-analiz-text2 mb-3 font-bold">${multiRSIComment}</div>
+            <div class="h-1.5 w-full bg-analiz-bg rounded-full overflow-hidden">
+              <div class="h-full transition-all duration-1000" style="width:${rsi4h ? rsi4h.toFixed(1) : 0}%;background:${rsi4h > 70 ? '#ff1744' : rsi4h < 30 ? '#00e676' : '#40c4ff'}"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg mb-4">
+          <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-4">MACD</div>
+          ${macd ? `
+            <div class="grid grid-cols-3 gap-2">
+              <div><p class="text-[8px] text-analiz-text2 uppercase font-bold mb-1">MACD</p><p class="text-xs font-black ${macd.macd > 0 ? 'text-premium-green' : 'text-premium-red'}">${macd.macd.toFixed(4)}</p></div>
+              <div><p class="text-[8px] text-analiz-text2 uppercase font-bold mb-1">SİNYAL</p><p class="text-xs font-black text-premium-yellow">${macd.signal.toFixed(4)}</p></div>
+              <div><p class="text-[8px] text-analiz-text2 uppercase font-bold mb-1">HİSTOGRAM</p><p class="text-xs font-black ${macd.histogram > 0 ? 'text-premium-green' : 'text-premium-red'}">${macd.histogram.toFixed(4)}</p></div>
+            </div>
+            <div class="mt-3 text-[10px] font-bold text-analiz-text italic">
+              ${macd.histogram > 0 && macd.macd > 0 ? '🟢 Momentum güçlü' : macd.histogram < 0 && macd.macd < 0 ? '🔴 Düşüş momentumu' : macd.histogram < 0 ? '🟡 Zayıflıyor' : '🔵 Güçleniyor'}
+            </div>` : '<div class="text-xs text-analiz-text2">Yetersiz veri</div>'}
+        </div>
+
+        <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg mb-4">
+          <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-4">Bollinger Bantları (20,2)</div>
+          ${renderBoll(boll, price)}
+        </div>
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-green">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Destek & Direnç</span>
+        </div>
+        <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg mb-4">
+          <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-4">Pivot Seviyeleri</div>
+          ${renderSR(sr)}
+        </div>
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-red">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">💣 Likidite Avı Analizi</span>
+        </div>
         ${renderLiquidityHunt(lhResult)}
-        <div class="section-title">📐 Market Yapısı (SMC)</div>
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-blue">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">📐 Market Yapısı (SMC)</span>
+        </div>
         ${renderMarketStructure(msResult)}
-        <div class="section-title">🔀 Funding + OI Motor</div>
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-yellow">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">🔀 Funding + OI Motor</span>
+        </div>
         ${renderFundingOIDivergence(foiResult)}
-        <div class="section-title">🏆 Kompozit Skor</div>
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-premium-purple">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">🏆 Kompozit Skor</span>
+        </div>
         ${renderCompositeScore(csResult)}
-        <div class="section-title">Futures Verileri</div>${fundingHtml}
-        ${lsRatio !== null ? `<div class="card full" style="margin-bottom:8px"><div class="card-label">Top Trader Long/Short Oranı</div><div class="ls-track"><div class="ls-s" style="width:${shortPct.toFixed(1)}%"></div><div class="ls-l" style="width:${longPct.toFixed(1)}%"></div></div><div class="ls-labels"><span class="c-red">▼ Short %${shortPct.toFixed(1)}</span><span class="c-green">Long %${longPct.toFixed(1)} ▲</span></div><div class="card-sub" style="margin-top:6px">${shortPct > 75 ? '⚠ Short squeeze riski yüksek!' : shortPct > 55 ? 'Shortlar ağır basıyor' : 'Longlar ağır basıyor'}</div></div>` : ''}
-        ${fHistory.length > 1 ? `<div class="card full" style="margin-bottom:8px"><div class="card-label">Funding Rate Geçmişi</div><div style="margin-top:8px">${fHistory.map(f => { const r = parseFloat(f.fundingRate) * 100; const t = new Date(f.fundingTime).toLocaleString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); return `<div class="fh-item"><span class="c-white" style="font-size:10px">${t}</span><span class="${r > 0 ? 'c-red' : 'c-green'}" style="font-weight:700">%${r.toFixed(4)}</span></div>`; }).join('')}</div></div>` : ''}
+
+        <div class="flex items-center gap-3 mb-4 mt-8 px-3 border-l-4 border-analiz-text2">
+          <span class="text-xs font-black uppercase tracking-[4px] text-analiz-text2">Futures Verileri</span>
+        </div>
+        ${fundingHtml}
+
+        ${lsRatio !== null ? `
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg mb-4">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-4">Top Trader Long/Short Oranı</div>
+            <div class="flex h-2 w-full rounded-full overflow-hidden mb-3">
+              <div class="bg-premium-red transition-all duration-1000" style="width:${shortPct.toFixed(1)}%"></div>
+              <div class="bg-premium-green transition-all duration-1000" style="width:${longPct.toFixed(1)}%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-black mb-3">
+              <span class="text-premium-red">SHORT %${shortPct.toFixed(1)}</span>
+              <span class="text-premium-green">LONG %${longPct.toFixed(1)}</span>
+            </div>
+            <p class="text-xs font-bold text-white italic">${shortPct > 75 ? '⚠ Short squeeze riski yüksek!' : shortPct > 55 ? 'Shortlar ağır basıyor' : 'Longlar ağır basıyor'}</p>
+          </div>` : ''}
+
+        ${fHistory.length > 1 ? `
+          <div class="bg-analiz-card border border-analiz-border rounded-2xl p-4 shadow-lg mb-4">
+            <div class="text-[9px] font-black uppercase tracking-widest text-analiz-text2 mb-4">Funding Rate Geçmişi</div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              ${fHistory.map(f => { 
+                const r = parseFloat(f.fundingRate) * 100; 
+                const t = new Date(f.fundingTime).toLocaleString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); 
+                return `
+                  <div class="p-2 rounded-lg bg-analiz-bg border border-analiz-border">
+                    <p class="text-[8px] text-analiz-text2 mb-1">${t}</p>
+                    <p class="text-[11px] font-black ${r > 0 ? 'text-premium-red' : 'text-premium-green'}">%${r.toFixed(4)}</p>
+                  </div>`; 
+              }).join('')}
+            </div>
+          </div>` : ''}
       `;
 
           document.getElementById('refreshRow').style.display = 'flex';
