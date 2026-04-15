@@ -47,6 +47,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
   <script src="prompt-engine.js"></script>
   <script src="chart-engine.js"></script>
+  <script src="karar-motoru.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
   <style>
     /* Stil kodları öncekiyle aynı, değişiklik yok */
@@ -2886,68 +2887,162 @@ Rules:
         }
       };
 
-      // Hýzlý karar motoru popup'ý
+      // Hızlı karar motoru - Modal ile göster
       window.openKararMotoru = function() {
         if (!lastAnalysisData || !lastAnalysisData.price) {
-          alert('â ï¸ Önce bir coin analiz edin!');
+          alert('⚠️ Önce bir coin analiz edin!');
           return;
         }
 
-        // Popup penceresini aç
-        const popup = window.open(
-          './karar-motoru.html',
-          'kararMotoru',
-          'width=900,height=800,scrollbars=yes,resizable=yes,top=50,left=50'
-        );
+        // Karar motorunu çalıştır
+        if (typeof window.kararMotoru !== 'function') {
+          alert('⚠️ Karar motoru yüklenmedi! Sayfayı yenileyin.');
+          return;
+        }
 
-        // Popup yüklendiðinde verileri gönder
-        const sendInterval = setInterval(() => {
-          try {
-            if (popup && !popup.closed) {
-              // Analiz verilerini gönder
-              const kararData = {
-                symbol: currentSymbol,
-                price: lastAnalysisData.price,
-                chg24: lastAnalysisData.chg24,
-                volatility: lastAnalysisData.volatility,
-                rsi: lastAnalysisData.rsi,
-                macd: lastAnalysisData.macd,
-                boll: lastAnalysisData.boll,
-                supports: lastAnalysisData.supports,
-                resistances: lastAnalysisData.resistances,
-                fundingAvg: lastAnalysisData.fundingAvg,
-                oiChange: lastAnalysisData.oiChange,
-                longPct: lastAnalysisData.longPct,
-                shortPct: lastAnalysisData.shortPct,
-                volumeSpike: lastAnalysisData.volumeSpike,
-                spikeRatio: lastAnalysisData.spikeRatio,
-                lhResult: lastAnalysisData.lhResult,
-                msResult: lastAnalysisData.msResult,
-                analysisTime: new Date().toISOString(),
-                multiTF: lastAnalysisData.multiTF
-              };
+        const kararData = {
+          symbol: currentSymbol,
+          price: lastAnalysisData.price,
+          chg24: lastAnalysisData.chg24,
+          volatility: lastAnalysisData.volatility,
+          rsi: lastAnalysisData.rsi,
+          macd: lastAnalysisData.macd,
+          boll: lastAnalysisData.boll,
+          supports: lastAnalysisData.supports,
+          resistances: lastAnalysisData.resistances,
+          fundingAvg: lastAnalysisData.fundingAvg,
+          oiChange: lastAnalysisData.oiChange,
+          longPct: lastAnalysisData.longPct,
+          shortPct: lastAnalysisData.shortPct,
+          volumeSpike: lastAnalysisData.volumeSpike,
+          spikeRatio: lastAnalysisData.spikeRatio,
+          lhResult: lastAnalysisData.lhResult,
+          msResult: lastAnalysisData.msResult,
+          analysisTime: new Date().toISOString(),
+          multiTF: lastAnalysisData.multiTF
+        };
 
-              popup.postMessage({
-                type: 'ANALIZ_VERISI',
-                payload: kararData
-              }, '*');
-
-              // Veri gönderildi, interval'i temizle
-              clearInterval(sendInterval);
-            } else {
-              clearInterval(sendInterval);
-            }
-          } catch (e) {
-            console.error('Popup veri gönderme hatasý:', e);
-            clearInterval(sendInterval);
-          }
-        }, 500);
-
-        // 5 saniye sonra interval'i temizle (güvenlik için)
-        setTimeout(() => {
-          clearInterval(sendInterval);
-        }, 5000);
+        const sonuc = window.kararMotoru(kararData);
+        showKararModal(sonuc, kararData);
       };
+
+      // Karar modal'ı göster
+      function showKararModal(sonuc, data) {
+        const fp = (v) => v !== null && v !== undefined && !isNaN(v) ? v.toFixed(4) : 'N/A';
+        const kararRenk = sonuc.karar === 'LONG' ? '#00e676' : sonuc.karar === 'SHORT' ? '#ff1744' : '#ffea00';
+        const kararEmoji = sonuc.karar === 'LONG' ? '🟢' : sonuc.karar === 'SHORT' ? '🔴' : '🟡';
+
+        // TF sonuçlarını formatla
+        let tfTableRows = '';
+        ['15m', '1h', '4h', '1d', '1w'].forEach(tf => {
+          const tfData = data.multiTF ? data.multiTF[tf] : null;
+          const tfSonuc = sonuc.tfSonuclar ? sonuc.tfSonuclar[tf] : null;
+          if (!tfData && !tfSonuc) return;
+
+          const rsi = tfSonuc && tfSonuc.rsi ? tfSonuc.rsi.toFixed(1) : (tfData && tfData.rsi ? tfData.rsi : 'N/A');
+          const trend = tfSonuc ? tfSonuc.yön.toUpperCase() : 'N/A';
+          const guc = tfSonuc ? Math.round(tfSonuc.uzlaşım * 100) + '%' : 'N/A';
+          const trendColor = trend === 'BULL' ? '#00e676' : trend === 'BEAR' ? '#ff1744' : '#ffea00';
+
+          tfTableRows += `
+            <tr style="border-bottom:1px solid #1c2535">
+              <td style="padding:6px 8px;font-size:11px;font-weight:700;color:#40c4ff">${tf.toUpperCase()}</td>
+              <td style="padding:6px 8px;font-size:11px;text-align:center">${rsi}</td>
+              <td style="padding:6px 8px;font-size:11px;text-align:center"><span style="color:${trendColor};font-weight:700">${trend}</span></td>
+              <td style="padding:6px 8px;font-size:11px;text-align:center">${guc}</td>
+            </tr>`;
+        });
+
+        // Uyarıları formatla
+        const uyariHTML = sonuc.uyarılar && sonuc.uyarılar.length > 0
+          ? sonuc.uyarılar.map(u => `<li style="margin:4px 0;font-size:11px;color:#ff9100">⚠️ ${u}</li>`).join('')
+          : '<li style="font-size:11px;color:#00e676">✅ Önemli uyarı yok</li>';
+
+        const modalHtml = `
+        <div id="kararModalOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer" onclick="closeKararModal()">
+          <div style="background:#101520;border:1px solid #1c2535;border-radius:12px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;cursor:default;box-shadow:0 20px 60px rgba(0,0,0,0.5)" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #1c2535;position:sticky;top:0;background:#101520;z-index:1">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#e040fb">🧠 KARAR MOTORU — ${data.symbol}</div>
+              <button onclick="closeKararModal()" style="background:transparent;border:1px solid #1c2535;color:#e0e0e0;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
+            </div>
+
+            <!-- Ana Karar -->
+            <div style="padding:20px;text-align:center;border-bottom:1px solid #1c2535;background:linear-gradient(135deg,rgba(${sonuc.karar === 'LONG' ? '0,230,118' : sonuc.karar === 'SHORT' ? '255,23,68' : '255,234,0'},0.08),transparent)">
+              <div style="font-size:40px;margin-bottom:8px">${kararEmoji}</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:${kararRenk}">${sonuc.karar}</div>
+              <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;font-size:12px">
+                <span>🎯 Güven: <b style="color:#00e676">${sonuc.guven}%</b></span>
+                <span>⚡ Risk: <b style="color:${sonuc.riskSkor > 6 ? '#ff1744' : sonuc.riskSkor > 4 ? '#ffea00' : '#00e676'}">${sonuc.riskSkor}/10</b></span>
+                <span>📊 Long: <b style="color:#00e676">${sonuc.finalLongOran.toFixed(1)}%</b></span>
+                <span>📉 Short: <b style="color:#ff1744">${sonuc.finalShortOran.toFixed(1)}%</b></span>
+              </div>
+            </div>
+
+            <!-- TF Analizi -->
+            <div style="padding:16px 20px">
+              <div style="font-size:10px;letter-spacing:2px;color:#90a4ae;text-transform:uppercase;margin-bottom:10px;font-weight:700">📊 TIMEFRAME ANALİZİ</div>
+              <table style="width:100%;border-collapse:collapse;font-size:11px">
+                <thead>
+                  <tr style="border-bottom:1px solid #1c2535">
+                    <th style="padding:6px 8px;text-align:left;color:#90a4ae;font-size:9px;letter-spacing:1px">TF</th>
+                    <th style="padding:6px 8px;text-align:center;color:#90a4ae;font-size:9px;letter-spacing:1px">RSI</th>
+                    <th style="padding:6px 8px;text-align:center;color:#90a4ae;font-size:9px;letter-spacing:1px">TREND</th>
+                    <th style="padding:6px 8px;text-align:center;color:#90a4ae;font-size:9px;letter-spacing:1px">UZLAŞIM</th>
+                  </tr>
+                </thead>
+                <tbody>${tfTableRows}</tbody>
+              </table>
+            </div>
+
+            <!-- Uyarılar -->
+            <div style="padding:16px 20px;border-top:1px solid #1c2535">
+              <div style="font-size:10px;letter-spacing:2px;color:#90a4ae;text-transform:uppercase;margin-bottom:10px;font-weight:700">⚠️ UYARILAR & RİSKLER</div>
+              <ul style="list-style:none;padding:0;margin:0">${uyariHTML}</ul>
+            </div>
+
+            <!-- Türev Notları -->
+            ${sonuc.türevNotlar && sonuc.türevNotlar.length > 0 ? `
+            <div style="padding:16px 20px;border-top:1px solid #1c2535">
+              <div style="font-size:10px;letter-spacing:2px;color:#90a4ae;text-transform:uppercase;margin-bottom:10px;font-weight:700">📈 TÜREV VERİLERİ</div>
+              <ul style="list-style:none;padding:0;margin:0">
+                ${sonuc.türevNotlar.map(n => `<li style="margin:4px 0;font-size:11px;color:#40c4ff">• ${n}</li>`).join('')}
+              </ul>
+            </div>` : ''}
+
+            <!-- TF Çatışma -->
+            ${sonuc.tfÇatışmaVar ? `
+            <div style="padding:12px 20px;background:rgba(255,23,68,0.08);border-top:1px solid #1c2535">
+              <div style="font-size:12px;color:#ff1744;font-weight:700">⚠️ YÜKSEK VE DÜŞÜK TF TREND ÇATIŞMASI TESPİT EDİLDİ</div>
+            </div>` : ''}
+
+            <!-- Footer -->
+            <div style="padding:12px 20px;border-top:1px solid #1c2535;text-align:center">
+              <div style="font-size:9px;color:#90a4ae;letter-spacing:1px">Analiz zamanı: ${new Date(data.analysisTime).toLocaleString('tr-TR')}</div>
+            </div>
+          </div>
+        </div>`;
+
+        // Varsa eski modal'ı kaldır
+        const existingModal = document.getElementById('kararModalOverlay');
+        if (existingModal) existingModal.remove();
+
+        // Yeni modal ekle
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // ESC tuşu ile kapat
+        document.addEventListener('keydown', function escHandler(e) {
+          if (e.key === 'Escape') {
+            closeKararModal();
+            document.removeEventListener('keydown', escHandler);
+          }
+        });
+      }
+
+      function closeKararModal() {
+        const modal = document.getElementById('kararModalOverlay');
+        if (modal) modal.remove();
+      }
 
       // ── ANA ANALİZ ────────────────────────────────────────────
       async function analyze() {
