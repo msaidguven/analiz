@@ -20,17 +20,17 @@
                 extend: {
                     colors: {
                         binance: {
-                            yellow: '#f0b90b',
-                            dark: '#0b0e11',
-                            card: '#1a1d23',
-                            border: '#2b3139',
-                            hover: '#252932',
-                            text: '#eaeaea',
-                            muted: '#848e9c',
+                            yellow: '#fcd535',
+                            dark: '#f4f7f9',
+                            card: '#ffffff',
+                            border: '#e1e4e8',
+                            hover: '#f6f8fa',
+                            text: '#1e293b',
+                            muted: '#475569',
                         },
                         premium: {
                             green: '#0ecb81',
-                            red: '#ef1945',
+                            red: '#f6465d',
                             purple: '#e040fb',
                         }
                     },
@@ -50,16 +50,16 @@
         }
 
         :root {
-            --bg-primary: #0b0e11;
-            --bg-card: #1a1d23;
-            --accent: #f0b90b;
-            --text-primary: #eaeaea;
-            --text-secondary: #848e9c;
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --accent: #fcd535;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
             --purple: #e040fb;
-            --border: #2b3139;
+            --border: #e2e8f0;
             --success: #0ecb81;
-            --error: #ef1945;
-            --hover: #252932;
+            --error: #f6465d;
+            --hover: #f1f5f9;
         }
 
         body {
@@ -115,10 +115,10 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
             text-decoration: none;
             transition: all 0.2s;
             display: flex;
@@ -239,9 +239,9 @@
         .stat-badge {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -249,11 +249,13 @@
 
         .stat-badge .label {
             color: var(--text-secondary);
+            font-weight: 600;
         }
 
         .stat-badge .value {
             color: var(--accent);
-            font-weight: 600;
+            font-weight: 800;
+            font-size: 18px;
         }
 
         /* Sort Controls */
@@ -1380,7 +1382,7 @@
                             <div class="flex flex-col">
                                 <span class="text-binance-muted text-[10px] font-bold uppercase tracking-widest mb-1">RANK #${coin.rank}</span>
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xl font-bold font-outfit text-white tracking-wide">${coin.symbol}</h3>
+                                    <h3 class="text-xl font-bold font-outfit text-binance-text tracking-wide">${coin.symbol}</h3>
                                     <div class="p-1 px-2 rounded text-[10px] font-bold border ${statusClass}">${coin.status}</div>
                                 </div>
                             </div>
@@ -1393,8 +1395,8 @@
                         </div>
 
                         <div class="flex items-baseline justify-between mb-6">
-                            <span class="text-2xl font-bold font-outfit text-binance-text">${formatPrice(coin.price)}</span>
-                            <span class="px-2 py-1 rounded text-xs font-bold ${changeBg} ${changeClass}">
+                            <span class="text-3xl font-bold font-outfit text-binance-text">${formatPrice(coin.price)}</span>
+                            <span class="px-3 py-1.5 rounded-lg text-sm font-black ${changeBg} ${changeClass}">
                                 ${priceChange >= 0 ? '+' : ''}${formatPercent(coin.priceChange)}
                             </span>
                         </div>
@@ -1410,11 +1412,11 @@
                             </div>
                             <div class="space-y-1">
                                 <p class="text-[10px] text-binance-muted uppercase font-bold tracking-wider">Funding Rate</p>
-                                <p class="text-xs font-bold ${fundingClass}">${formatFunding(coin.fundingRate)}</p>
+                                <p class="text-sm font-black ${fundingClass}">${formatFunding(coin.fundingRate)}</p>
                             </div>
                             <div class="space-y-1 text-right">
                                 <p class="text-[10px] text-binance-muted uppercase font-bold tracking-wider">24s Y/D</p>
-                                <p class="text-[10px] font-semibold text-binance-text">${formatPrice(coin.highPrice)} / ${formatPrice(coin.lowPrice)}</p>
+                                <p class="text-xs font-bold text-binance-text">${formatPrice(coin.highPrice)} / ${formatPrice(coin.lowPrice)}</p>
                             </div>
                         </div>
 
@@ -1430,14 +1432,14 @@
 
                         <div id="karar-preview-${coin.baseAsset}" class="bg-binance-dark/50 rounded-xl p-3 mb-5 min-h-[60px] border border-binance-border/50">
                             <div class="flex items-center justify-center gap-2 h-full py-2">
-                                <div class="w-4 h-4 border-2 border-binance-yellow/20 border-t-binance-yellow rounded-full animate-spin"></div>
-                                <span class="text-[10px] text-binance-muted font-bold tracking-widest uppercase">Analiz Ediliyor...</span>
+                                <div class="w-5 h-5 border-2 border-binance-yellow/20 border-t-binance-yellow rounded-full animate-spin"></div>
+                                <span class="text-xs text-binance-text font-black tracking-widest uppercase">Analiz Ediliyor...</span>
                             </div>
                         </div>
 
                         <div class="flex gap-2 mt-auto">
-                            <button class="flex-1 py-2 rounded-xl text-xs font-bold bg-binance-yellow text-black hover:bg-[#e0ab0a] transition-colors shadow-lg shadow-binance-yellow/10" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Analiz</button>
-                            <button class="karar-kaydet-btn flex-1 py-2 rounded-xl text-xs font-bold bg-binance-hover border border-binance-border text-binance-muted hover:text-binance-text hover:border-binance-yellow transition-all disabled:opacity-40 disabled:cursor-not-allowed" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}')" disabled>Kaydet</button>
+                            <button class="flex-1 py-3 rounded-xl text-sm font-black bg-binance-yellow text-black hover:bg-[#e0ab0a] transition-colors shadow-lg shadow-binance-yellow/10 uppercase tracking-widest" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Analiz</button>
+                            <button class="karar-kaydet-btn flex-1 py-3 rounded-xl text-sm font-black bg-binance-hover border border-binance-border text-binance-muted hover:text-binance-text hover:border-binance-yellow transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}')" disabled>Kaydet</button>
                         </div>
                     </div>
                 `;

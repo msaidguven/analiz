@@ -183,114 +183,73 @@ window.generateAIPrompt = function (d, currentSymbol, currentTF, calcEMA, fp) {
         }
     }
 
-    // ── Final Prompt ──────────────────────────────────────
-    return `[TECHNICAL ANALYSIS REPORT: ${currentSymbol} / ${currentTF}]
+    // ── Final Prompt (Türkçe) ──────────────────────────────
+    return `[TEKNİK ANALİZ RAPORU: ${currentSymbol} / ${currentTF}]
 
-📊 PRICE ACTION & VOLATILITY
-Current Price: ${formatPrice(d.price)}
-24h Change: ${na(d.chg24, v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%')}
-Volatility (ATR-based): ${volatility}
-Bollinger Band Pos: ${bollDesc}
-Support Levels: ${d.supports ? d.supports.map(fp).join(', ') : 'None'}
-Resistance Levels: ${d.resistances ? d.resistances.map(fp).join(', ') : 'None'}
+📊 FİYAT HAREKETİ VE VOLATİLİTE
+Güncel Fiyat: ${formatPrice(d.price)}
+24s Değişim: ${na(d.chg24, v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%')}
+Volatilite (ATR Bazlı): ${volatility}
+Bollinger Bandı Konumu: ${bollDesc}
+Destek Seviyeleri: ${d.supports ? d.supports.map(fp).join(', ') : 'Yok'}
+Direnç Seviyeleri: ${d.resistances ? d.resistances.map(fp).join(', ') : 'Yok'}
 
-📈 MOMENTUM INDICATORS
-Trend State: ${trendDesc}
+📈 MOMENTUM GÖSTERGELERİ
+Trend Durumu: ${trendDesc}
 RSI: ${rsiVal} — ${rsiDesc}
 MACD: ${macdDesc}
-Structure: ${structure}
+Piyasa Yapısı: ${structure}
 ${multiTFData}
 
-🧨 DERIVATIVES
-Volume 24h: ${vol24hStr}
-OI Absolute: ${oiAbsStr} | OI Change: ${oiDesc}${oiNote}
-Long Position: ${longPosStr} | Short Position: ${shortPosStr}
-Volume/OI Ratio: ${vOiRatioStr}
-RSI Multi-TF: ${rsiMultiStr}
-Funding: ${formatPct(fa)}
-Long/Short Bias: ${lsDesc}
-Divergence State: ${fOIDiv}
+🧨 TÜREV VERİLER (DERIVATIVES)
+24s Hacim: ${vol24hStr}
+Açık Pozisyon (OI): ${oiAbsStr} | OI Değişimi: ${oiDesc}${oiNote}
+Long Pozisyonlar: ${longPosStr} | Short Pozisyonlar: ${shortPosStr}
+Hacim/OI Oranı: ${vOiRatioStr}
+Çoklu-TF RSI: ${rsiMultiStr}
+Funding Rate: ${formatPct(fa)}
+Long/Short Dengesi: ${lsDesc}
+Diverjans Durumu: ${fOIDiv}
 
 ---
-💣 LIQUIDITY HUNT
-Algorithm Score: ${d.lhResult ? d.lhResult.score + '/100' : 'N/A'}
-Status: ${d.lhResult ? d.lhResult.status : 'N/A'}
-Side Liquidated: ${d.lhResult ? d.lhResult.liqSideDesc : 'N/A'}
-Potential Reversal: ${d.lhResult ? d.lhResult.reversalDesc : 'N/A'}
-Hunt Levels (Key Liquidity Zones): ${d.lhResult && d.lhResult.huntLevels.length ? d.lhResult.huntLevels.map(fp).join(' | ') : 'None Detected'}
+💣 LİKİDİTE AVI (LIQUIDITY HUNT)
+Algoritma Skoru: ${d.lhResult ? d.lhResult.score + '/100' : 'N/A'}
+Durum: ${d.lhResult ? d.lhResult.status : 'N/A'}
+Likidite Edilen Taraf: ${d.lhResult ? d.lhResult.liqSideDesc : 'N/A'}
+Potansiyel Dönüş: ${d.lhResult ? d.lhResult.reversalDesc : 'N/A'}
+Likidite Bölgeleri: ${d.lhResult && d.lhResult.huntLevels.length ? d.lhResult.huntLevels.map(fp).join(' | ') : 'Tespit Edilmedi'}
 
 ---
-📐 SMC STRUCTURE
+📐 SMC YAPISI (SMART MONEY CONCEPTS)
 Trend: ${d.msResult ? d.msResult.trend : 'N/A'}
-Internal CHoCH: ${d.msResult && d.msResult.choch ? d.msResult.choch.type + ' (' + d.msResult.choch.detail + ')' : 'None'}
-Internal BOS: ${d.msResult && d.msResult.bos ? d.msResult.bos.type + ' (' + d.msResult.bos.detail + ')' : 'None'}
+İçsel CHoCH: ${d.msResult && d.msResult.choch ? d.msResult.choch.type + ' (' + d.msResult.choch.detail + ')' : 'Yok'}
+İçsel BOS: ${d.msResult && d.msResult.bos ? d.msResult.bos.type + ' (' + d.msResult.bos.detail + ')' : 'Yok'}
 
 ---
-🏆 ALGORITHMIC DECISION ENGINE
-Final Decision: ${d.csResult ? d.csResult.decision : 'N/A'}
-Model Confidence: ${d.csResult ? d.csResult.confidence + '%' : 'N/A'}
-Key Alpha Factors:
+🏆 ALGORİTMİK KARAR MOTORU
+Nihai Karar: ${d.csResult ? d.csResult.decision : 'N/A'}
+Model Güveni: ${d.csResult ? d.csResult.confidence + '%' : 'N/A'}
+Temel Faktörler:
 ${factors}
 
-## 🎯 GÖREV & TEMEL KURALLAR
-Bu verileri Kıdemli Bir Kuant Trader olarak analiz et. Aşağıdaki kurallara kesinlikle uy:
+## 🎯 GÖREV & TALİMATLAR
+Sen profesyonel bir Kuant Trader ve Teknik Analiz uzmanısın. Yukarıdaki verileri kullanarak piyasayı derinlemesine değerlendir.
 
-1. **Trade Kurulum Sınıflandırması**: Kurulumu şu kategorilerden biri olarak sınıflandır: \`Trend Following\`, \`Pullback\`, \`Reversal\`, \`Liquidity Grab\`. Eğer hiçbir kategori net olarak uymuyorsa \`BEKLE\` tercih et.
-2. **Çoklu Zaman Dilimi (MZF) Stratejisi**:
-   - YTF (4H/1D) **Ana Trendi** belirler.
-   - KZF (15D/1S) **Giriş Uygulaması** ve lokal tükenmeleri tespit etmek için kullanılır.
-   - YTF ve KZF çatışıyorsa: Trade zorlama. Geçerli bir \`Pullback\` veya \`Trend Karşıtı\` kurulumu mu kontrol et. Belirsizse \`CONFIDENCE_LEVEL\` düşür ve \`BEKLE\` kal.
-3. **Sinyal Uyumu (Konsensüs Analizi)**:
-   - İndikatörlerin "Uyumlu" mu yoksa "Çatışan" mı olduğunu tespit et.
-   - Uyum (örn. Fiyat YUKARI, OI YUKARI, CVD YUKARI) = Yüksek Güven.
-   - Uyumsuzluk (örn. Fiyat YUKARI, OI AŞAĞI, RSI Aşırı Alım) = Düşük Güven / Piyasa Tuzağı riski.
-4. **Aktif Karar**: \`BEKLE\` aktif bir karardır. Risk/ödül oranı zayıfken veya sinyaller çelişkiyorken kullan.
-
-Yanıtını bu JSON formatında döndür (kesin format):
-{
-  "MARKET_BIAS": "Bullish | Bearish | Neutral",
-  "TRADE_SETUP": "Trend Following | Pullback | Reversal | Liquidity Grab | UNKNOWN",
-  "BIAS_REASONING": "Tüm teknik verileri sentezleyen, mantıklı Türkçe açıklama (en az 3 veri noktası ile).",
-  "TRADE_DECISION": "LONG | SHORT | BEKLE",
-  "ENTRY_STRATEGY": {
-    "zone": "Kesin fiyat aralığı",
-    "type": "Limit | Market | Pullback"
-  },
-  "STOP_LOSS": { "price": 0, "distance_pct": "0%", "rationale": "SMC veya seviye bazlı Türkçe teknik neden" },
-  "TAKE_PROFIT": { "TP1": 0, "TP2": 0, "final": 0 },
-  "RISK_REWARD": "Oran örneğin 1:3",
-  "TECHNICAL_REASONING": [
-    "Türkçe teknik faktör 1",
-    "Türkçe teknik faktör 2",
-    "Türkçe teknik faktör 3",
-    "Türkçe teknik faktör 4"
-  ],
-  "DANGER_ZONE": "Bu kurulumu ne geçersiz kılar? (Türkçe açıklama)",
-  "CONFIDENCE_LEVEL": "Low | Medium | High"
-}
-
-## 💬 İŞLEM ÖZETİ VE TAVSİYE
-JSON yanıtından sonra, Türkçe olarak kısa bir işlem özeti ve tavsiye bölümü ekle. Bu bölüm şu formatı takip etmeli:
+**ÖNEMLİ KURALLAR:**
+1. **DETAYLI AÇIKLAMA YAPMA**: Teknik analizini arka planda, sessizce gerçekleştir. Bana uzun paragraf ve açıklamalar yazma.
+2. **NET OL**: Sadece kararı ve en temel nedenini belirt.
+3. **FORMAT**: Sadece aşağıdaki şablona uygun yanıt ver:
 
 ---
-📋 İŞLEM ÖZETİ VE TAVSİYE
-
-🎯 **Karar**: [LONG / SHORT / BEKLE]
-💰 **Giriş**: [Giriş fiyat aralığı]
-🛡️ **Stop Loss**: [Stop fiyatı ve mesafe %]
-🎯 **Hedefler**: [TP1 → TP2 → Final]
-⚖️ **Risk/Ödül**: [R:R oranı]
-📊 **Güven Seviyesi**: [Low / Medium / High]
-
-💡 **Kısa Tavsiye**:
-[2-3 cümleyle özet: Neden bu karar alındı, kritik seviyeler neler, dikkat edilmesi gerekenler nedir? Türkçe ve net bir dille yaz.]
-
-⚠️ **Uyarı**: [En önemli risk faktörü - tek cümle]
+🎯 **KARAR**: [LONG / SHORT / BEKLE]
+💡 **ÖZET NEDEN**: [Kararın en temel teknik nedenini 1-2 kısa cümleyle açıkla]
+📏 **STRATEJİ**:
+- Giriş: [Fiyat Aralığı]
+- Stop: [Fiyat seviyesi ve % mesafe]
+- Hedefler: [TP1 -> TP2 -> Final]
+📊 **GÜVEN SEVİYESİ**: [Düşük / Orta / Yüksek]
+⚠️ **KRİTİK UYARI**: [İşlemi riskli kılan veya geçersiz kılacak en önemli faktör - Maks 1 cümle]
 ---
 
-**ÖNEMLİ**:
-- \`MARKET_BIAS\`, \`TRADE_DECISION\`, \`CONFIDENCE_LEVEL\`, ve \`TRADE_SETUP\` değerleri İngilizce/Standart değerler olarak kalmalıdır.
-- JSON içindeki TÜM açıklamalar, gerekçeler ve mantıklar **TÜRKÇE** olmalıdır.
-- İşlem Özeti ve Tavsiye bölümü de tamamen **TÜRKÇE** olmalıdır.
-- Yanıtın ilk kısmı JSON formatında, ikinci kısmı ise İnsan tarafından okunabilir Türkçe özet olmalıdır.`;
+**NOT**: Analizini yaparken tüm zaman dilimlerini (15D, 1S, 4S, 1G) ve likidite verilerini dikkate aldığından emin ol.`;
 }

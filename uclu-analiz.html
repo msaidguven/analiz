@@ -18,19 +18,19 @@
             theme: {
                 extend: {
                     colors: {
-                        'analiz-bg': '#06070a',
-                        'analiz-surface': '#0c1018',
-                        'analiz-card': '#111724',
-                        'analiz-border': '#1c2535',
-                        'analiz-border2': '#2a374d',
-                        'analiz-text': '#f0f3f8',
-                        'analiz-text2': '#90a4ae',
-                        'premium-green': '#00e676',
-                        'premium-red': '#ff1744',
+                        'analiz-bg': '#f4f7f9',
+                        'analiz-surface': '#ffffff',
+                        'analiz-card': '#ffffff',
+                        'analiz-border': '#e1e4e8',
+                        'analiz-border2': '#d1d5da',
+                        'analiz-text': '#1e293b',
+                        'analiz-text2': '#475569',
+                        'premium-green': '#0ecb81',
+                        'premium-red': '#f6465d',
                         'premium-blue': '#40c4ff',
                         'premium-purple': '#e040fb',
                         'premium-orange': '#ff9100',
-                        'premium-yellow': '#ffea00',
+                        'premium-yellow': '#fcd535',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -43,16 +43,18 @@
     </script>
     <style>
         body {
-            background-color: #06070a;
-            color: #f0f3f8;
+            background-color: #f8fafc;
+            color: #1e293b;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            line-height: 1.6;
         }
         .glass {
-            background: rgba(17, 23, 36, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(28, 37, 53, 0.5);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 10px 40px rgba(31, 45, 61, 0.08);
         }
         .animate-scan {
             background: linear-gradient(to right, transparent, rgba(64, 196, 255, 0.1), transparent);
@@ -80,20 +82,20 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black font-outfit tracking-tight">ÜÇLÜ <span class="text-premium-blue">ANALİZ</span> PANELİ</h1>
-                    <p class="text-[10px] font-bold text-analiz-text2 uppercase tracking-widest">Binance Futures Market Scanner</p>
+                    <h1 class="text-2xl font-black font-outfit tracking-tight">ÜÇLÜ <span class="text-premium-blue">ANALİZ</span> PANELİ</h1>
+                    <p class="text-xs font-black text-analiz-text2 uppercase tracking-widest mt-1">Binance Futures Market Scanner</p>
                 </div>
             </div>
 
             <!-- Navigation Links -->
             <nav class="hidden xl:flex items-center gap-3">
-                <a href="index.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-blue hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                <a href="index.html" class="flex items-center gap-3 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-blue hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
                     Anasayfa
                 </a>
-                <a href="analiz_v3.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                <a href="analiz_v3.html" class="flex items-center gap-3 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
                     Detaylı Analiz
                 </a>
-                <a href="karar-analizi.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-purple hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                <a href="karar-analizi.html" class="flex items-center gap-3 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-purple hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
                     Karar Merkezi
                 </a>
                 <a href="uclu-analiz.html" class="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-surface border border-premium-blue text-premium-blue shadow-[0_0_15px_rgba(64,196,255,0.15)] transform hover:-translate-y-0.5 uppercase">
@@ -106,7 +108,7 @@
                 <div class="hidden lg:flex items-center gap-8 border-r border-analiz-border pr-8 mr-2">
                     <div class="text-right">
                         <div class="text-[9px] font-black text-analiz-text2 uppercase">Taranan</div>
-                        <div class="text-lg font-black font-mono text-white" id="scannedCount">0</div>
+                        <div class="text-lg font-black font-mono text-analiz-text" id="scannedCount">0</div>
                     </div>
                     <div class="text-right">
                         <div class="text-[9px] font-black text-analiz-text2 uppercase">Kalan</div>
@@ -115,7 +117,17 @@
                 </div>
 
                 <!-- Controls -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
+                    <!-- Sort Selection -->
+                    <div class="flex items-center bg-analiz-card border border-analiz-border rounded-xl p-1 gap-1">
+                        <button onclick="setSort('volume')" data-sort="volume" class="sort-btn px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all duration-200 bg-premium-blue text-black shadow-lg shadow-premium-blue/10">
+                            HACİM
+                        </button>
+                        <button onclick="setSort('marketcap')" data-sort="marketcap" class="sort-btn px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all duration-200 text-analiz-text2 hover:text-white hover:bg-analiz-surface">
+                            PİYASA DEĞERİ
+                        </button>
+                    </div>
+
                     <button id="startBtn" onclick="startScan()" class="group flex items-center gap-3 px-6 py-3 bg-premium-blue text-black font-black text-xs rounded-xl hover:bg-white transition-all shadow-xl shadow-premium-blue/20">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         TARAMAYI BAŞLAT
@@ -133,9 +145,10 @@
         <!-- Grid Header -->
         <div class="grid grid-cols-12 gap-4 px-6 mb-4 text-[10px] font-black text-analiz-text2 uppercase tracking-widest">
             <div class="col-span-2">COİN / BİLGİ</div>
-            <div class="col-span-3">MODEL 1: SİMP-V5 (ANASAYFA)</div>
-            <div class="col-span-3">MODEL 2: YEREL-V3 (PUANLI)</div>
-            <div class="col-span-4">MODEL 3: PRO-V5 (TAM KAPASİTE)</div>
+            <div class="col-span-2">MODEL 1: SİMP-V5</div>
+            <div class="col-span-2">MODEL 2: YEREL-V3</div>
+            <div class="col-span-3">MODEL 3: PRO-V5 (TAM)</div>
+            <div class="col-span-3 text-center">İŞLEM / DETAY</div>
         </div>
 
         <!-- Results List -->
@@ -147,7 +160,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2">Henüz Analiz Yok</h3>
+                <h3 class="text-xl font-bold text-analiz-text mb-2">Henüz Analiz Yok</h3>
                 <p class="text-sm text-analiz-text2 text-center max-w-sm">Yukarıdaki butona tıklayarak hacme göre ilk 20 USDT-Futures paritesini analiz etmeye başlayabilirsiniz.</p>
             </div>
         </div>
@@ -172,24 +185,100 @@
         let allUsdtSymbols = [];
         let currentIndex = 0;
         let isScanning = false;
+        let currentSort = 'volume';
+        window.lastAnalysisResults = {};
+
+        function setSort(type) {
+            currentSort = type;
+            
+            // UI Update
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                if (btn.dataset.sort === type) {
+                    btn.classList.add('bg-premium-blue', 'text-black', 'shadow-lg', 'shadow-premium-blue/10');
+                    btn.classList.remove('text-analiz-text2', 'hover:text-white', 'hover:bg-analiz-surface');
+                } else {
+                    btn.classList.remove('bg-premium-blue', 'text-black', 'shadow-lg', 'shadow-premium-blue/10');
+                    btn.classList.add('text-analiz-text2', 'hover:text-white', 'hover:bg-analiz-surface');
+                }
+            });
+
+            // Update placeholder text
+            const emptyHint = document.querySelector('#emptyState p');
+            if (emptyHint) {
+                emptyHint.textContent = `Yukarıdaki butona tıklayarak ${type === 'volume' ? 'hacme' : 'piyasa değerine'} göre ilk USDT-Futures paritelerini analiz etmeye başlayabilirsiniz.`;
+            }
+
+            // Re-sort the whole list
+            if (allUsdtSymbols.length > 0) {
+                if (type === 'marketcap') {
+                    allUsdtSymbols.sort((a, b) => b.marketCap - a.marketCap);
+                } else {
+                    allUsdtSymbols.sort((a, b) => b.volume - a.volume);
+                }
+
+                // Re-order existing rows in DOM if any
+                const resultsList = document.getElementById('resultsList');
+                const rows = Array.from(resultsList.querySelectorAll('[id^="row-"]'));
+                if (rows.length > 0) {
+                    // Create a map for quick access
+                    const rowMap = {};
+                    rows.forEach(r => rowMap[r.id.replace('row-', '')] = r);
+                    
+                    // Re-append in the new sorted order (only scanned ones)
+                    allUsdtSymbols.forEach(s => {
+                        if (rowMap[s.symbol]) {
+                            resultsList.appendChild(rowMap[s.symbol]);
+                        }
+                    });
+                }
+            }
+        }
 
         async function fetchSymbols() {
             try {
-                // 1. exchangeInfo'dan sadece TRADING olanları al
+                // 1. exchangeInfo'dan sadece PERPETUAL ve TRADING olanları al
                 const infoRes = await fetch(`${BASE_F}/fapi/v1/exchangeInfo`);
                 const infoData = await infoRes.json();
                 const tradingSymbols = infoData.symbols
-                    .filter(s => s.status === 'TRADING' && s.quoteAsset === 'USDT')
-                    .map(s => s.symbol);
+                    .filter(s => s.status === 'TRADING' && s.quoteAsset === 'USDT' && s.contractType === 'PERPETUAL')
+                    .map(s => ({
+                        symbol: s.symbol,
+                        baseAsset: s.baseAsset
+                    }));
+
+                const tradingSymbolNames = tradingSymbols.map(s => s.symbol);
 
                 // 2. 24s ticker verilerini çek
                 const tickerRes = await fetch(`${BASE_F}/fapi/v1/ticker/24hr`);
                 const tickerData = await tickerRes.json();
                 
-                // 3. Sadece TRADING listesinde olan USDT sembollerini hacme göre sırala
+                // 3. Piyasa değeri verilerini çek (Her zaman çekelim ki re-sort çalışabilsin)
+                let marketCapMap = {};
+                try {
+                    const geckoRes = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1');
+                    const geckoData = await geckoRes.json();
+                    geckoData.forEach(g => {
+                        marketCapMap[g.symbol.toUpperCase()] = g.market_cap || 0;
+                    });
+                } catch (e) {
+                    console.warn('Market Cap data fetch failed.');
+                }
+
+                // 4. Verileri birleştir (Henüz sıralama yapmıyoruz)
                 allUsdtSymbols = tickerData
-                    .filter(t => tradingSymbols.includes(t.symbol))
-                    .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume));
+                    .filter(t => tradingSymbolNames.includes(t.symbol))
+                    .map(t => {
+                        const baseAsset = tradingSymbols.find(s => s.symbol === t.symbol)?.baseAsset;
+                        return {
+                            symbol: t.symbol,
+                            volume: parseFloat(t.quoteVolume) || 0,
+                            marketCap: marketCapMap[baseAsset] || 0,
+                            isScanned: false
+                        };
+                    });
+
+                // 5. İlk sıralamayı uygula
+                setSort(currentSort);
 
                 document.getElementById('remainingCount').textContent = allUsdtSymbols.length;
                 return true;
@@ -228,11 +317,14 @@
             nextBtn.classList.add('hidden');
             loader.classList.remove('hidden');
 
-            const batch = allUsdtSymbols.slice(currentIndex, currentIndex + 20);
+            // Find next 20 unscanned symbols
+            const unscanned = allUsdtSymbols.filter(s => !s.isScanned);
+            const batch = unscanned.slice(0, 20);
             
             for(let i=0; i < batch.length; i++) {
-                const symbol = batch[i].symbol;
-                await processSymbol(symbol);
+                const coinObj = batch[i];
+                await processSymbol(coinObj.symbol);
+                coinObj.isScanned = true;
                 currentIndex++;
                 updateProgress();
                 // API rate limit protection
@@ -242,10 +334,10 @@
             isScanning = false;
             loader.classList.add('hidden');
             nextBtn.classList.remove('hidden');
-            nextBtn.disabled = currentIndex >= allUsdtSymbols.length;
+            nextBtn.disabled = allUsdtSymbols.filter(s => !s.isScanned).length === 0;
             
-            document.getElementById('scannedCount').textContent = currentIndex;
-            document.getElementById('remainingCount').textContent = allUsdtSymbols.length - currentIndex;
+            document.getElementById('scannedCount').textContent = allUsdtSymbols.filter(s => s.isScanned).length;
+            document.getElementById('remainingCount').textContent = allUsdtSymbols.filter(s => !s.isScanned).length;
         }
 
         function updateProgress() {
@@ -259,18 +351,27 @@
             
             const row = document.createElement('div');
             row.id = rowId;
-            row.className = 'grid grid-cols-12 gap-4 p-4 glass rounded-2xl animate-scan border-analiz-border transition-all duration-300';
+            row.className = 'grid grid-cols-12 gap-4 p-6 glass rounded-[2rem] animate-scan border-analiz-border transition-all duration-300 hover:shadow-xl';
             row.innerHTML = `
-                <div class="col-span-2 flex items-center gap-4">
-                    <div class="w-12 h-12 bg-analiz-bg rounded-xl flex items-center justify-center font-black text-xs text-premium-blue border border-analiz-border">${symbol.replace('USDT', '')}</div>
+                <div class="col-span-2 flex items-center gap-5">
+                    <div class="w-14 h-14 bg-analiz-bg rounded-2xl flex items-center justify-center font-black text-sm text-premium-blue border border-analiz-border shadow-sm">${symbol.replace('USDT', '')}</div>
                     <div class="flex flex-col">
-                        <span class="text-sm font-black text-white">${symbol}</span>
-                        <span class="text-[10px] text-analiz-text2 font-bold uppercase tracking-tight" id="price-${symbol}">Yükleniyor...</span>
+                        <span class="text-base font-black text-analiz-text">${symbol}</span>
+                        <span class="text-sm text-analiz-text font-black uppercase tracking-tight" id="price-${symbol}">Yükleniyor...</span>
                     </div>
                 </div>
-                <div class="col-span-3 flex items-center justify-center border-l border-analiz-border/50" id="m1-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
-                <div class="col-span-3 flex items-center justify-center border-l border-analiz-border/50" id="m2-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
-                <div class="col-span-4 flex items-center justify-center border-l border-analiz-border/50" id="m3-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                <div class="col-span-2 flex items-center justify-center border-l border-analiz-border/50" id="m1-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                <div class="col-span-2 flex items-center justify-center border-l border-analiz-border/50" id="m2-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                <div class="col-span-3 flex items-center justify-center border-l border-analiz-border/50" id="m3-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                <div class="col-span-3 flex flex-col items-center justify-center border-l border-analiz-border/50 gap-2 p-2" id="actions-${symbol}">
+                    <a href="analiz_v3.html?symbol=${symbol}" target="_blank" class="w-full flex items-center justify-center gap-3 px-4 py-2 bg-analiz-card border border-premium-green/30 text-premium-green text-[10px] font-black rounded-xl hover:bg-premium-green hover:text-white transition-all group/link shadow-lg shadow-premium-green/5 uppercase tracking-widest text-center">
+                        DETAYLI ANALİZ
+                    </a>
+                    <div class="flex w-full gap-2 opacity-30 pointer-events-none" id="save-btns-${symbol}">
+                        <button onclick="handleManualSave('${symbol}', 'LONG')" class="flex-1 py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest">LONG</button>
+                        <button onclick="handleManualSave('${symbol}', 'SHORT')" class="flex-1 py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest">SHORT</button>
+                    </div>
+                </div>
             `;
             resultsList.appendChild(row);
 
@@ -293,10 +394,22 @@
                 const m2Result = window.AnalysisEngine.decide(intel, 'v3Local');
                 const m3Result = window.AnalysisEngine.decide(intel, 'v5Full');
 
+                // Sonuçları Global'e Kaydet (Manual Kayıt İçin)
+                window.lastAnalysisResults[symbol] = {
+                    price: intel.price,
+                    m3: m3Result
+                };
+
                 // Sonuçları Render Et
                 renderModelResult(`m1-${symbol}`, m1Result, symbol, false, intel.price);
                 renderModelResult(`m2-${symbol}`, m2Result, symbol, false, intel.price);
                 renderModelResult(`m3-${symbol}`, m3Result, symbol, true, intel.price);
+
+                // Kayıt Butonlarını Aktif Et
+                const saveBtns = document.getElementById(`save-btns-${symbol}`);
+                if (saveBtns) {
+                    saveBtns.classList.remove('opacity-30', 'pointer-events-none');
+                }
 
                 row.classList.remove('animate-scan');
             } catch (error) {
@@ -314,42 +427,45 @@
             const bg = isLong ? 'bg-premium-green/10' : isShort ? 'bg-premium-red/10' : 'bg-premium-yellow/10';
             const br = isLong ? 'border-premium-green/20' : isShort ? 'border-premium-red/20' : 'border-premium-yellow/20';
 
-            let btnHtml = '';
-            if (isModel3 && symbol) {
-                const disabledStr = isWait ? 'disabled opacity-40 cursor-not-allowed border-analiz-border' : 'hover:border-premium-blue hover:text-white cursor-pointer border-analiz-border/50';
-                const btnResultStr = encodeURIComponent(JSON.stringify(result));
-                btnHtml = `
-                    <button class="w-full mt-2 py-1.5 rounded-md border bg-analiz-card text-analiz-text2 text-[9px] font-black transition-all shadow-md ${disabledStr}"
-                        ${isWait ? 'disabled title="Karar: BEKLE - Kaydedilemez"' : `onclick="handleSaveCoin(event, '${symbol}', '${btnResultStr}', ${price})"`}>
-                        KAYDET
-                    </button>
-                `;
-            }
-
             el.innerHTML = `
                 <div class="flex flex-col items-center justify-center gap-1 w-full max-w-[120px]">
                     <div class="w-full text-center px-4 py-1.5 rounded-lg border ${bg} ${br} ${color} text-[11px] font-black tracking-widest">${result.karar}</div>
                     <div class="text-[9px] font-bold text-analiz-text2 uppercase">GÜVEN: %${result.guven || 0}</div>
-                    ${btnHtml}
                 </div>
             `;
         }
 
-        async function handleSaveCoin(event, symbol, resultStr, price) {
+        async function handleManualSave(symbol, side) {
             try {
                 if (!window.kararKayitSistemi) {
                     alert('Kayıt sistemi yüklenmedi!');
                     return;
                 }
-                const result = JSON.parse(decodeURIComponent(resultStr));
-                const kayit = await window.kararKayitSistemi.kararKayit(symbol, result, price);
+
+                const resultData = window.lastAnalysisResults[symbol];
+                if (!resultData) {
+                    alert('Analiz verisi bulunamadı!');
+                    return;
+                }
+
+                // Model 3 sonucunu baz al ama karar tarafını zorla (LONG/SHORT)
+                const manualResult = JSON.parse(JSON.stringify(resultData.m3));
+                manualResult.karar = side;
                 
-                const btn = event.currentTarget;
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerText = 'KAYDEDİLDİ';
-                    btn.classList.add('opacity-60', 'text-premium-green', 'border-premium-green/30');
-                    btn.classList.remove('hover:border-premium-blue', 'hover:text-white', 'text-analiz-text2', 'cursor-pointer');
+                // Eğer model tersini diyorsa güveni biraz düşür veya not ekle (isteğe bağlı)
+                if (resultData.m3.karar !== side && resultData.m3.karar !== 'BEKLE') {
+                    manualResult.guven = Math.max(10, manualResult.guven - 20);
+                }
+
+                const kayit = await window.kararKayitSistemi.kararKayit(symbol, manualResult, resultData.price);
+                
+                const saveBtns = document.getElementById(`save-btns-${symbol}`);
+                if (saveBtns) {
+                    saveBtns.innerHTML = `
+                        <div class="w-full py-2 rounded-xl bg-premium-blue/10 border border-premium-blue/30 text-premium-blue text-[10px] font-black text-center uppercase tracking-widest">
+                            ${side} KAYDEDİLDİ
+                        </div>
+                    `;
                 }
             } catch (err) {
                 console.error('Kayıt Hatası:', err);
