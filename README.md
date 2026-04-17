@@ -10,12 +10,21 @@ npm install
 
 ## Supabase Ayarı
 
-`config.js` dosyasındaki alanları doldurun:
+`Kaydet` işlemi artık backend proxy ile Supabase'e gider.
+
+1) `.env` dosyasına ekleyin:
+
+```env
+SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+```
+
+2) İsterseniz `config.js` dosyasındaki alanları da doldurabilirsiniz (zorunlu değil):
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 
-Not: Sadece `anon` key kullanın, `service_role` key'i frontend tarafına koymayın.
+Not: `service_role` key sadece backend `.env` içinde olmalı, frontend dosyalarına koymayın.
 
 ## Çalıştırma
 

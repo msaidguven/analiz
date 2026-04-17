@@ -7,10 +7,37 @@ const app = express();
 const PORT = 3000;
 const DB_FILE = path.join(__dirname, 'coin_islem.json');
 const CUZDAN_FILE = path.join(__dirname, 'coin_cuzdan.json');
+const ENV_FILE = path.join(__dirname, '.env');
+
+function loadEnvFile(filePath) {
+    if (!fs.existsSync(filePath)) return;
+    const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+    for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line || line.startsWith('#')) continue;
+        const eqIndex = line.indexOf('=');
+        if (eqIndex <= 0) continue;
+        const key = line.slice(0, eqIndex).trim();
+        const value = line.slice(eqIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+        if (key && !process.env[key]) {
+            process.env[key] = value;
+        }
+    }
+}
+
+loadEnvFile(ENV_FILE);
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+
+function getSupabaseConfig() {
+    const supabaseUrl = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+    const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+    const anonKey = (process.env.SUPABASE_ANON_KEY || '').trim();
+    const apiKey = serviceRoleKey || anonKey;
+    return { supabaseUrl, serviceRoleKey, anonKey, apiKey };
+}
 
 // Veritabanını oku
 function readDB(filePath) {
@@ -50,6 +77,75 @@ app.post('/api/kayitlar', (req, res) => {
     db.kayitlar.unshift(yeniKayit);
     writeDB(DB_FILE, db);
     res.json({ success: true, kayit: yeniKayit });
+});
+
+// Anasayfa "Kaydet" için Supabase insert proxy
+app.post('/api/supabase/islemler', async (req, res) => {
+    const { supabaseUrl, apiKey, serviceRoleKey } = getSupabaseConfig();
+    if (!supabaseUrl || !apiKey) {
+        return res.status(500).json({
+            error: 'SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY (veya SUPABASE_ANON_KEY) .env içinde tanımlı olmalı'
+        });
+    }
+
+    const payload = {
+        symbol: req.body.symbol,
+        karar: req.body.karar,
+        long_oran: req.body.long_oran,
+        short_oran: req.body.short_oran,
+        risk_skor: req.body.risk_skor,
+        guven: req.body.guven,
+        giris_fiyati: req.body.giris_fiyati,
+        stop_loss: req.body.stop_loss,
+        take_profit_1: req.body.take_profit_1,
+        take_profit_2: req.body.take_profit_2,
+        acilis_zamani: req.body.acilis_zamani
+    };
+
+    try {
+        const headers = {
+            'Content-Type': 'application/json',
+            'apikey': apiKey,
+            'Prefer': 'return=representation'
+        };
+
+        // service_role / anon JWT formatındaysa Authorization header eklenir.
+        if (apiKey.split('.').length === 3) {
+            headers.Authorization = `Bearer ${apiKey}`;
+        }
+
+        const response = await fetch(`${supabaseUrl}/rest/v1/islemler`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+        });
+
+        const raw = await response.text();
+        if (!response.ok) {
+            return res.status(response.status).json({
+                error: `Supabase insert hatası: ${response.status}`,
+                detail: raw
+            });
+        }
+
+        let data = [];
+        try {
+            data = JSON.parse(raw);
+        } catch {
+            data = [];
+        }
+
+        return res.json({
+            success: true,
+            kayit: Array.isArray(data) && data[0] ? data[0] : null,
+            authMode: serviceRoleKey ? 'service_role' : 'anon'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Supabase proxy isteği sırasında sunucu hatası',
+            detail: error.message
+        });
+    }
 });
 
 // Kayıt sil

@@ -4,8 +4,8 @@
 
 class KararKayitSistemi {
     constructor() {
-        this.SUPABASE_URL = (window.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '').replace(/\/+$/, '');
-        this.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || localStorage.getItem('SUPABASE_ANON_KEY') || '';
+        this.SUPABASE_URL = this.normalizeSupabaseUrl(window.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '');
+        this.SUPABASE_ANON_KEY = this.normalizeSupabaseKey(window.SUPABASE_ANON_KEY || localStorage.getItem('SUPABASE_ANON_KEY') || '');
 
         this.JSONBIN_API_KEY = '$2a$10$QktBwuRvzkwJz80digmRQeloC2dYzzK7gpR2GgV3t1nFXY/AUIgaW';
         this.BIN_ISLEM = '69deaf66aaba882197fc8e6f';
@@ -16,9 +16,18 @@ class KararKayitSistemi {
         this.cuzdanKayitlari = [];
         this.islemKuyrugu = Promise.resolve();
         
-        console.log(`📊 Karar Kayıt Sistemi başlatıldı (JSONBin.io Modu)`);
+        console.log(`📊 Karar Kayıt Sistemi başlatıldı (Supabase Kaydet + JSONBin Okuma Modu)`);
         
         this.kayitlariYukle();
+    }
+
+    normalizeSupabaseUrl(url) {
+        return String(url || '').trim().replace(/\/+$/, '');
+    }
+
+    normalizeSupabaseKey(key) {
+        // Kopyalama sırasında giren whitespace/newline karakterlerini temizle.
+        return String(key || '').trim().replace(/\s+/g, '');
     }
 
     isSupabaseConfigured() {
@@ -28,10 +37,6 @@ class KararKayitSistemi {
     }
 
     async supabaseInsertIslem(yeniKayit) {
-        if (!this.isSupabaseConfigured()) {
-            throw new Error('Supabase URL/ANON KEY eksik');
-        }
-
         const payload = {
             symbol: yeniKayit.symbol,
             karar: yeniKayit.karar,
@@ -46,24 +51,21 @@ class KararKayitSistemi {
             acilis_zamani: yeniKayit.analizZamani || new Date().toISOString()
         };
 
-        const res = await fetch(`${this.SUPABASE_URL}/rest/v1/islemler`, {
+        const res = await fetch('/api/supabase/islemler', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'apikey': this.SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
-                'Prefer': 'return=representation'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
         });
 
         if (!res.ok) {
             const errorText = await res.text().catch(() => 'Bilinmeyen Supabase hatası');
-            throw new Error(`Supabase insert başarısız: ${res.status} ${errorText}`);
+            throw new Error(`Supabase proxy insert başarısız: ${res.status} ${errorText}`);
         }
 
-        const rows = await res.json();
-        return Array.isArray(rows) && rows[0] ? rows[0] : null;
+        const body = await res.json().catch(() => ({}));
+        return body?.kayit || null;
     }
 
     // JSONBin İşlem Kuyruğu (Race condition önleyici)
