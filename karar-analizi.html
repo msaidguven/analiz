@@ -720,7 +720,7 @@
                 const shortCount = kararSayilari['SHORT'] || 0;
 
                 const stats = [
-                    { label: 'Toplam Karar', value: filtreliKayitlar.length, color: 'text-white' },
+                    { label: 'Toplam Karar', value: filtreliKayitlar.length, color: 'text-analiz-text' },
                     { label: 'Başarı Oranı', value: basariliOran.toFixed(1) + '%', color: basariliOran >= 70 ? 'text-premium-green' : basariliOran >= 50 ? 'text-premium-yellow' : 'text-premium-red' },
                     { label: 'Ortalama Risk', value: ortalamaRisk.toFixed(1) + '/10', color: ortalamaRisk >= 7 ? 'text-premium-red' : ortalamaRisk >= 5 ? 'text-premium-yellow' : 'text-premium-green' },
                     { label: 'Long / Short Sayısı', value: `${longCount} L / ${shortCount} S`, color: 'text-premium-blue' }
