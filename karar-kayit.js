@@ -4,6 +4,9 @@
 
 class KararKayitSistemi {
     constructor() {
+        this.SUPABASE_URL = (window.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '').replace(/\/+$/, '');
+        this.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || localStorage.getItem('SUPABASE_ANON_KEY') || '';
+
         this.JSONBIN_API_KEY = '$2a$10$QktBwuRvzkwJz80digmRQeloC2dYzzK7gpR2GgV3t1nFXY/AUIgaW';
         this.BIN_ISLEM = '69deaf66aaba882197fc8e6f';
         this.BIN_CUZDAN = '69deb11c856a6821893456df';
@@ -16,6 +19,51 @@ class KararKayitSistemi {
         console.log(`📊 Karar Kayıt Sistemi başlatıldı (JSONBin.io Modu)`);
         
         this.kayitlariYukle();
+    }
+
+    isSupabaseConfigured() {
+        const hasUrl = Boolean(this.SUPABASE_URL && !this.SUPABASE_URL.includes('YOUR_PROJECT_ID'));
+        const hasKey = Boolean(this.SUPABASE_ANON_KEY && !this.SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_ANON_KEY'));
+        return hasUrl && hasKey;
+    }
+
+    async supabaseInsertIslem(yeniKayit) {
+        if (!this.isSupabaseConfigured()) {
+            throw new Error('Supabase URL/ANON KEY eksik');
+        }
+
+        const payload = {
+            symbol: yeniKayit.symbol,
+            karar: yeniKayit.karar,
+            long_oran: yeniKayit.longOran,
+            short_oran: yeniKayit.shortOran,
+            risk_skor: yeniKayit.riskSkor,
+            guven: yeniKayit.guven,
+            giris_fiyati: yeniKayit.girisFiyati,
+            stop_loss: yeniKayit.stopLoss,
+            take_profit_1: yeniKayit.takeProfit1,
+            take_profit_2: yeniKayit.takeProfit2,
+            acilis_zamani: yeniKayit.analizZamani || new Date().toISOString()
+        };
+
+        const res = await fetch(`${this.SUPABASE_URL}/rest/v1/islemler`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': this.SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const errorText = await res.text().catch(() => 'Bilinmeyen Supabase hatası');
+            throw new Error(`Supabase insert başarısız: ${res.status} ${errorText}`);
+        }
+
+        const rows = await res.json();
+        return Array.isArray(rows) && rows[0] ? rows[0] : null;
     }
 
     // JSONBin İşlem Kuyruğu (Race condition önleyici)
@@ -115,20 +163,18 @@ class KararKayitSistemi {
         };
 
         return this.enqueue(async () => {
-            console.log('📡 JSONBin.io veritabanına ekleniyor...');
-            await this.kayitlariYukle(); 
+            console.log('📡 Supabase islemler tablosuna ekleniyor...');
+            const supabaseKayit = await this.supabaseInsertIslem(yeniKayit);
+
+            // UI tarafındaki mevcut veri modelini bozmamak için lokal diziye de ekliyoruz.
             this.kayitlar.unshift(yeniKayit);
-            
-            const dataToSave = {
-                versiyon: '1.0',
-                tarih: new Date().toISOString(),
-                kayitSayisi: this.kayitlar.length,
-                kayitlar: this.kayitlar
+
+            console.log('✅ Supabase kaydı başarılı:', symbol);
+            return {
+                ...yeniKayit,
+                supabaseId: supabaseKayit?.id,
+                supabaseUuid: supabaseKayit?.uuid
             };
-            
-            await this.putToBin(this.BIN_ISLEM, dataToSave);
-            console.log('✅ Veritabanına başarıyla kaydedildi:', symbol);
-            return yeniKayit;
         });
     }
 
