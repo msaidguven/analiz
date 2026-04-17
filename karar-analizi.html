@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="karar-kayit.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap"
@@ -265,6 +266,72 @@
             let coinFiyatlari = {};
             let tumKayitlar = [];
             let filtreliKayitlar = [];
+            let gecmisKayitlar = [];
+
+            function getSupabaseClient() {
+                if (window.kararKayitSistemi?.supabaseClient) {
+                    return window.kararKayitSistemi.supabaseClient;
+                }
+                if (window.supabase?.createClient && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+                    return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                }
+                return null;
+            }
+
+            function mapSupabaseAktifKayit(row) {
+                return {
+                    id: row.id,
+                    tarih: row.acilis_zamani || row.created_at || new Date().toISOString(),
+                    symbol: row.symbol,
+                    karar: row.karar,
+                    longOran: Number(row.long_oran || 0),
+                    shortOran: Number(row.short_oran || 0),
+                    riskSkor: Number(row.risk_skor || 0),
+                    guven: Number(row.guven || 0),
+                    girisFiyati: Number(row.giris_fiyati || 0),
+                    stopLoss: Number(row.stop_loss || 0),
+                    takeProfit1: Number(row.take_profit_1 || 0),
+                    takeProfit2: Number(row.take_profit_2 || 0),
+                    durum: row.durum || 'AKTIF'
+                };
+            }
+
+            function mapSupabaseGecmisKayit(row) {
+                return {
+                    id: row.id,
+                    symbol: row.symbol,
+                    karar: row.karar,
+                    girisFiyati: Number(row.giris_fiyati || 0),
+                    kapanisFiyati: Number(row.cikis_fiyati || 0),
+                    karZararDolar: Number(row.pnl_usdt || 0),
+                    karZararYuzde: Number(row.pnl_yuzde || 0),
+                    acilisTarihi: row.acilis_zamani || row.created_at || new Date().toISOString(),
+                    kapanisTarihi: row.kapanis_zamani || row.updated_at || new Date().toISOString(),
+                    durum: row.durum || null
+                };
+            }
+
+            async function supabaseTumIslemleriGetir() {
+                const client = getSupabaseClient();
+                if (!client) {
+                    throw new Error('Supabase bağlantısı bulunamadı. config.js ayarlarını kontrol edin.');
+                }
+
+                const { data, error } = await client
+                    .from('islemler')
+                    .select('*')
+                    .order('acilis_zamani', { ascending: false });
+
+                if (error) {
+                    throw new Error(`Veriler çekilemedi: ${error.message}`);
+                }
+
+                const rows = data || [];
+                const aktif = rows.filter(r => !r.kapanis_zamani && r.durum === 'AKTIF').map(mapSupabaseAktifKayit);
+                const gecmis = rows.filter(r => r.kapanis_zamani || r.durum !== 'AKTIF').map(mapSupabaseGecmisKayit);
+
+                return { aktif, gecmis };
+            }
 
             /* ─────────────────────────────────────────────
                BAŞLANGIÇ
@@ -444,14 +511,23 @@
 
             function kayitSil(kayitId) {
                 if (confirm('Bu kaydı silmek istediğinizden emin misiniz?')) {
-                    window.kararKayitSistemi.kayitSil(kayitId).then(() => {
+                    const client = getSupabaseClient();
+                    if (!client) {
+                        alert('Supabase bağlantısı bulunamadı.');
+                        return;
+                    }
+                    client.from('islemler').delete().eq('id', kayitId).then(({ error }) => {
+                        if (error) {
+                            alert('Kayıt silinemedi: ' + error.message);
+                            return;
+                        }
                         tumKayitlariYukle();
                     });
                 }
             }
 
             async function islemKapat(kayitId) {
-                const kayit = window.kararKayitSistemi.tumKayitlariGetir().find(k => k.id === kayitId);
+                const kayit = tumKayitlar.find(k => k.id === kayitId);
                 if (!kayit) return;
 
                 const mp = coinFiyatlari[kayit.symbol];
@@ -477,12 +553,23 @@
                 if (!onay) return;
 
                 try {
-                    // Sadece Karar Kayit Sistemi uzerinden islem kapat cagirilir
-                    await window.kararKayitSistemi.islemKapat(kayitId, mp);
+                    const sureDakika = Math.max(0, Math.round((Date.now() - new Date(kayit.tarih).getTime()) / 60000));
+                    const client = getSupabaseClient();
+                    if (!client) throw new Error('Supabase bağlantısı bulunamadı');
+                    const { error } = await client
+                        .from('islemler')
+                        .update({
+                            cikis_fiyati: mp,
+                            kapanis_zamani: new Date().toISOString(),
+                            pnl_yuzde: Number(pnlYuzde.toFixed(4)),
+                            pnl_usdt: Number(pnlDolar.toFixed(4)),
+                            sure_dakika: sureDakika
+                        })
+                        .eq('id', kayitId);
 
-                    // Guncel datayi cek
-                    tumKayitlar = await window.kararKayitSistemi.kayitlariYukle();
-                    filtreliKayitlar = [...tumKayitlar];
+                    if (error) throw error;
+
+                    await tumKayitlariYukle();
 
                     gecmisIslemGoster();
                     kayitlariGoster();
@@ -502,7 +589,7 @@
                 const el = document.getElementById('gecmisListesi');
 
                 try {
-                    let gecmis = await window.kararKayitSistemi.cuzdanYukle();
+                    let gecmis = [...gecmisKayitlar];
 
                     if (!gecmis || !gecmis.length) {
                         el.innerHTML = `
@@ -739,7 +826,7 @@
                DIŞA / İÇE AKTARMA
             ───────────────────────────────────────────── */
             function kayitlariDisaAktar() {
-                const kayitlar = window.kararKayitSistemi.tumKayitlariGetir();
+                const kayitlar = [...tumKayitlar];
                 if (!kayitlar.length) {
                     alert('Dışa aktarılacak kayıt yok!');
                     return;
@@ -819,26 +906,35 @@
             /* ─────────────────────────────────────────────
                YÜKLEME / TEMİZLEME
             ───────────────────────────────────────────── */
-            function tumKayitlariYukle() {
-                if (!window.kararKayitSistemi) {
-                    console.error('Karar kayıt sistemi yüklenemedi!');
-                    return;
-                }
-                window.kararKayitSistemi.kayitlariYukle().then(() => {
-                    tumKayitlar = window.kararKayitSistemi.tumKayitlariGetir();
+            async function tumKayitlariYukle() {
+                try {
+                    const { aktif, gecmis } = await supabaseTumIslemleriGetir();
+                    tumKayitlar = aktif;
+                    gecmisKayitlar = gecmis;
                     filtreliKayitlar = [...tumKayitlar];
                     kayitlariGoster();
                     istatistikleriGoster();
                     gecmisIslemGoster();
                     tumCoinFiyatlariniGuncelle();
-                });
+                } catch (err) {
+                    console.error(err);
+                    alert('Kayıtlar yüklenemedi: ' + err.message);
+                }
             }
 
             async function tumKayitlariTemizle() {
                 if (confirm('Tüm kayıtları (aktif + geçmiş) silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!')) {
                     try {
-                        await window.kararKayitSistemi.tumKayitlariTemizle();
-                        tumKayitlar = filtreliKayitlar = [];
+                        const client = getSupabaseClient();
+                        if (!client) throw new Error('Supabase bağlantısı bulunamadı');
+                        const { error } = await client
+                            .from('islemler')
+                            .delete()
+                            .gt('id', 0);
+                        if (error) throw error;
+                        tumKayitlar = [];
+                        gecmisKayitlar = [];
+                        filtreliKayitlar = [];
                         coinFiyatlari = {};
                         kayitlariGoster();
                         gecmisIslemGoster();

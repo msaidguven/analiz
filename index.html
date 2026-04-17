@@ -1487,7 +1487,8 @@
                 const kayit = await window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
                 showToast(`${symbol.toUpperCase()} başarıyla kaydedildi! (Karar: ${sonuc.karar})`, 'success', 'Başarılı');
             } catch (err) {
-                showToast('Kayıt sırasında hata oluştu!', 'error', 'Hata');
+                console.error('Kaydetme hatası:', err);
+                showToast(err?.message || 'Kayıt sırasında hata oluştu!', 'error', 'Hata');
             }
         }
 

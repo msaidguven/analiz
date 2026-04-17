@@ -6,6 +6,7 @@
     <title>Üçlü Karar Analiz Paneli | Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="chart-engine.js"></script>
     <script src="karar-motoru.js"></script>
     <script src="analysis-engine.js"></script>
@@ -369,8 +370,8 @@
                         DETAYLI ANALİZ
                     </a>
                     <div class="flex w-full gap-2 opacity-30 pointer-events-none" id="save-btns-${symbol}">
-                        <button onclick="handleManualSave('${symbol}', 'LONG')" class="flex-1 py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest">LONG</button>
-                        <button onclick="handleManualSave('${symbol}', 'SHORT')" class="flex-1 py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest">SHORT</button>
+                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG')" class="flex-1 py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">LONG</button>
+                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT')" class="flex-1 py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">SHORT</button>
                     </div>
                 </div>
             `;
@@ -411,6 +412,7 @@
                 if (saveBtns) {
                     saveBtns.classList.remove('opacity-30', 'pointer-events-none');
                 }
+                applyModel3SaveGuard(symbol, m3Result);
 
                 row.classList.remove('animate-scan');
             } catch (error) {
@@ -436,6 +438,25 @@
             `;
         }
 
+        function applyModel3SaveGuard(symbol, m3Result) {
+            const longBtn = document.getElementById(`save-long-${symbol}`);
+            const shortBtn = document.getElementById(`save-short-${symbol}`);
+            if (!longBtn || !shortBtn) return;
+
+            const signal = m3Result?.karar;
+            const isLong = signal === 'LONG';
+            const isShort = signal === 'SHORT';
+
+            // Model 3 LONG ise sadece LONG açık, SHORT kapalı.
+            // Model 3 SHORT ise sadece SHORT açık, LONG kapalı.
+            // BEKLE/NOTR ise iki buton da kapalı.
+            longBtn.disabled = !isLong;
+            shortBtn.disabled = !isShort;
+
+            longBtn.title = isLong ? 'Model 3 LONG sinyali' : 'Model 3 LONG değil';
+            shortBtn.title = isShort ? 'Model 3 SHORT sinyali' : 'Model 3 SHORT değil';
+        }
+
         async function handleManualSave(symbol, side) {
             try {
                 if (!window.kararKayitSistemi) {
@@ -452,10 +473,11 @@
                 // Model 3 sonucunu baz al ama karar tarafını zorla (LONG/SHORT)
                 const manualResult = JSON.parse(JSON.stringify(resultData.m3));
                 manualResult.karar = side;
-                
-                // Eğer model tersini diyorsa güveni biraz düşür veya not ekle (isteğe bağlı)
-                if (resultData.m3.karar !== side && resultData.m3.karar !== 'BEKLE') {
-                    manualResult.guven = Math.max(10, manualResult.guven - 20);
+
+                // Yanlış yönü kaydetmeyi kesin engelle.
+                if (resultData.m3.karar !== side) {
+                    alert(`Model 3 sinyali ${resultData.m3.karar}. ${side} kaydı pasif.`);
+                    return;
                 }
 
                 const kayit = await window.kararKayitSistemi.kararKayit(symbol, manualResult, resultData.price);
@@ -470,7 +492,7 @@
                 }
             } catch (err) {
                 console.error('Kayıt Hatası:', err);
-                alert('Kayıt sırasında hata oluştu!');
+                alert(err?.message || 'Kayıt sırasında hata oluştu!');
             }
         }
 
