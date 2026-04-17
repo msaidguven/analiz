@@ -25,6 +25,8 @@ SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 - `SUPABASE_ANON_KEY`
 
 Not: `service_role` key sadece backend `.env` içinde olmalı, frontend dosyalarına koymayın.
+Not: GitHub Pages'te backend `/api` çalışmadığı için `config.js` içindeki `SUPABASE_ANON_KEY` ile doğrudan Supabase REST çağrısı yapılır.
+Not: GitHub Pages senaryosunda `sb_publishable_...` yerine Project API'deki `anon` JWT key (genellikle `eyJ...`) kullanmanız gerekebilir.
 
 ## Çalıştırma
 

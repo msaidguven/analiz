@@ -6,6 +6,7 @@ class KararKayitSistemi {
     constructor() {
         this.SUPABASE_URL = this.normalizeSupabaseUrl(window.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '');
         this.SUPABASE_ANON_KEY = this.normalizeSupabaseKey(window.SUPABASE_ANON_KEY || localStorage.getItem('SUPABASE_ANON_KEY') || '');
+        this.supabaseClient = this.createSupabaseClient();
 
         this.JSONBIN_API_KEY = '$2a$10$QktBwuRvzkwJz80digmRQeloC2dYzzK7gpR2GgV3t1nFXY/AUIgaW';
         this.BIN_ISLEM = '69deaf66aaba882197fc8e6f';
@@ -19,6 +20,12 @@ class KararKayitSistemi {
         console.log(`📊 Karar Kayıt Sistemi başlatıldı (Supabase Kaydet + JSONBin Okuma Modu)`);
         
         this.kayitlariYukle();
+    }
+
+    createSupabaseClient() {
+        if (!this.isSupabaseConfigured()) return null;
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
+        return window.supabase.createClient(this.SUPABASE_URL, this.SUPABASE_ANON_KEY);
     }
 
     normalizeSupabaseUrl(url) {
@@ -36,6 +43,50 @@ class KararKayitSistemi {
         return hasUrl && hasKey;
     }
 
+    isGitHubPages() {
+        return typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+    }
+
+    async supabaseInsertIslemDirect(payload) {
+        if (!this.supabaseClient) {
+            throw new Error('Supabase client başlatılamadı. config.js veya supabase-js scriptini kontrol edin.');
+        }
+        const { data, error } = await this.supabaseClient
+            .from('islemler')
+            .insert(payload)
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(`Supabase insert hatası: ${error.message}`);
+        }
+
+        return data || null;
+    }
+
+    async supabaseInsertIslemViaApi(payload) {
+        const res = await fetch('/api/supabase/islemler', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const raw = await res.text().catch(() => '');
+        if (!res.ok) {
+            throw new Error(`Supabase proxy insert başarısız: ${res.status} ${raw}`);
+        }
+
+        let body = {};
+        try {
+            body = JSON.parse(raw);
+        } catch {
+            body = {};
+        }
+        return body?.kayit || null;
+    }
+
     async supabaseInsertIslem(yeniKayit) {
         const payload = {
             symbol: yeniKayit.symbol,
@@ -51,21 +102,20 @@ class KararKayitSistemi {
             acilis_zamani: yeniKayit.analizZamani || new Date().toISOString()
         };
 
-        const res = await fetch('/api/supabase/islemler', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-            const errorText = await res.text().catch(() => 'Bilinmeyen Supabase hatası');
-            throw new Error(`Supabase proxy insert başarısız: ${res.status} ${errorText}`);
+        // GitHub Pages'te backend API yok; doğrudan Supabase'e yaz.
+        if (this.isGitHubPages()) {
+            return this.supabaseInsertIslemDirect(payload);
         }
 
-        const body = await res.json().catch(() => ({}));
-        return body?.kayit || null;
+        // Local/Node ortamında önce backend proxy dene; yoksa direct fallback.
+        try {
+            return await this.supabaseInsertIslemViaApi(payload);
+        } catch (proxyError) {
+            if (this.isSupabaseConfigured()) {
+                return this.supabaseInsertIslemDirect(payload);
+            }
+            throw proxyError;
+        }
     }
 
     // JSONBin İşlem Kuyruğu (Race condition önleyici)
