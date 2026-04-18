@@ -11,6 +11,7 @@
     <script src="karar-motoru.js"></script>
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script src="karar-kayit.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap"
@@ -1145,6 +1146,27 @@
         </div>
     </div>
 
+    <!-- Chart Modal (TradingView Futures) -->
+    <div id="chartModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center" style="pointer-events:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);">
+        <div id="chartModalContent" class="relative w-[96vw] h-[92vh] bg-binance-card rounded-2xl border border-binance-border shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col transform scale-95 transition-all duration-300">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-binance-border bg-binance-hover shrink-0">
+                <div class="flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-binance-yellow to-premium-purple flex items-center justify-center text-black font-black text-xs shadow" id="chartModalIcon"></div>
+                    <div>
+                        <h3 class="text-lg font-black text-binance-text font-outfit" id="chartModalTitle">Grafik</h3>
+                        <p class="text-[10px] font-black text-binance-yellow uppercase tracking-widest mt-0.5">TradingView Canlı Analiz · Futures (4H)</p>
+                    </div>
+                </div>
+                <button onclick="closeChartModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-binance-card border border-binance-border text-binance-muted hover:text-white hover:bg-premium-red hover:border-premium-red transition-all group">
+                    <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="flex-1 w-full relative bg-binance-dark" id="chartModalBody"></div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <p>Veriler <a href="https://www.binance.com" target="_blank">Binance</a> API'sinden alınmaktadır.</p>
@@ -1385,6 +1407,9 @@
                                 <span class="text-binance-muted text-[10px] font-bold uppercase tracking-widest mb-1">RANK #${coin.rank}</span>
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-xl font-bold font-outfit text-binance-text tracking-wide">${coin.symbol}</h3>
+                                    <button onclick="openChartModal('${coin.symbol}')" class="flex items-center justify-center p-1.5 rounded-lg bg-binance-card border border-binance-border text-binance-muted hover:text-binance-yellow hover:border-binance-yellow transition-all" title="Grafiği Göster">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg> 
+                                    </button>
                                     <div class="p-1 px-2 rounded text-[10px] font-bold border ${statusClass}">${coin.status}</div>
                                 </div>
                             </div>
@@ -1855,6 +1880,83 @@
                 timeout = setTimeout(later, wait);
             };
         }
+
+        // Chart Modal Functions
+        function openChartModal(symbol) {
+            const modal = document.getElementById('chartModal');
+            const content = document.getElementById('chartModalContent');
+            const title = document.getElementById('chartModalTitle');
+            const icon = document.getElementById('chartModalIcon');
+            const body = document.getElementById('chartModalBody');
+
+            title.textContent = symbol + ' Futures · 4S';
+            icon.textContent = symbol.replace('USDT', '').substring(0, 4);
+
+            modal.classList.remove('hidden');
+            modal.style.pointerEvents = 'auto';
+            document.body.style.overflow = 'hidden';
+
+            requestAnimationFrame(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
+
+            // Benzersiz container div oluştur
+            const containerId = 'tv_' + symbol.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now();
+            body.innerHTML = '<div id="' + containerId + '" style="position:absolute;inset:0;width:100%;height:100%;"></div>';
+
+            function buildWidget() {
+                new TradingView.widget({
+                    autosize: true,
+                    symbol: 'BINANCE:' + symbol + '.P',
+                    interval: '240',
+                    timezone: 'Europe/Istanbul',
+                    theme: 'light',
+                    style: '1',
+                    locale: 'tr',
+                    enable_publishing: false,
+                    allow_symbol_change: true,
+                    hide_top_toolbar: false,
+                    hide_legend: false,
+                    save_image: false,
+                    container_id: containerId
+                });
+            }
+
+            if (window.TradingView) {
+                buildWidget();
+            } else {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = 'https://s3.tradingview.com/tv.js';
+                script.onload = buildWidget;
+                script.onerror = () => {
+                    body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f6465d;font-weight:700;font-size:14px;padding:24px;text-align:center;">TradingView bağlantı hatası.<br>Lütfen sayfayı yenileyin.</div>';
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        function closeChartModal() {
+            const modal = document.getElementById('chartModal');
+            const content = document.getElementById('chartModalContent');
+            const body = document.getElementById('chartModalBody');
+
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.pointerEvents = 'none';
+                document.body.style.overflow = '';
+                body.innerHTML = '';
+            }, 300);
+        }
+
+        // ESC tuşu ile modal kapat
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeChartModal();
+        });
 
         // Initial load
         fetchAllData();
@@ -2340,6 +2442,108 @@
     </script>
     <!-- Toast Container -->
     <div id="toast-container"></div>
+
+    <!-- Chart Modal -->
+    <div id="chartModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300" style="pointer-events: none;">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeChartModal()"></div>
+        <!-- Modal Content -->
+        <div class="relative w-[95vw] h-[90vh] bg-binance-card rounded-[2rem] shadow-[0_20px_60px_rgba(31,45,61,0.2)] border border-binance-border overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="chartModalContent">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-binance-border bg-binance-dark">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-binance-yellow/10 flex items-center justify-center text-binance-yellow font-black text-sm border border-binance-yellow/20" id="chartModalSymbolIcon"></div>
+                    <div>
+                        <h3 class="text-xl font-black text-binance-text tracking-tight font-outfit" id="chartModalTitle">Grafik</h3>
+                        <p class="text-[10px] font-black text-binance-muted uppercase tracking-widest mt-0.5">TradingView Canlı Analiz</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="closeChartModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-binance-card border border-binance-border text-binance-muted hover:text-white hover:bg-premium-red hover:border-premium-red transition-all shadow-sm group">
+                        <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Modal Body -->
+            <div class="flex-1 w-full h-full bg-binance-dark relative" id="chartModalBody">
+                <!-- TradingView Widget Container -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openChartModal(symbol) {
+            const modal = document.getElementById('chartModal');
+            const title = document.getElementById('chartModalTitle');
+            const icon = document.getElementById('chartModalSymbolIcon');
+            const body = document.getElementById('chartModalBody');
+            const content = document.getElementById('chartModalContent');
+            
+            title.textContent = symbol + ' Analizi';
+            icon.textContent = symbol.replace('USDT', '').substring(0, 4);
+            
+            modal.style.pointerEvents = 'auto';
+            modal.classList.remove('hidden');
+            
+            // Trigger animations
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+
+            document.body.style.overflow = 'hidden'; 
+            
+            body.innerHTML = '';
+            
+            const widgetContainer = document.createElement('div');
+            widgetContainer.id = 'tradingview_' + symbol;
+            widgetContainer.className = 'absolute inset-0';
+            body.appendChild(widgetContainer);
+
+            if (window.TradingView) {
+                new window.TradingView.widget({
+                    "autosize": true,
+                    "symbol": "BINANCE:" + symbol + ".P",
+                    "interval": "240",
+                    "timezone": "Europe/Istanbul",
+                    "theme": "light",
+                    "style": "1",
+                    "locale": "tr",
+                    "enable_publishing": false,
+                    "backgroundColor": "#f8fafc",
+                    "gridColor": "#e1e4e8",
+                    "hide_top_toolbar": false,
+                    "hide_legend": false,
+                    "save_image": false,
+                    "container_id": "tradingview_" + symbol,
+                    "toolbar_bg": "#ffffff"
+                });
+            } else {
+                body.innerHTML = '<div class="flex items-center justify-center h-full text-binance-muted font-bold">TradingView yüklenemedi.</div>';
+            }
+        }
+
+        function closeChartModal() {
+            const modal = document.getElementById('chartModal');
+            const body = document.getElementById('chartModalBody');
+            const content = document.getElementById('chartModalContent');
+            
+            // Reverse animations
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.pointerEvents = 'none';
+                document.body.style.overflow = '';
+                body.innerHTML = ''; 
+            }, 300);
+        }
+    </script>
 </body>
 
 </html>

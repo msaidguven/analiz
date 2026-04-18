@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script src="karar-kayit.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap"
@@ -654,7 +655,12 @@
                         <div class="glass-card rounded-2xl p-4 border-l-4 border-l-${accent} hover:shadow-md transition-all flex items-center justify-between group">
                             <div class="flex-1 min-w-0 pr-4">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bebas text-lg tracking-wider text-analiz-text">${islem.symbol}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bebas text-lg tracking-wider text-analiz-text">${islem.symbol}</span>
+                                        <button onclick="openChartModal('${islem.symbol}')" class="flex items-center justify-center p-1 rounded bg-analiz-surface border border-analiz-border text-analiz-text2 hover:text-premium-blue hover:border-premium-blue transition-all" title="Grafiği Göster">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg> 
+                                        </button>
+                                    </div>
                                     <span class="text-[9px] font-black py-0.5 px-2 rounded ${win ? 'bg-premium-green/20 text-premium-green' : 'bg-premium-red/20 text-premium-red'}">
                                         ${islem.karar}
                                     </span>
@@ -756,7 +762,12 @@
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-4">
                                 <span class="text-xl">${statusIcon}</span>
-                                <span class="font-bebas text-2xl tracking-widest text-analiz-text">${kayit.symbol}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bebas text-2xl tracking-widest text-analiz-text">${kayit.symbol}</span>
+                                    <button onclick="openChartModal('${kayit.symbol}')" class="flex items-center justify-center p-1.5 rounded-lg bg-analiz-surface border border-analiz-border text-analiz-text2 hover:text-premium-blue hover:border-premium-blue transition-all" title="Grafiği Göster">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg> 
+                                    </button>
+                                </div>
                                 ${mp ? `<span class="bg-analiz-bg px-2 py-0.5 rounded text-[10px] font-mono text-premium-blue font-bold border border-analiz-border">$${fmtPrice(mp)}</span>` : ''}
                                 <span class="ml-auto text-[10px] text-analiz-text2 font-medium opacity-60 group-hover:opacity-100 transition-opacity">${tarihStr}</span>
                             </div>
@@ -967,7 +978,100 @@
                 if (p < 100) return p.toFixed(4);
                 return p.toFixed(2);
             }
+
+            function openChartModal(symbol) {
+                const modal = document.getElementById('chartModal');
+                const title = document.getElementById('chartModalTitle');
+                const icon = document.getElementById('chartModalSymbolIcon');
+                const body = document.getElementById('chartModalBody');
+                const content = document.getElementById('chartModalContent');
+                
+                title.textContent = symbol + ' Analizi';
+                icon.textContent = symbol.replace('USDT', '').substring(0, 4);
+                
+                modal.style.pointerEvents = 'auto';
+                modal.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }, 10);
+
+                document.body.style.overflow = 'hidden'; 
+                
+                body.innerHTML = '';
+                
+                const widgetContainer = document.createElement('div');
+                widgetContainer.id = 'tradingview_' + symbol;
+                widgetContainer.className = 'absolute inset-0';
+                body.appendChild(widgetContainer);
+
+                if (window.TradingView) {
+                    new window.TradingView.widget({
+                        "autosize": true,
+                        "symbol": "BINANCE:" + symbol + ".P",
+                        "interval": "240",
+                        "timezone": "Europe/Istanbul",
+                        "theme": "light",
+                        "style": "1",
+                        "locale": "tr",
+                        "enable_publishing": false,
+                        "backgroundColor": "#f8fafc",
+                        "gridColor": "#e1e4e8",
+                        "hide_top_toolbar": false,
+                        "hide_legend": false,
+                        "save_image": false,
+                        "container_id": "tradingview_" + symbol,
+                        "toolbar_bg": "#ffffff"
+                    });
+                } else {
+                    body.innerHTML = '<div class="flex items-center justify-center h-full text-analiz-text2 font-bold">TradingView yüklenemedi.</div>';
+                }
+            }
+
+            function closeChartModal() {
+                const modal = document.getElementById('chartModal');
+                const body = document.getElementById('chartModalBody');
+                const content = document.getElementById('chartModalContent');
+                
+                modal.classList.add('opacity-0');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.style.pointerEvents = 'none';
+                    document.body.style.overflow = '';
+                    body.innerHTML = ''; 
+                }, 300);
+            }
         </script>
+
+        <!-- Chart Modal -->
+        <div id="chartModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300" style="pointer-events: none;">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeChartModal()"></div>
+            <div class="relative w-[95vw] h-[90vh] bg-analiz-card rounded-[2rem] shadow-[0_20px_60px_rgba(31,45,61,0.2)] border border-analiz-border overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="chartModalContent">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-analiz-border bg-analiz-surface">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-premium-blue to-premium-purple flex items-center justify-center text-white font-black text-sm shadow-lg shadow-premium-blue/20" id="chartModalSymbolIcon"></div>
+                        <div>
+                            <h3 class="text-xl font-black text-analiz-text tracking-tight font-outfit" id="chartModalTitle">Grafik</h3>
+                            <p class="text-[10px] font-black text-premium-blue uppercase tracking-widest mt-0.5">TradingView Canlı Analiz</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="closeChartModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-analiz-card border border-analiz-border text-analiz-text2 hover:text-white hover:bg-premium-red hover:border-premium-red transition-all shadow-sm group">
+                            <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 w-full h-full bg-analiz-bg relative" id="chartModalBody">
+                </div>
+            </div>
+        </div>
     </body>
 
 </html>
