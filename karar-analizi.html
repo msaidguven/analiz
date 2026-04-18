@@ -340,7 +340,7 @@
             document.addEventListener('DOMContentLoaded', () => {
                 tumKayitlariYukle();
                 tumCoinFiyatlariniGuncelle();
-                fiyatInterval = setInterval(tumCoinFiyatlariniGuncelle, 15000);
+                fiyatInterval = setInterval(tumCoinFiyatlariniGuncelle, 5000);
             });
 
             window.addEventListener('beforeunload', () => {
@@ -719,11 +719,11 @@
                     const pnlB = mpB ? yonB * ((mpB - b.girisFiyati) / b.girisFiyati) * POSITION_SIZE : 0;
 
                     switch (aktifSort) {
-                        case 'kar':   return pnlB - pnlA;            // en yüksek kar önce
+                        case 'kar': return pnlB - pnlA;            // en yüksek kar önce
                         case 'zarar': return pnlA - pnlB;            // en fazla zarar önce (en negatif)
-                        case 'isim':  return a.symbol.localeCompare(b.symbol);
+                        case 'isim': return a.symbol.localeCompare(b.symbol);
                         case 'tarih':
-                        default:      return new Date(b.tarih) - new Date(a.tarih);
+                        default: return new Date(b.tarih) - new Date(a.tarih);
                     }
                 });
 
@@ -741,9 +741,9 @@
                         // Gerçek anlık fiyat bazlı P&L
                         const yon = kayit.karar === 'LONG' ? 1 : -1;
                         const gercekPnlYuzde = yon * ((mp - kayit.girisFiyati) / kayit.girisFiyati) * 100;
-                        const gercekPnlDolar  = (gercekPnlYuzde / 100) * POSITION_SIZE;
+                        const gercekPnlDolar = (gercekPnlYuzde / 100) * POSITION_SIZE;
                         const isWin = gercekPnlYuzde >= 0;
-                        const sign  = isWin ? '+' : '';
+                        const sign = isWin ? '+' : '';
                         const color = isWin ? 'text-premium-green' : 'text-premium-red';
 
                         // TP1/SL badge (küçük, satır içi)

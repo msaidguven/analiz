@@ -1009,10 +1009,10 @@
                 <a href="karar-analizi.html"
                     class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-binance-card border border-binance-border text-binance-text hover:border-premium-purple hover:bg-binance-hover transform hover:-translate-y-0.5">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
                     Karar Merkezi
                 </a>
@@ -1042,44 +1042,34 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <button
-                    class="sort-btn active"
-                    data-sort="volume" onclick="setSort('volume')">
+                <button class="sort-btn active" data-sort="volume" onclick="setSort('volume')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2.5">
                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                     Hacim
                 </button>
-                <button
-                    class="sort-btn"
-                    data-sort="marketcap" onclick="setSort('marketcap')">
+                <button class="sort-btn" data-sort="marketcap" onclick="setSort('marketcap')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                     </svg>
                     Piyasa Değeri
                 </button>
-                <button
-                    class="sort-btn"
-                    data-sort="change" onclick="setSort('change')">
+                <button class="sort-btn" data-sort="change" onclick="setSort('change')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M23 6l-9.5 9.5-5-5L1 18" />
                         <path d="M17 6h6v6" />
                     </svg>
                     24s Değişim
                 </button>
-                <button
-                    class="sort-btn"
-                    data-sort="funding" onclick="setSort('funding')">
+                <button class="sort-btn" data-sort="funding" onclick="setSort('funding')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M12 6v6l4 2" />
                     </svg>
                     Funding
                 </button>
-                <button
-                    class="sort-btn"
-                    data-sort="symbol" onclick="setSort('symbol')">
+                <button class="sort-btn" data-sort="symbol" onclick="setSort('symbol')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                     </svg>
@@ -1147,19 +1137,29 @@
     </div>
 
     <!-- Chart Modal (TradingView Futures) -->
-    <div id="chartModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center" style="pointer-events:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);">
-        <div id="chartModalContent" class="relative w-[96vw] h-[92vh] bg-binance-card rounded-2xl border border-binance-border shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col transform scale-95 transition-all duration-300">
+    <div id="chartModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center"
+        style="pointer-events:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);">
+        <div id="chartModalContent"
+            class="relative w-[96vw] h-[92vh] bg-binance-card rounded-2xl border border-binance-border shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-binance-border bg-binance-hover shrink-0">
+            <div
+                class="flex items-center justify-between px-6 py-4 border-b border-binance-border bg-binance-hover shrink-0">
                 <div class="flex items-center gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-binance-yellow to-premium-purple flex items-center justify-center text-black font-black text-xs shadow" id="chartModalIcon"></div>
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-binance-yellow to-premium-purple flex items-center justify-center text-black font-black text-xs shadow"
+                        id="chartModalIcon"></div>
                     <div>
                         <h3 class="text-lg font-black text-binance-text font-outfit" id="chartModalTitle">Grafik</h3>
-                        <p class="text-[10px] font-black text-binance-yellow uppercase tracking-widest mt-0.5">TradingView Canlı Analiz · Futures (4H)</p>
+                        <p class="text-[10px] font-black text-binance-yellow uppercase tracking-widest mt-0.5">
+                            TradingView Canlı Analiz · Futures (4H)</p>
                     </div>
                 </div>
-                <button onclick="closeChartModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-binance-card border border-binance-border text-binance-muted hover:text-white hover:bg-premium-red hover:border-premium-red transition-all group">
-                    <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button onclick="closeChartModal()"
+                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-binance-card border border-binance-border text-binance-muted hover:text-white hover:bg-premium-red hover:border-premium-red transition-all group">
+                    <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
             <!-- Modal Body -->
@@ -1961,8 +1961,8 @@
         // Initial load
         fetchAllData();
 
-        // Auto refresh every 60 seconds
-        setInterval(fetchAllData, 60000);
+        // Auto refresh every 30 seconds
+        setInterval(fetchAllData, 30000);
     </script>
 
     <script>
@@ -2444,24 +2444,33 @@
     <div id="toast-container"></div>
 
     <!-- Chart Modal -->
-    <div id="chartModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300" style="pointer-events: none;">
+    <div id="chartModal"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300"
+        style="pointer-events: none;">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeChartModal()"></div>
         <!-- Modal Content -->
-        <div class="relative w-[95vw] h-[90vh] bg-binance-card rounded-[2rem] shadow-[0_20px_60px_rgba(31,45,61,0.2)] border border-binance-border overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="chartModalContent">
+        <div class="relative w-[95vw] h-[90vh] bg-binance-card rounded-[2rem] shadow-[0_20px_60px_rgba(31,45,61,0.2)] border border-binance-border overflow-hidden flex flex-col transform scale-95 transition-transform duration-300"
+            id="chartModalContent">
             <!-- Modal Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-binance-border bg-binance-dark">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-binance-yellow/10 flex items-center justify-center text-binance-yellow font-black text-sm border border-binance-yellow/20" id="chartModalSymbolIcon"></div>
+                    <div class="w-12 h-12 rounded-xl bg-binance-yellow/10 flex items-center justify-center text-binance-yellow font-black text-sm border border-binance-yellow/20"
+                        id="chartModalSymbolIcon"></div>
                     <div>
-                        <h3 class="text-xl font-black text-binance-text tracking-tight font-outfit" id="chartModalTitle">Grafik</h3>
-                        <p class="text-[10px] font-black text-binance-muted uppercase tracking-widest mt-0.5">TradingView Canlı Analiz</p>
+                        <h3 class="text-xl font-black text-binance-text tracking-tight font-outfit"
+                            id="chartModalTitle">Grafik</h3>
+                        <p class="text-[10px] font-black text-binance-muted uppercase tracking-widest mt-0.5">
+                            TradingView Canlı Analiz</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="closeChartModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-binance-card border border-binance-border text-binance-muted hover:text-white hover:bg-premium-red hover:border-premium-red transition-all shadow-sm group">
-                        <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                    <button onclick="closeChartModal()"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-binance-card border border-binance-border text-binance-muted hover:text-white hover:bg-premium-red hover:border-premium-red transition-all shadow-sm group">
+                        <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -2480,13 +2489,13 @@
             const icon = document.getElementById('chartModalSymbolIcon');
             const body = document.getElementById('chartModalBody');
             const content = document.getElementById('chartModalContent');
-            
+
             title.textContent = symbol + ' Analizi';
             icon.textContent = symbol.replace('USDT', '').substring(0, 4);
-            
+
             modal.style.pointerEvents = 'auto';
             modal.classList.remove('hidden');
-            
+
             // Trigger animations
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
@@ -2494,10 +2503,10 @@
                 content.classList.add('scale-100');
             }, 10);
 
-            document.body.style.overflow = 'hidden'; 
-            
+            document.body.style.overflow = 'hidden';
+
             body.innerHTML = '';
-            
+
             const widgetContainer = document.createElement('div');
             widgetContainer.id = 'tradingview_' + symbol;
             widgetContainer.className = 'absolute inset-0';
@@ -2530,17 +2539,17 @@
             const modal = document.getElementById('chartModal');
             const body = document.getElementById('chartModalBody');
             const content = document.getElementById('chartModalContent');
-            
+
             // Reverse animations
             modal.classList.add('opacity-0');
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
-            
+
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.style.pointerEvents = 'none';
                 document.body.style.overflow = '';
-                body.innerHTML = ''; 
+                body.innerHTML = '';
             }, 300);
         }
     </script>
