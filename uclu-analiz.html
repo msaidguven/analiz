@@ -76,7 +76,7 @@
 <body class="min-h-screen pb-20">
     <!-- Header -->
     <header class="sticky top-0 z-50 glass border-b border-analiz-border">
-        <div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="max-w-[1600px] mx-auto px-4 lg:px-6 py-4 lg:py-0 lg:h-20 flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-0">
             <div class="flex items-center gap-4">
                 <div class="w-10 h-10 bg-gradient-to-tr from-premium-blue to-premium-purple rounded-xl flex items-center justify-center shadow-lg shadow-premium-blue/20">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,11 +145,11 @@
 
     <main class="max-w-[1700px] mx-auto px-6 pt-10">
         <!-- Grid Header -->
-        <div class="grid grid-cols-12 gap-4 px-6 mb-4 text-[10px] font-black text-analiz-text2 uppercase tracking-widest">
+        <div class="hidden lg:grid grid-cols-12 gap-4 px-6 mb-4 text-[10px] font-black text-analiz-text2 uppercase tracking-widest">
             <div class="col-span-2">COİN / BİLGİ</div>
-            <div class="col-span-2">MODEL 1: SİMP-V5</div>
-            <div class="col-span-2">MODEL 2: YEREL-V3</div>
-            <div class="col-span-3">MODEL 3: PRO-V5 (TAM)</div>
+            <div class="col-span-2 text-center">MODEL 1: SİMP-V5</div>
+            <div class="col-span-2 text-center">MODEL 2: YEREL-V3</div>
+            <div class="col-span-3 text-center">MODEL 3: PRO-V5 (TAM)</div>
             <div class="col-span-3 text-center">İŞLEM / DETAY</div>
         </div>
 
@@ -353,25 +353,34 @@
             
             const row = document.createElement('div');
             row.id = rowId;
-            row.className = 'grid grid-cols-12 gap-4 p-6 glass rounded-[2rem] animate-scan border-analiz-border transition-all duration-300 hover:shadow-xl';
+            row.className = 'grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-4 p-5 lg:p-6 glass rounded-[2rem] animate-scan border-analiz-border transition-all duration-300 hover:shadow-xl';
             row.innerHTML = `
-                <div class="col-span-2 flex items-center gap-5">
-                    <div class="w-14 h-14 bg-analiz-bg rounded-2xl flex items-center justify-center font-black text-sm text-premium-blue border border-analiz-border shadow-sm">${symbol.replace('USDT', '')}</div>
+                <div class="col-span-1 lg:col-span-2 flex items-center gap-4 lg:gap-5 mb-2 lg:mb-0">
+                    <div class="w-14 h-14 bg-analiz-bg rounded-2xl flex shrink-0 items-center justify-center font-black text-sm text-premium-blue border border-analiz-border shadow-sm">${symbol.replace('USDT', '')}</div>
                     <div class="flex flex-col">
                         <span class="text-base font-black text-analiz-text">${symbol}</span>
                         <span class="text-sm text-analiz-text font-black uppercase tracking-tight" id="price-${symbol}">Yükleniyor...</span>
                     </div>
                 </div>
-                <div class="col-span-2 flex items-center justify-center border-l border-analiz-border/50" id="m1-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
-                <div class="col-span-2 flex items-center justify-center border-l border-analiz-border/50" id="m2-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
-                <div class="col-span-3 flex items-center justify-center border-l border-analiz-border/50" id="m3-${symbol}"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
-                <div class="col-span-3 flex flex-col items-center justify-center border-l border-analiz-border/50 gap-2 p-2" id="actions-${symbol}">
-                    <a href="analiz_v3.html?symbol=${symbol}" target="_blank" class="w-full flex items-center justify-center gap-3 px-4 py-2 bg-analiz-card border border-premium-green/30 text-premium-green text-[10px] font-black rounded-xl hover:bg-premium-green hover:text-white transition-all group/link shadow-lg shadow-premium-green/5 uppercase tracking-widest text-center">
+                <div class="col-span-1 lg:col-span-2 flex items-center justify-between lg:justify-center border-t lg:border-t-0 lg:border-l border-analiz-border/50 pt-3 lg:pt-0">
+                    <span class="lg:hidden text-[10px] font-black text-analiz-text2 uppercase">MODEL 1: SİMP-V5</span>
+                    <div id="m1-${symbol}" class="flex justify-end lg:justify-center w-[120px] lg:w-auto"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                </div>
+                <div class="col-span-1 lg:col-span-2 flex items-center justify-between lg:justify-center border-t lg:border-t-0 lg:border-l border-analiz-border/50 pt-3 lg:pt-0">
+                    <span class="lg:hidden text-[10px] font-black text-analiz-text2 uppercase">MODEL 2: YEREL-V3</span>
+                    <div id="m2-${symbol}" class="flex justify-end lg:justify-center w-[120px] lg:w-auto"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                </div>
+                <div class="col-span-1 lg:col-span-3 flex items-center justify-between lg:justify-center border-t lg:border-t-0 lg:border-l border-analiz-border/50 pt-3 lg:pt-0">
+                    <span class="lg:hidden text-[10px] font-black text-analiz-text2 uppercase">MODEL 3: PRO-V5</span>
+                    <div id="m3-${symbol}" class="flex justify-end lg:justify-center w-[120px] lg:w-auto"><div class="w-4 h-4 border-2 border-analiz-text2/20 border-t-analiz-text2 rounded-full animate-spin"></div></div>
+                </div>
+                <div class="col-span-1 lg:col-span-3 flex flex-col items-center justify-center border-t lg:border-t-0 lg:border-l border-analiz-border/50 pt-4 lg:pt-0 gap-3 lg:p-2" id="actions-${symbol}">
+                    <a href="analiz_v3.html?symbol=${symbol}" target="_blank" class="w-full flex items-center justify-center gap-3 px-4 py-3 lg:py-2 bg-analiz-card border border-premium-green/30 text-premium-green text-[10px] lg:text-[10px] font-black rounded-xl hover:bg-premium-green hover:text-white transition-all group/link shadow-lg shadow-premium-green/5 uppercase tracking-widest text-center">
                         DETAYLI ANALİZ
                     </a>
                     <div class="flex w-full gap-2 opacity-30 pointer-events-none" id="save-btns-${symbol}">
-                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG'); signalLong('${symbol}')" class="flex-1 py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">LONG</button>
-                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT'); signalShort('${symbol}')" class="flex-1 py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">SHORT</button>
+                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG'); signalLong('${symbol}')" class="flex-1 py-3 lg:py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">LONG</button>
+                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT'); signalShort('${symbol}')" class="flex-1 py-3 lg:py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">SHORT</button>
                     </div>
                 </div>
             `;
@@ -509,6 +518,10 @@
                     JSON.stringify({ symbol: symbol, direction: "LONG" })
                 );
             }
+            // Python için
+            if (window.pywebview) {
+                pywebview.api.sendOrder(symbol, "LONG");
+            }
         }
 
         function signalShort(symbol) {
@@ -516,6 +529,10 @@
                 FlutterChannel.postMessage(
                     JSON.stringify({ symbol: symbol, direction: "SHORT" })
                 );
+            }
+            // Python için
+            if (window.pywebview) {
+                pywebview.api.sendOrder(symbol, "SHORT");
             }
         }
     </script>

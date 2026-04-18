@@ -1520,6 +1520,10 @@
                     JSON.stringify({ symbol: symbol, direction: "LONG" })
                 );
             }
+            // Python için
+            if (window.pywebview) {
+                pywebview.api.sendOrder(symbol, "LONG");
+            }
         }
 
         function signalShort(symbol) {
@@ -1527,6 +1531,10 @@
                 FlutterChannel.postMessage(
                     JSON.stringify({ symbol: symbol, direction: "SHORT" })
                 );
+            }
+            // Python için
+            if (window.pywebview) {
+                pywebview.api.sendOrder(symbol, "SHORT");
             }
         }
 
