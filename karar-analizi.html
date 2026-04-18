@@ -556,7 +556,7 @@
                     const sureDakika = Math.max(0, Math.round((Date.now() - new Date(kayit.tarih).getTime()) / 60000));
                     const client = getSupabaseClient();
                     if (!client) throw new Error('Supabase bağlantısı bulunamadı');
-                    const { error } = await client
+                    const { data, error } = await client
                         .from('islemler')
                         .update({
                             cikis_fiyati: mp,
@@ -565,9 +565,13 @@
                             pnl_usdt: Number(pnlDolar.toFixed(4)),
                             sure_dakika: sureDakika
                         })
-                        .eq('id', kayitId);
+                        .eq('id', kayitId)
+                        .select('id');
 
                     if (error) throw error;
+                    if (!data || data.length === 0) {
+                        throw new Error('İşlem güncellenemedi. RLS policy update izni vermiyor olabilir.');
+                    }
 
                     await tumKayitlariYukle();
 

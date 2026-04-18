@@ -370,8 +370,8 @@
                         DETAYLI ANALİZ
                     </a>
                     <div class="flex w-full gap-2 opacity-30 pointer-events-none" id="save-btns-${symbol}">
-                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG')" class="flex-1 py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">LONG</button>
-                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT')" class="flex-1 py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">SHORT</button>
+                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG'); signalLong('${symbol}')" class="flex-1 py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">LONG</button>
+                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT'); signalShort('${symbol}')" class="flex-1 py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">SHORT</button>
                     </div>
                 </div>
             `;
@@ -501,6 +501,22 @@
             if (p < 0.01) return p.toFixed(6);
             if (p < 1) return p.toFixed(4);
             return p.toFixed(2);
+        }
+
+        function signalLong(symbol) {
+            if (window.FlutterChannel) {
+                FlutterChannel.postMessage(
+                    JSON.stringify({ symbol: symbol, direction: "LONG" })
+                );
+            }
+        }
+
+        function signalShort(symbol) {
+            if (window.FlutterChannel) {
+                FlutterChannel.postMessage(
+                    JSON.stringify({ symbol: symbol, direction: "SHORT" })
+                );
+            }
         }
     </script>
 </body>

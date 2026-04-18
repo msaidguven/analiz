@@ -1441,7 +1441,10 @@
 
                         <div class="flex gap-2 mt-auto">
                             <button class="flex-1 py-3 rounded-xl text-sm font-black bg-binance-yellow text-black hover:bg-[#e0ab0a] transition-colors shadow-lg shadow-binance-yellow/10 uppercase tracking-widest" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Analiz</button>
-                            <button class="karar-kaydet-btn flex-1 py-3 rounded-xl text-sm font-black bg-binance-hover border border-binance-border text-binance-muted hover:text-binance-text hover:border-binance-yellow transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}')" disabled>Kaydet</button>
+                            <div class="flex-1 flex gap-2">
+                                <button class="karar-kaydet-long-btn flex-1 py-3 rounded-xl text-sm font-black bg-premium-green/10 border border-premium-green/30 text-premium-green hover:bg-premium-green hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}', 'LONG')" disabled>Long</button>
+                                <button class="karar-kaydet-short-btn flex-1 py-3 rounded-xl text-sm font-black bg-premium-red/10 border border-premium-red/30 text-premium-red hover:bg-premium-red hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}', 'SHORT')" disabled>Short</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1469,7 +1472,7 @@
             window.location.href = `analiz_v3.html?symbol=${symbol}`;
         }
 
-        async function saveCoin(symbol) {
+        async function saveCoin(symbol, side) {
             // Karar analiz verisini çek
             const analysisData = await fetchAnalysisData(symbol);
 
@@ -1481,14 +1484,49 @@
             // Karar motoru ile hesapla
             const sonuc = window.kararMotoru(analysisData);
             const mevcutFiyat = analysisData.price;
+            const modelKarar = sonuc.karar;
+
+            if (!side || (side !== 'LONG' && side !== 'SHORT')) {
+                showToast('Geçersiz yön seçimi!', 'error', 'Hata');
+                return;
+            }
+
+            // UI guard'a ek olarak, yanlış yöne kayıt tetiklenmesini kod tarafında da engelle.
+            if (modelKarar !== side) {
+                showToast(`Model sinyali ${modelKarar}. ${side} pasif.`, 'warning', 'Uyarı');
+                return;
+            }
+
+            const kayitSonucu = { ...sonuc, karar: side };
 
             // Kararı kaydet
             try {
-                const kayit = await window.kararKayitSistemi.kararKayit(symbol, sonuc, mevcutFiyat);
-                showToast(`${symbol.toUpperCase()} başarıyla kaydedildi! (Karar: ${sonuc.karar})`, 'success', 'Başarılı');
+                const kayit = await window.kararKayitSistemi.kararKayit(symbol, kayitSonucu, mevcutFiyat);
+                if (side === 'LONG') {
+                    signalLong(symbol);
+                } else if (side === 'SHORT') {
+                    signalShort(symbol);
+                }
+                showToast(`${symbol.toUpperCase()} başarıyla kaydedildi! (Karar: ${side})`, 'success', 'Başarılı');
             } catch (err) {
                 console.error('Kaydetme hatası:', err);
                 showToast(err?.message || 'Kayıt sırasında hata oluştu!', 'error', 'Hata');
+            }
+        }
+
+        function signalLong(symbol) {
+            if (window.FlutterChannel) {
+                FlutterChannel.postMessage(
+                    JSON.stringify({ symbol: symbol, direction: "LONG" })
+                );
+            }
+        }
+
+        function signalShort(symbol) {
+            if (window.FlutterChannel) {
+                FlutterChannel.postMessage(
+                    JSON.stringify({ symbol: symbol, direction: "SHORT" })
+                );
             }
         }
 
@@ -1616,17 +1654,26 @@
                     </div>
                 `;
 
-                // Coin Kaydet butonunu güncelle
-                const kaydetBtn = document.querySelector(`.karar-kaydet-btn[data-symbol="${symbol}"]`);
-                if (kaydetBtn) {
+                // LONG/SHORT butonlarını model kararına göre güncelle
+                const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
+                const shortBtn = document.querySelector(`.karar-kaydet-short-btn[data-symbol="${symbol}"]`);
+
+                if (longBtn && shortBtn) {
                     if (isBekle) {
-                        kaydetBtn.disabled = true;
-                        kaydetBtn.title = 'Karar: BEKLE - Kaydedilemez';
-                    } else {
-                        kaydetBtn.disabled = false;
-                        kaydetBtn.classList.remove('opacity-40', 'cursor-not-allowed');
-                        kaydetBtn.classList.add('hover:border-binance-yellow', 'hover:text-binance-text');
-                        kaydetBtn.title = 'Coin Kaydet';
+                        longBtn.disabled = true;
+                        shortBtn.disabled = true;
+                        longBtn.title = 'Karar: BEKLE - Kaydedilemez';
+                        shortBtn.title = 'Karar: BEKLE - Kaydedilemez';
+                    } else if (isLong) {
+                        longBtn.disabled = false;
+                        shortBtn.disabled = true;
+                        longBtn.title = 'Model sinyali: LONG';
+                        shortBtn.title = 'Model sinyali LONG, SHORT pasif';
+                    } else if (isShort) {
+                        longBtn.disabled = true;
+                        shortBtn.disabled = false;
+                        longBtn.title = 'Model sinyali SHORT, LONG pasif';
+                        shortBtn.title = 'Model sinyali: SHORT';
                     }
                 }
             } else {
