@@ -158,6 +158,9 @@ window.AnalysisEngine = {
         const macdVal = this.calcSingleMACD(cls);
         const ms = this.classifyMarketStructure(klines);
         const srVal = this.calcSR(klines1d, klines);
+        const prevClose = cls.length >= 2 ? cls[cls.length - 2] : cls[cls.length - 1];
+        const lastClose = cls[cls.length - 1];
+        const tfChg = prevClose ? ((lastClose - prevClose) / prevClose) * 100 : 0;
 
         const vols = klines.map(k => parseFloat(k[5]));
         const takerVols = klines.map(k => parseFloat(k[9]));
@@ -177,25 +180,48 @@ window.AnalysisEngine = {
             volumeAvg: avgVol,      // karar-motoru.js uyumluluğu için
             volAmount: lastVol,     // analiz_v3 uyumluluğu için
             avgVol: avgVol,         // analiz_v3 uyumluluğu için
-            delta: delta
+            delta: delta,
+            cvd: delta,
+            chg: tfChg
         };
     },
 
     getWeeklyData(klines) {
         if (!klines || klines.length < 1) return null;
         const cls = klines.map(k => parseFloat(k[4]));
+        const vols = klines.map(k => parseFloat(k[5]));
+        const takerVols = klines.map(k => parseFloat(k[9]));
         const count = klines.length;
         const rsiVal = this.calcSingleRSI(cls);
         const e20 = cls.length >= 20 ? window.chartEngine.calcEMA(cls, 20).slice(-1)[0] : null;
+        const e50 = cls.length >= 50 ? window.chartEngine.calcEMA(cls, 50).slice(-1)[0] : null;
+        const macdVal = this.calcSingleMACD(cls);
         const trend = e20 ? (cls[cls.length - 1] > e20 ? 'BULLISH' : 'BEARISH') : (count < 20 ? 'INSUFFICIENT DATA' : 'NEUTRAL');
         const srVal = this.calcSR(klines, klines);
+        const prevClose = cls.length >= 2 ? cls[cls.length - 2] : cls[cls.length - 1];
+        const lastClose = cls[cls.length - 1];
+        const tfChg = prevClose ? ((lastClose - prevClose) / prevClose) * 100 : 0;
+        const lastVol = vols.length ? vols[vols.length - 1] : 0;
+        const lastTakerVol = takerVols.length ? takerVols[takerVols.length - 1] : 0;
+        const delta = lastTakerVol - (lastVol - lastTakerVol);
+        const avgVol = vols.length > 1 ? vols.slice(-21, -1).reduce((a, b) => a + b, 0) / Math.min(20, vols.length - 1) : lastVol;
         return {
             count,
             trend,
             closes: cls.slice(-3),
-            rsi: rsiVal ? rsiVal.toFixed(1) : 'N/A',
+            rsi: rsiVal,
             ema20: e20,
-            sr: { supports: srVal.supports, resistances: srVal.resistances }
+            ema50: e50,
+            macd: macdVal || { macd: 0, signal: 0, histogram: 0 },
+            smc: { trend, choch: false, bos: false },
+            sr: { supports: srVal.supports, resistances: srVal.resistances },
+            volume: lastVol,
+            volumeAvg: avgVol,
+            volAmount: lastVol,
+            avgVol: avgVol,
+            delta: delta,
+            cvd: delta,
+            chg: tfChg
         };
     },
 
