@@ -512,27 +512,35 @@
             return p.toFixed(2);
         }
 
+        function normalizeOrderSymbol(symbol) {
+            let s = String(symbol || '').toUpperCase().trim();
+            if (!s.endsWith('USDT')) s += 'USDT';
+            return s;
+        }
+
         function signalLong(symbol) {
+            const orderSymbol = normalizeOrderSymbol(symbol);
             if (window.FlutterChannel) {
                 FlutterChannel.postMessage(
-                    JSON.stringify({ symbol: symbol, direction: "LONG" })
+                    JSON.stringify({ symbol: orderSymbol, direction: "LONG" })
                 );
             }
             // Python için
             if (window.pywebview) {
-                pywebview.api.sendOrder(symbol, "LONG");
+                pywebview.api.sendOrder(orderSymbol, "LONG");
             }
         }
 
         function signalShort(symbol) {
+            const orderSymbol = normalizeOrderSymbol(symbol);
             if (window.FlutterChannel) {
                 FlutterChannel.postMessage(
-                    JSON.stringify({ symbol: symbol, direction: "SHORT" })
+                    JSON.stringify({ symbol: orderSymbol, direction: "SHORT" })
                 );
             }
             // Python için
             if (window.pywebview) {
-                pywebview.api.sendOrder(symbol, "SHORT");
+                pywebview.api.sendOrder(orderSymbol, "SHORT");
             }
         }
     </script>
