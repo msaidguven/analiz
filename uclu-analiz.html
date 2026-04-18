@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,9 @@
     <script src="karar-kayit.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -52,6 +55,7 @@
             overflow-x: hidden;
             line-height: 1.6;
         }
+
         .glass {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
@@ -59,49 +63,80 @@
             border: 1px solid rgba(226, 232, 240, 0.9);
             box-shadow: 0 10px 40px rgba(31, 45, 61, 0.08);
         }
+
         .animate-scan {
             background: linear-gradient(to right, transparent, rgba(64, 196, 255, 0.1), transparent);
             background-size: 200% 100%;
             animation: scan 2s infinite linear;
         }
+
         @keyframes scan {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #06070a; }
-        ::-webkit-scrollbar-thumb { background: #1c2535; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2a374d; }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #06070a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1c2535;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a374d;
+        }
     </style>
 </head>
+
 <body class="min-h-screen pb-20">
     <!-- Header -->
     <header class="sticky top-0 z-50 glass border-b border-analiz-border">
-        <div class="max-w-[1600px] mx-auto px-4 lg:px-6 py-4 lg:py-0 lg:h-20 flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-0">
+        <div
+            class="max-w-[1600px] mx-auto px-4 lg:px-6 py-4 lg:py-0 lg:h-20 flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-0">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-gradient-to-tr from-premium-blue to-premium-purple rounded-xl flex items-center justify-center shadow-lg shadow-premium-blue/20">
+                <div
+                    class="w-10 h-10 bg-gradient-to-tr from-premium-blue to-premium-purple rounded-xl flex items-center justify-center shadow-lg shadow-premium-blue/20">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black font-outfit tracking-tight">ÜÇLÜ <span class="text-premium-blue">ANALİZ</span> PANELİ</h1>
-                    <p class="text-xs font-black text-analiz-text2 uppercase tracking-widest mt-1">Binance Futures Market Scanner</p>
+                    <h1 class="text-2xl font-black font-outfit tracking-tight">ÜÇLÜ <span
+                            class="text-premium-blue">ANALİZ</span> PANELİ</h1>
+                    <p class="text-xs font-black text-analiz-text2 uppercase tracking-widest mt-1">Binance Futures
+                        Market Scanner</p>
                 </div>
             </div>
 
             <!-- Navigation Links -->
             <nav class="flex flex-wrap justify-center items-center gap-2 lg:gap-3 w-full lg:w-auto">
-                <a href="index.html" class="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-blue hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                <a href="index.html"
+                    class="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-blue hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
                     Anasayfa
                 </a>
-                <a href="analiz_v3.html" class="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                <a href="analiz_v3.html"
+                    class="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-green hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
                     Detaylı Analiz
                 </a>
-                <a href="karar-analizi.html" class="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-purple hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
+                <a href="karar-analizi.html"
+                    class="flex items-center gap-2 lg:gap-3 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-black tracking-widest transition-all duration-200 bg-analiz-card border border-analiz-border text-analiz-text hover:border-premium-purple hover:bg-analiz-surface transform hover:-translate-y-0.5 uppercase">
                     Karar Merkezi
                 </a>
-                <a href="uclu-analiz.html" class="flex items-center gap-1 lg:gap-2 px-3 py-2 lg:px-4 lg:py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-surface border border-premium-blue text-premium-blue shadow-[0_0_15px_rgba(64,196,255,0.15)] transform hover:-translate-y-0.5 uppercase">
+                <a href="uclu-analiz.html"
+                    class="flex items-center gap-1 lg:gap-2 px-3 py-2 lg:px-4 lg:py-2 rounded-xl text-[10px] font-black tracking-widest transition-all duration-200 bg-analiz-surface border border-premium-blue text-premium-blue shadow-[0_0_15px_rgba(64,196,255,0.15)] transform hover:-translate-y-0.5 uppercase">
                     Üçlü Panel
                 </a>
             </nav>
@@ -123,16 +158,21 @@
                 <div class="flex items-center gap-4">
                     <!-- Sort Selection -->
                     <div class="flex items-center bg-analiz-card border border-analiz-border rounded-xl p-1 gap-1">
-                        <button onclick="setSort('volume')" data-sort="volume" class="sort-btn px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all duration-200 bg-premium-blue text-black shadow-lg shadow-premium-blue/10">
+                        <button onclick="setSort('volume')" data-sort="volume"
+                            class="sort-btn px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all duration-200 bg-premium-blue text-black shadow-lg shadow-premium-blue/10">
                             HACİM
                         </button>
-                        <button onclick="setSort('marketcap')" data-sort="marketcap" class="sort-btn px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all duration-200 text-analiz-text2 hover:text-white hover:bg-analiz-surface">
+                        <button onclick="setSort('marketcap')" data-sort="marketcap"
+                            class="sort-btn px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all duration-200 text-analiz-text2 hover:text-white hover:bg-analiz-surface">
                             PİYASA DEĞERİ
                         </button>
                     </div>
 
-                    <button id="startBtn" onclick="startScan()" class="group flex items-center gap-3 px-6 py-3 bg-premium-blue text-black font-black text-xs rounded-xl hover:bg-white transition-all shadow-xl shadow-premium-blue/20">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <button id="startBtn" onclick="startScan()"
+                        class="group flex items-center gap-3 px-6 py-3 bg-premium-blue text-black font-black text-xs rounded-xl hover:bg-white transition-all shadow-xl shadow-premium-blue/20">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
                         TARAMAYI BAŞLAT
                     </button>
                 </div>
@@ -146,7 +186,8 @@
 
     <main class="max-w-[1700px] mx-auto px-6 pt-10">
         <!-- Grid Header -->
-        <div class="hidden lg:grid grid-cols-12 gap-4 px-6 mb-4 text-[10px] font-black text-analiz-text2 uppercase tracking-widest">
+        <div
+            class="hidden lg:grid grid-cols-12 gap-4 px-6 mb-4 text-[10px] font-black text-analiz-text2 uppercase tracking-widest">
             <div class="col-span-2">COİN / BİLGİ</div>
             <div class="col-span-2 text-center">MODEL 1: SİMP-V5</div>
             <div class="col-span-2 text-center">MODEL 2: YEREL-V3</div>
@@ -157,51 +198,69 @@
         <!-- Results List -->
         <div id="resultsList" class="space-y-4">
             <!-- Initial State -->
-            <div id="emptyState" class="py-32 flex flex-col items-center justify-center border-2 border-dashed border-analiz-border rounded-3xl">
+            <div id="emptyState"
+                class="py-32 flex flex-col items-center justify-center border-2 border-dashed border-analiz-border rounded-3xl">
                 <div class="w-16 h-16 bg-analiz-card rounded-full flex items-center justify-center mb-6">
                     <svg class="w-8 h-8 text-analiz-text2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
                 <h3 class="text-xl font-bold text-analiz-text mb-2">Henüz Analiz Yok</h3>
-                <p class="text-sm text-analiz-text2 text-center max-w-sm">Yukarıdaki butona tıklayarak hacme göre ilk 20 USDT-Futures paritesini analiz etmeye başlayabilirsiniz.</p>
+                <p class="text-sm text-analiz-text2 text-center max-w-sm">Yukarıdaki butona tıklayarak hacme göre ilk 20
+                    USDT-Futures paritesini analiz etmeye başlayabilirsiniz.</p>
             </div>
         </div>
 
         <div id="loadMoreTrigger" class="h-20 flex items-center justify-center mt-8 hidden">
-             <div class="flex items-center gap-3">
-                 <div class="w-5 h-5 border-2 border-premium-blue/20 border-t-premium-blue rounded-full animate-spin"></div>
-                 <span class="text-xs font-bold text-analiz-text2 uppercase tracking-widest">Sıradaki Grup Hazırlanıyor...</span>
-             </div>
+            <div class="flex items-center gap-3">
+                <div class="w-5 h-5 border-2 border-premium-blue/20 border-t-premium-blue rounded-full animate-spin">
+                </div>
+                <span class="text-xs font-bold text-analiz-text2 uppercase tracking-widest">Sıradaki Grup
+                    Hazırlanıyor...</span>
+            </div>
         </div>
 
         <div class="flex justify-center mt-8 mb-12">
-            <button id="nextBtn" onclick="scanNextBatch()" class="hidden group flex items-center gap-3 px-6 py-3 bg-analiz-card text-premium-blue border border-premium-blue/30 font-black text-xs rounded-xl hover:bg-premium-blue hover:text-black transition-all shadow-xl shadow-premium-blue/10">
+            <button id="nextBtn" onclick="scanNextBatch()"
+                class="hidden group flex items-center gap-3 px-6 py-3 bg-analiz-card text-premium-blue border border-premium-blue/30 font-black text-xs rounded-xl hover:bg-premium-blue hover:text-black transition-all shadow-xl shadow-premium-blue/10">
                 SIRADAKİ 20 COİNİ TARA
-                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
             </button>
         </div>
     </main>
 
     <!-- Chart Modal -->
-    <div id="chartModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300" style="pointer-events: none;">
+    <div id="chartModal"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300"
+        style="pointer-events: none;">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeChartModal()"></div>
         <!-- Modal Content -->
-        <div class="relative w-[95vw] h-[90vh] bg-analiz-card rounded-[2rem] shadow-[0_20px_60px_rgba(31,45,61,0.2)] border border-analiz-border overflow-hidden flex flex-col transform scale-95 transition-transform duration-300" id="chartModalContent">
+        <div class="relative w-[95vw] h-[90vh] bg-analiz-card rounded-[2rem] shadow-[0_20px_60px_rgba(31,45,61,0.2)] border border-analiz-border overflow-hidden flex flex-col transform scale-95 transition-transform duration-300"
+            id="chartModalContent">
             <!-- Modal Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-analiz-border bg-analiz-surface">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-premium-blue to-premium-purple flex items-center justify-center text-white font-black text-sm shadow-lg shadow-premium-blue/20" id="chartModalSymbolIcon"></div>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-premium-blue to-premium-purple flex items-center justify-center text-white font-black text-sm shadow-lg shadow-premium-blue/20"
+                        id="chartModalSymbolIcon"></div>
                     <div>
-                        <h3 class="text-xl font-black text-analiz-text tracking-tight font-outfit" id="chartModalTitle">Grafik</h3>
-                        <p class="text-[10px] font-black text-premium-blue uppercase tracking-widest mt-0.5">TradingView Canlı Analiz</p>
+                        <h3 class="text-xl font-black text-analiz-text tracking-tight font-outfit" id="chartModalTitle">
+                            Grafik</h3>
+                        <p class="text-[10px] font-black text-premium-blue uppercase tracking-widest mt-0.5">TradingView
+                            Canlı Analiz</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="closeChartModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-analiz-card border border-analiz-border text-analiz-text2 hover:text-white hover:bg-premium-red hover:border-premium-red transition-all shadow-sm group">
-                        <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                    <button onclick="closeChartModal()"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-analiz-card border border-analiz-border text-analiz-text2 hover:text-white hover:bg-premium-red hover:border-premium-red transition-all shadow-sm group">
+                        <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -223,7 +282,7 @@
 
         function setSort(type) {
             currentSort = type;
-            
+
             // UI Update
             document.querySelectorAll('.sort-btn').forEach(btn => {
                 if (btn.dataset.sort === type) {
@@ -256,7 +315,7 @@
                     // Create a map for quick access
                     const rowMap = {};
                     rows.forEach(r => rowMap[r.id.replace('row-', '')] = r);
-                    
+
                     // Re-append in the new sorted order (only scanned ones)
                     allUsdtSymbols.forEach(s => {
                         if (rowMap[s.symbol]) {
@@ -284,7 +343,7 @@
                 // 2. 24s ticker verilerini çek
                 const tickerRes = await fetch(`${BASE_F}/fapi/v1/ticker/24hr`);
                 const tickerData = await tickerRes.json();
-                
+
                 // 3. Piyasa değeri verilerini çek (Her zaman çekelim ki re-sort çalışabilsin)
                 let marketCapMap = {};
                 try {
@@ -326,7 +385,7 @@
             const btn = document.getElementById('startBtn');
             btn.disabled = true;
             btn.innerHTML = '<div class="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div> YÜKLENİYOR...';
-            
+
             const success = await fetchSymbols();
             if (success) {
                 document.getElementById('emptyState').remove();
@@ -341,11 +400,11 @@
         async function scanNextBatch() {
             if (isScanning) return;
             isScanning = true;
-            
+
             const nextBtn = document.getElementById('nextBtn');
             const startBtn = document.getElementById('startBtn');
             const loader = document.getElementById('loadMoreTrigger');
-            
+
             startBtn.classList.add('hidden');
             nextBtn.classList.add('hidden');
             loader.classList.remove('hidden');
@@ -353,8 +412,8 @@
             // Find next 20 unscanned symbols
             const unscanned = allUsdtSymbols.filter(s => !s.isScanned);
             const batch = unscanned.slice(0, 20);
-            
-            for(let i=0; i < batch.length; i++) {
+
+            for (let i = 0; i < batch.length; i++) {
                 const coinObj = batch[i];
                 await processSymbol(coinObj.symbol);
                 coinObj.isScanned = true;
@@ -368,7 +427,7 @@
             loader.classList.add('hidden');
             nextBtn.classList.remove('hidden');
             nextBtn.disabled = allUsdtSymbols.filter(s => !s.isScanned).length === 0;
-            
+
             document.getElementById('scannedCount').textContent = allUsdtSymbols.filter(s => s.isScanned).length;
             document.getElementById('remainingCount').textContent = allUsdtSymbols.filter(s => !s.isScanned).length;
         }
@@ -381,7 +440,7 @@
         async function processSymbol(symbol) {
             const rowId = `row-${symbol}`;
             const resultsList = document.getElementById('resultsList');
-            
+
             const row = document.createElement('div');
             row.id = rowId;
             row.className = 'grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-4 p-5 lg:p-6 glass rounded-[2rem] animate-scan border-analiz-border transition-all duration-300 hover:shadow-xl';
@@ -415,8 +474,8 @@
                         DETAYLI ANALİZ
                     </a>
                     <div class="flex w-full gap-2 opacity-30 pointer-events-none" id="save-btns-${symbol}">
-                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG'); signalLong('${symbol}')" class="flex-1 py-3 lg:py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">LONG</button>
-                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT'); signalShort('${symbol}')" class="flex-1 py-3 lg:py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">SHORT</button>
+                        <button id="save-long-${symbol}" onclick="handleManualSave('${symbol}', 'LONG'); signalLong('${symbol}')" class="flex-1 py-3 lg:py-2 rounded-xl bg-premium-green/10 border border-premium-green/30 text-premium-green text-[10px] font-black hover:bg-premium-green hover:text-white transition-all uppercase tracking-widest">LONG</button>
+                        <button id="save-short-${symbol}" onclick="handleManualSave('${symbol}', 'SHORT'); signalShort('${symbol}')" class="flex-1 py-3 lg:py-2 rounded-xl bg-premium-red/10 border border-premium-red/30 text-premium-red text-[10px] font-black hover:bg-premium-red hover:text-white transition-all uppercase tracking-widest">SHORT</button>
                     </div>
                 </div>
             `;
@@ -457,7 +516,6 @@
                 if (saveBtns) {
                     saveBtns.classList.remove('opacity-30', 'pointer-events-none');
                 }
-                applyModel3SaveGuard(symbol, m3Result);
 
                 row.classList.remove('animate-scan');
             } catch (error) {
@@ -483,25 +541,6 @@
             `;
         }
 
-        function applyModel3SaveGuard(symbol, m3Result) {
-            const longBtn = document.getElementById(`save-long-${symbol}`);
-            const shortBtn = document.getElementById(`save-short-${symbol}`);
-            if (!longBtn || !shortBtn) return;
-
-            const signal = m3Result?.karar;
-            const isLong = signal === 'LONG';
-            const isShort = signal === 'SHORT';
-
-            // Model 3 LONG ise sadece LONG açık, SHORT kapalı.
-            // Model 3 SHORT ise sadece SHORT açık, LONG kapalı.
-            // BEKLE/NOTR ise iki buton da kapalı.
-            longBtn.disabled = !isLong;
-            shortBtn.disabled = !isShort;
-
-            longBtn.title = isLong ? 'Model 3 LONG sinyali' : 'Model 3 LONG değil';
-            shortBtn.title = isShort ? 'Model 3 SHORT sinyali' : 'Model 3 SHORT değil';
-        }
-
         async function handleManualSave(symbol, side) {
             try {
                 if (!window.kararKayitSistemi) {
@@ -519,14 +558,8 @@
                 const manualResult = JSON.parse(JSON.stringify(resultData.m3));
                 manualResult.karar = side;
 
-                // Yanlış yönü kaydetmeyi kesin engelle.
-                if (resultData.m3.karar !== side) {
-                    alert(`Model 3 sinyali ${resultData.m3.karar}. ${side} kaydı pasif.`);
-                    return;
-                }
-
                 const kayit = await window.kararKayitSistemi.kararKayit(symbol, manualResult, resultData.price);
-                
+
                 const saveBtns = document.getElementById(`save-btns-${symbol}`);
                 if (saveBtns) {
                     saveBtns.innerHTML = `
@@ -639,19 +672,20 @@
             const modal = document.getElementById('chartModal');
             const body = document.getElementById('chartModalBody');
             const content = document.getElementById('chartModalContent');
-            
+
             // Reverse animations
             modal.classList.add('opacity-0');
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
-            
+
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.style.pointerEvents = 'none';
                 document.body.style.overflow = '';
-                body.innerHTML = ''; 
+                body.innerHTML = '';
             }, 300);
         }
     </script>
 </body>
+
 </html>
