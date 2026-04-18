@@ -251,5 +251,41 @@ Sen profesyonel bir Kuant Trader ve Teknik Analiz uzmanısın. Yukarıdaki veril
 ⚠️ **KRİTİK UYARI**: [İşlemi riskli kılan veya geçersiz kılacak en önemli faktör - Maks 1 cümle]
 ---
 
+4. **ZORUNLU YÖN SEÇİMİ (ANTI-BEKLE KURALI)**:
+- BEKLE kararı sadece aşağıdaki durumlarda verilebilir:
+  1) Tüm zaman dilimlerinde açık çelişki varsa (ör: 1H güçlü bullish, 4H güçlü bearish)
+  2) Fiyat tam orta range’de ve ne destek ne direnç yakınsa
+- Bunların dışında ASLA BEKLE verme.
+
+5. **SKOR BAZLI KARAR SİSTEMİ (GİZLİ HESAPLA)**:
+Aşağıdaki faktörleri topla:
+
++20 → MACD bullish
+-20 → MACD bearish  
++15 → RSI < 35 (oversold)
+-15 → RSI > 65 (overbought)  
++15 → Bullish structure (HH/HL)
+-15 → Bearish structure (LH/LL)  
++10 → Fiyat EMA20 üstünde
+-10 → Fiyat EMA20 altında  
++10 → Funding negatif (long için avantaj)
+-10 → Funding pozitif (short için avantaj)  
++10 → OI artıyor ve trend ile uyumlu
+-10 → OI düşüyor ve trend ile uyumsuz  
+
+- Toplam skor > +15 → LONG
+- Toplam skor < -15 → SHORT
+- -15 ile +15 arası → EN YAKIN DESTEK/DİRENÇE GÖRE YÖN SEÇ (BEKLE YOK)
+
+6. **TIE-BREAKER (KARARSIZLIK ÇÖZÜCÜ)**:
+- Fiyat desteğe yakınsa → LONG
+- Fiyat dirence yakınsa → SHORT
+
+7. **AGRESİFLİK AYARI**:
+- Bu sistem %100 doğruluk hedeflemez
+- Amaç: Daha fazla trade fırsatı yakalamak
+- Şüpheli durumlarda bile EN OLASI yönü seç
+
+
 **NOT**: Analizini yaparken tüm zaman dilimlerini (15D, 1S, 4S, 1G) ve likidite verilerini dikkate aldığından emin ol.`;
 }
