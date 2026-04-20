@@ -371,16 +371,15 @@
                     ? mevcutFiyat <= sl
                     : mevcutFiyat >= sl;
 
-                let hedefFiyat, durum;
-                if (tp1Ulasildi) { hedefFiyat = tp1; durum = 'TP1'; }
-                else if (slOldu) { hedefFiyat = sl; durum = 'SL'; }
-                else { hedefFiyat = mevcutFiyat; durum = 'AKTIF'; }
+                let durum = 'AKTIF';
+                if (tp1Ulasildi) { durum = 'TP1'; }
+                else if (slOldu) { durum = 'SL'; }
 
-                // P&L hesabı
-                const pnlYuzde = yon * ((hedefFiyat - giris) / giris) * 100;
+                // Kar/Zarar hesabı için her zaman mevcut fiyatı kullanıyoruz (kullanıcı talebi doğrultusunda uncapped)
+                const pnlYuzde = yon * ((mevcutFiyat - giris) / giris) * 100;
                 const pnlDolar = (pnlYuzde / 100) * POSITION_SIZE;
 
-                return { pnlYuzde, pnlDolar, durum, hedefFiyat };
+                return { pnlYuzde, pnlDolar, durum, hedefFiyat: mevcutFiyat };
             }
 
             /* ─────────────────────────────────────────────
@@ -737,12 +736,8 @@
                     let statusIcon = '⚡';
 
                     if (mp) {
-                        const { durum } = hesaplaIslem(kayit, mp);
-                        // Gerçek anlık fiyat bazlı P&L
-                        const yon = kayit.karar === 'LONG' ? 1 : -1;
-                        const gercekPnlYuzde = yon * ((mp - kayit.girisFiyati) / kayit.girisFiyati) * 100;
-                        const gercekPnlDolar = (gercekPnlYuzde / 100) * POSITION_SIZE;
-                        const isWin = gercekPnlYuzde >= 0;
+                        const { durum, pnlYuzde, pnlDolar } = hesaplaIslem(kayit, mp);
+                        const isWin = pnlYuzde >= 0;
                         const sign = isWin ? '+' : '';
                         const color = isWin ? 'text-premium-green' : 'text-premium-red';
 
@@ -759,7 +754,7 @@
                         }
 
                         // Compact tek satır: emoji % $dolar badge
-                        performansHtml = `<span class="${color} font-black text-xs leading-tight">${isWin ? '📈' : '📉'} ${sign}${fmt(gercekPnlYuzde)}%<span class="font-mono opacity-75"> ${sign}$${fmt(gercekPnlDolar)}</span>${badge}</span>`;
+                        performansHtml = `<span class="${color} font-black text-xs leading-tight">${isWin ? '📈' : '📉'} ${sign}${fmt(pnlYuzde)}%<span class="font-mono opacity-75"> ${sign}$${fmt(pnlDolar)}</span>${badge}</span>`;
                     }
 
 
