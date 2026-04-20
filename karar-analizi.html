@@ -174,7 +174,7 @@
                         oninput="araCoin(event)"
                         class="w-full bg-white border border-analiz-border focus:border-premium-blue outline-none rounded-2xl py-4 pl-12 pr-4 text-sm text-analiz-text transition-all shadow-sm placeholder:text-analiz-text2/50">
                 </div>
-                <button onclick="tumCoinFiyatlariniGuncelle()"
+                <button onclick="tumKayitlariYukle()"
                     class="w-full md:w-auto px-8 py-4 bg-premium-blue/10 border border-premium-blue/30 text-premium-blue rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-premium-blue hover:text-white transition-all shadow-sm flex items-center justify-center gap-3 active:scale-[0.98]">
                     <span class="animate-spin-slow">🔄</span> Canlı Fiyatları Güncelle
                 </button>
@@ -932,7 +932,14 @@
                     const { aktif, gecmis } = await supabaseTumIslemleriGetir();
                     tumKayitlar = aktif;
                     gecmisKayitlar = gecmis;
-                    filtreliKayitlar = [...tumKayitlar];
+
+                    // Mevcut arama filtresini koruyarak listeyi güncelle
+                    const aramaInput = document.getElementById('coinArama');
+                    const terim = aramaInput ? aramaInput.value.toLowerCase().trim() : '';
+                    filtreliKayitlar = terim
+                        ? tumKayitlar.filter(k => k.symbol.toLowerCase().includes(terim))
+                        : [...tumKayitlar];
+
                     kayitlariGoster();
                     istatistikleriGoster();
                     gecmisIslemGoster();
