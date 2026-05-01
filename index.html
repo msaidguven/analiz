@@ -1454,16 +1454,8 @@
                     tickerData = snapshotData.tickerData;
                     premiumData = snapshotData.premiumData;
                 } catch (proxyErr) {
-                    console.warn('Binance proxy kullanılamadı, direct fallback deneniyor:', proxyErr?.message || proxyErr);
-                    // Fallback: doğrudan Binance
-                    const exchangeRes = await fetch('https://fapi.binance.com/fapi/v1/exchangeInfo');
-                    exchangeData = await exchangeRes.json();
-
-                    const tickerRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
-                    tickerData = await tickerRes.json();
-
-                    const premiumRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex');
-                    premiumData = await premiumRes.json();
+                    console.error('Binance proxy kullanılamadı:', proxyErr?.message || proxyErr);
+                    throw new Error('Piyasa verisi backend üzerinden alınamadı. Render servisini kontrol edin.');
                 }
 
                 // Piyasa değeri verilerini Coingecko'dan çek (ilk 1000 coin, symbol collision güvenli)
