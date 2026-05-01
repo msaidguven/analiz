@@ -1189,6 +1189,7 @@
         let currentSort = 'volume';
         const itemsPerPage = 18;
         let maxVolume = 0;
+        const coinMissingDataState = {};
 
         // DOM Elements
         const coinGrid = document.getElementById('coinGrid');
@@ -1586,24 +1587,55 @@
         }
 
         function sortCoins() {
+            const missingLastCompare = (a, b) => {
+                const aMissing = coinMissingDataState[a.baseAsset] === true;
+                const bMissing = coinMissingDataState[b.baseAsset] === true;
+                if (aMissing === bMissing) return 0;
+                return aMissing ? 1 : -1;
+            };
+
             switch (currentSort) {
                 case 'volume':
-                    filteredCoins.sort((a, b) => parseFloat(b.volume) - parseFloat(a.volume));
+                    filteredCoins.sort((a, b) => {
+                        const miss = missingLastCompare(a, b);
+                        if (miss !== 0) return miss;
+                        return parseFloat(b.volume) - parseFloat(a.volume);
+                    });
                     break;
                 case 'marketcap':
-                    filteredCoins.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0));
+                    filteredCoins.sort((a, b) => {
+                        const miss = missingLastCompare(a, b);
+                        if (miss !== 0) return miss;
+                        return (b.marketCap || 0) - (a.marketCap || 0);
+                    });
                     break;
                 case 'price':
-                    filteredCoins.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+                    filteredCoins.sort((a, b) => {
+                        const miss = missingLastCompare(a, b);
+                        if (miss !== 0) return miss;
+                        return parseFloat(b.price) - parseFloat(a.price);
+                    });
                     break;
                 case 'change':
-                    filteredCoins.sort((a, b) => parseFloat(b.priceChange) - parseFloat(a.priceChange));
+                    filteredCoins.sort((a, b) => {
+                        const miss = missingLastCompare(a, b);
+                        if (miss !== 0) return miss;
+                        return parseFloat(b.priceChange) - parseFloat(a.priceChange);
+                    });
                     break;
                 case 'funding':
-                    filteredCoins.sort((a, b) => parseFloat(b.fundingRate) - parseFloat(a.fundingRate));
+                    filteredCoins.sort((a, b) => {
+                        const miss = missingLastCompare(a, b);
+                        if (miss !== 0) return miss;
+                        return parseFloat(b.fundingRate) - parseFloat(a.fundingRate);
+                    });
                     break;
                 case 'symbol':
-                    filteredCoins.sort((a, b) => a.symbol.localeCompare(b.symbol));
+                    filteredCoins.sort((a, b) => {
+                        const miss = missingLastCompare(a, b);
+                        if (miss !== 0) return miss;
+                        return a.symbol.localeCompare(b.symbol);
+                    });
                     break;
             }
         }
@@ -1622,6 +1654,7 @@
             }
 
             coinGrid.innerHTML = pageCoins.map(coin => {
+                const isMissingData = coinMissingDataState[coin.baseAsset] === true;
                 const statusClass = coin.status === 'TRADING' ? 'bg-premium-green/10 text-premium-green border-premium-green/20' :
                     coin.status === 'HALT' ? 'bg-premium-red/10 text-premium-red border-premium-red/20' : 'bg-binance-muted/10 text-binance-muted border-binance-muted/20';
 
@@ -1630,12 +1663,16 @@
                 const changeBg = priceChange >= 0 ? 'bg-premium-green/10' : 'bg-premium-red/10';
 
                 const funding = parseFloat(coin.fundingRate) || 0;
-                const fundingClass = funding >= 0 ? 'text-premium-green' : 'text-premium-red';
+                // Pozitif funding: short lehine (kırmızı), negatif funding: long lehine (yeşil)
+                const fundingClass = funding >= 0 ? 'text-premium-red' : 'text-premium-green';
 
                 const volumePercent = maxVolume > 0 ? (parseFloat(coin.volume) / maxVolume * 100) : 0;
+                const cardVisualClass = isMissingData
+                    ? 'opacity-65 border-premium-red/25 saturate-75'
+                    : '';
 
                 return `
-                    <div class="group bg-binance-card border border-binance-border rounded-2xl p-5 transition-all duration-300 hover:border-binance-yellow/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:-translate-y-1 relative overflow-hidden">
+                    <div class="group bg-binance-card border border-binance-border rounded-2xl p-5 transition-all duration-300 hover:border-binance-yellow/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:-translate-y-1 relative overflow-hidden ${cardVisualClass}">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-binance-yellow/5 blur-[60px] rounded-full pointer-events-none transition-all duration-500 group-hover:bg-binance-yellow/10"></div>
                         
                         <div class="flex justify-between items-start mb-5">
@@ -1660,7 +1697,7 @@
                         <div class="flex items-baseline justify-between mb-6">
                             <span class="text-3xl font-bold font-outfit text-binance-text">${formatPrice(coin.price)}</span>
                             <span class="px-3 py-1.5 rounded-lg text-sm font-black ${changeBg} ${changeClass}">
-                                ${priceChange >= 0 ? '+' : ''}${formatPercent(coin.priceChange)}
+                                ${formatPercent(coin.priceChange)}
                             </span>
                         </div>
 
@@ -1976,11 +2013,23 @@
             const previewElement = document.getElementById(`karar-preview-${symbol}`);
             if (!previewElement) return;
 
+            const updateMissingState = (isMissing) => {
+                const prev = coinMissingDataState[symbol];
+                coinMissingDataState[symbol] = isMissing;
+                const changed = prev !== isMissing;
+                if (changed) {
+                    sortCoins();
+                    renderCoins();
+                    updateStats();
+                }
+            };
+
             if (window.kararMotoru) {
                 validateKararPayload(symbol, analysisData);
                 const sonuc = window.kararMotoru(analysisData);
                 const eksikAlanlar = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
                 const hasEksikVeri = eksikAlanlar.length > 0;
+                updateMissingState(hasEksikVeri);
 
                 const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
                 const shortBtn = document.querySelector(`.karar-kaydet-short-btn[data-symbol="${symbol}"]`);
