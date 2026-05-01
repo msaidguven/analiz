@@ -39,6 +39,11 @@ function getSupabaseConfig() {
     return { supabaseUrl, serviceRoleKey, anonKey, apiKey };
 }
 
+function getCoinMarketCapConfig() {
+    const apiKey = (process.env.CMC_API_KEY || process.env.COINMARKETCAP_API_KEY || '').trim();
+    return { apiKey };
+}
+
 // Veritabanını oku
 function readDB(filePath) {
     try {
@@ -143,6 +148,55 @@ app.post('/api/supabase/islemler', async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             error: 'Supabase proxy isteği sırasında sunucu hatası',
+            detail: error.message
+        });
+    }
+});
+
+// CoinMarketCap market cap proxy (API key server tarafında kalır)
+app.get('/api/marketcap/cmc', async (req, res) => {
+    const { apiKey } = getCoinMarketCapConfig();
+    if (!apiKey) {
+        return res.status(500).json({
+            error: 'CMC_API_KEY (veya COINMARKETCAP_API_KEY) .env içinde tanımlı olmalı'
+        });
+    }
+
+    try {
+        const symbolsRaw = String(req.query.symbols || '').trim();
+        const limitRaw = Number(req.query.limit) || 500;
+
+        // symbols verilirse Quotes Latest endpoint, verilmezse Listings Latest endpoint
+        let url = '';
+        if (symbolsRaw) {
+            url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${encodeURIComponent(symbolsRaw)}&convert=USD`;
+        } else {
+            const limit = Math.max(1, Math.min(limitRaw, 5000));
+            url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?convert=USD&limit=${limit}`;
+        }
+
+        const response = await fetch(url, {
+            headers: { 'X-CMC_PRO_API_KEY': apiKey }
+        });
+        const raw = await response.text();
+        if (!response.ok) {
+            return res.status(response.status).json({
+                error: `CoinMarketCap hatası: ${response.status}`,
+                detail: raw
+            });
+        }
+
+        let parsed = {};
+        try {
+            parsed = JSON.parse(raw);
+        } catch {
+            parsed = {};
+        }
+
+        return res.json(parsed);
+    } catch (error) {
+        return res.status(500).json({
+            error: 'CMC proxy isteği sırasında sunucu hatası',
             detail: error.message
         });
     }

@@ -1413,15 +1413,7 @@
             if (!debugEnabled) return;
 
             const list = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
-            if (list.length === 0) {
-                const key0 = String(symbol || 'GENEL').toUpperCase();
-                showToast(`${key0}: eksik alan yok`, 'success', 'Karar Debug', {
-                    clickTitle: 'Tıkla: debug detayını göster',
-                    onClick: () => showKararDebugModal(key0, ['Eksik/geçersiz alan bulunmadı']),
-                    durationMs: 6000,
-                });
-                return;
-            }
+            if (list.length === 0) return;
 
             const key = String(symbol || 'GENEL').toUpperCase();
             const now = Date.now();
@@ -1456,13 +1448,70 @@
                 const premiumRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex');
                 const premiumData = await premiumRes.json();
 
-                // Piyasa değeri verilerini Coingecko'dan çek
+                // Piyasa değeri verilerini Coingecko'dan çek (ilk 1000 coin, symbol collision güvenli)
                 let geckoMap = {};
                 try {
-                    const geckoRes = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1');
-                    const geckoData = await geckoRes.json();
-                    geckoData.forEach(g => geckoMap[g.symbol.toUpperCase()] = g);
+                    const geckoPages = await Promise.all([
+                        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1').then(r => r.json()),
+                        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=2').then(r => r.json()),
+                        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=3').then(r => r.json()),
+                        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=4').then(r => r.json())
+                    ]);
+                    geckoPages.flat().forEach(g => {
+                        const sym = String(g.symbol || '').toUpperCase();
+                        if (!sym) return;
+                        const existing = geckoMap[sym];
+                        // Aynı symbol birden fazla projede olabiliyor; market cap'i yüksek olanı tut.
+                        if (!existing || (Number(g.market_cap) || 0) > (Number(existing.market_cap) || 0)) {
+                            geckoMap[sym] = g;
+                        }
+                    });
                 } catch (e) { console.warn('Piyasa değeri verisi alınamadı.'); }
+
+                // Fallback: CoinMarketCap proxy (opsiyonel)
+                let cmcMap = {};
+                try {
+                    const cmcRes = await fetch('/api/marketcap/cmc?limit=2000');
+                    if (cmcRes.ok) {
+                        const cmcData = await cmcRes.json();
+                        const rows = Array.isArray(cmcData?.data) ? cmcData.data : [];
+                        rows.forEach(c => {
+                            const sym = String(c.symbol || '').toUpperCase();
+                            if (!sym) return;
+                            const quote = c.quote?.USD || {};
+                            const item = {
+                                market_cap: Number(quote.market_cap) || 0,
+                                market_cap_rank: Number(c.cmc_rank) || '-',
+                                circulating_supply: Number(c.circulating_supply) || 0,
+                                total_supply: Number(c.total_supply) || 0,
+                                max_supply: Number(c.max_supply) || 0
+                            };
+                            const existing = cmcMap[sym];
+                            if (!existing || item.market_cap > (Number(existing.market_cap) || 0)) {
+                                cmcMap[sym] = item;
+                            }
+                        });
+                    }
+                } catch (e) { console.warn('CMC fallback verisi alınamadı.'); }
+
+                const normalizeBaseSymbol = (raw) => {
+                    const s = String(raw || '').toUpperCase();
+                    // Binance varyantları: 1000SHIB, BTCUSDT vb. için sadeleştirme
+                    return s.replace(/^\d+/, '').replace(/USDT$/, '');
+                };
+
+                const inferMarketCap = (coinRow, geckoCoin) => {
+                    const directCap = Number(geckoCoin?.market_cap) || 0;
+                    if (directCap > 0) return directCap;
+
+                    const price = Number(coinRow.price) || 0;
+                    const circ = Number(geckoCoin?.circulating_supply) || 0;
+                    const total = Number(geckoCoin?.total_supply) || 0;
+                    const max = Number(geckoCoin?.max_supply) || 0;
+                    const supply = circ || total || max;
+                    if (price > 0 && supply > 0) return price * supply;
+                    return 0;
+                };
 
                 // Create maps
                 const tickerMap = {};
@@ -1479,8 +1528,10 @@
                     .filter(s => s.contractType === 'PERPETUAL' && s.quoteAsset === 'USDT' && s.status === 'TRADING')
                     .map(s => {
                         const ticker = tickerMap[s.symbol] || {};
-                        const gData = geckoMap[s.baseAsset] || {};
-                        return {
+                        const normalizedBase = normalizeBaseSymbol(s.baseAsset);
+                        const gData = geckoMap[s.baseAsset] || geckoMap[normalizedBase] || {};
+                        const cData = cmcMap[s.baseAsset] || cmcMap[normalizedBase] || {};
+                        const coinRow = {
                             symbol: s.symbol,
                             baseAsset: s.baseAsset,
                             status: s.status,
@@ -1490,10 +1541,12 @@
                             lowPrice: ticker.lowPrice || '0',
                             volume: ticker.quoteVolume || '0',
                             fundingRate: fundingMap[s.symbol]?.lastFundingRate || '0',
-                            nextFundingTime: ticker.nextFundingTime || null,
-                            marketCap: gData.market_cap || 0,
-                            rank: gData.market_cap_rank || '-'
+                            nextFundingTime: fundingMap[s.symbol]?.nextFundingTime || null,
+                            marketCap: 0,
+                            rank: gData.market_cap_rank || cData.market_cap_rank || '-'
                         };
+                        coinRow.marketCap = inferMarketCap(coinRow, gData) || inferMarketCap(coinRow, cData);
+                        return coinRow;
                     });
 
                 // Calculate max volume for bar width
@@ -1545,7 +1598,10 @@
                 case 'change':
                     filteredCoins.sort((a, b) => parseFloat(b.priceChange) - parseFloat(a.priceChange));
                     break;
-                case 'name':
+                case 'funding':
+                    filteredCoins.sort((a, b) => parseFloat(b.fundingRate) - parseFloat(a.fundingRate));
+                    break;
+                case 'symbol':
                     filteredCoins.sort((a, b) => a.symbol.localeCompare(b.symbol));
                     break;
             }
