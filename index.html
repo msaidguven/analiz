@@ -1517,12 +1517,18 @@
 
                 // Create maps
                 const tickerMap = {};
+                if (!Array.isArray(tickerData)) {
+                    const apiMsg = tickerData?.msg || tickerData?.message || 'Bilinmeyen Binance cevabı';
+                    throw new Error(`Binance ticker verisi geçersiz: ${apiMsg}`);
+                }
                 tickerData.forEach(t => tickerMap[t.symbol] = t);
                 const fundingMap = {};
                 if (Array.isArray(premiumData)) {
                     premiumData.forEach(p => fundingMap[p.symbol] = p);
                 } else if (premiumData && premiumData.symbol) {
                     fundingMap[premiumData.symbol] = premiumData;
+                } else {
+                    console.warn('Funding verisi beklenen formatta değil, varsayılan 0 kullanılacak.');
                 }
 
                 // Process coins
