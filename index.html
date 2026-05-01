@@ -1811,7 +1811,7 @@
             validateKararPayload(symbol, analysisData);
             const sonuc = window.kararMotoru(analysisData);
             const eksikAlanlar = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
-            if (eksikAlanlar.length > 0) {
+            if (hasBlockingMissingData(eksikAlanlar)) {
                 const previewElement = document.getElementById(`karar-preview-${symbol}`);
                 if (previewElement) {
                     previewElement.innerHTML = `
@@ -2045,7 +2045,7 @@
                 validateKararPayload(symbol, analysisData);
                 const sonuc = window.kararMotoru(analysisData);
                 const eksikAlanlar = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
-                const hasEksikVeri = eksikAlanlar.length > 0;
+                const hasEksikVeri = hasBlockingMissingData(eksikAlanlar);
                 updateMissingState(hasEksikVeri);
 
                 const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
@@ -2113,6 +2113,18 @@
                     </div>
                 `;
             }
+        }
+
+        function hasBlockingMissingData(list) {
+            if (!Array.isArray(list) || list.length === 0) return false;
+
+            // 1w/1d eksikliği yeni coinlerde normal olabilir; sinyali kilitleme.
+            const ignorablePrefixes = ['multiTF.1w', 'multiTF.1d'];
+
+            return list.some((item) => {
+                const s = String(item || '');
+                return !ignorablePrefixes.some((p) => s.startsWith(p));
+            });
         }
 
         let kararMotoruReloadPromise = null;
