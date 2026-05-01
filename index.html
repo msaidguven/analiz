@@ -1891,37 +1891,33 @@
         }
 
         async function fetchAnalysisData(symbol) {
-            const BASE_F = 'https://fapi.binance.com';
+            const apiBase = String(window.API_BASE_URL || '').trim().replace(/\/+$/, '');
             let currentSymbol = String(symbol || '').toUpperCase().trim();
             if (!currentSymbol.endsWith('USDT')) currentSymbol += 'USDT';
 
             try {
-                // API cagrilarini ayri ayri yap, hatalari ignore et
-                const ticker = await fetch(`${BASE_F}/fapi/v1/ticker/24hr?symbol=${currentSymbol}`).then(r => r.json()).catch(() => null);
-
-                // OpenInterest bazen 400 verir, ignore et
-                let oiCurrent = null, oiHist = null;
+                const res = await fetch(`${apiBase}/api/binance/analysis?symbol=${encodeURIComponent(currentSymbol)}`);
+                const raw = await res.text();
+                let payload = {};
                 try {
-                    oiCurrent = await fetch(`${BASE_F}/fapi/v1/openInterest?symbol=${currentSymbol}`).then(r => r.json());
-                    oiHist = await fetch(`${BASE_F}/futures/data/openInterestHist?symbol=${currentSymbol}&period=1h&limit=2`).then(r => r.json());
-                } catch (e) {
-                    // OpenInterest verisi olmayan coin'ler var, ignore et
+                    payload = raw ? JSON.parse(raw) : {};
+                } catch {
+                    throw new Error(`Analiz API JSON dönmedi: ${String(raw).slice(0, 160)}`);
                 }
+                if (!res.ok) throw new Error(payload?.detail || payload?.error || 'Analiz API hatası');
 
-                const lsRaw = await fetch(`${BASE_F}/futures/data/topLongShortAccountRatio?symbol=${currentSymbol}&period=5m&limit=1`).then(r => r.json()).catch(() => null);
-                const fundingRaw = await fetch(`${BASE_F}/fapi/v1/fundingRate?symbol=${currentSymbol}&limit=8`).then(r => r.json()).catch(() => []);
-                const liqRaw = await fetch(`${BASE_F}/futures/data/topLongShortPositionRatio?symbol=${currentSymbol}&period=5m&limit=1`).then(r => r.json()).catch(() => null);
-
-                const [klines1d, klines4h, klines15m, klines1h, klines1w, klines15m_long] = await Promise.all([
-                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1d&limit=100`).then(r => r.json()).catch(() => []),
-                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=4h&limit=100`).then(r => r.json()).catch(() => []),
-                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=15m&limit=100`).then(r => r.json()).catch(() => []),
-                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1h&limit=100`).then(r => r.json()).catch(() => []),
-                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=1w&limit=50`).then(r => r.json()).catch(() => []),
-                    fetch(`${BASE_F}/fapi/v1/klines?symbol=${currentSymbol}&interval=15m&limit=2`).then(r => r.json()).catch(() => []),
-                ]);
-
-                if (ticker.code) throw new Error('Coin bulunamadı: ' + currentSymbol);
+                const ticker = payload.ticker || null;
+                const oiCurrent = payload.oiCurrent || null;
+                const oiHist = payload.oiHist || null;
+                const lsRaw = payload.lsRaw || null;
+                const fundingRaw = Array.isArray(payload.fundingRaw) ? payload.fundingRaw : [];
+                const liqRaw = payload.liqRaw || null;
+                const klines1d = Array.isArray(payload.klines1d) ? payload.klines1d : [];
+                const klines4h = Array.isArray(payload.klines4h) ? payload.klines4h : [];
+                const klines15m = Array.isArray(payload.klines15m) ? payload.klines15m : [];
+                const klines1h = Array.isArray(payload.klines1h) ? payload.klines1h : [];
+                const klines1w = Array.isArray(payload.klines1w) ? payload.klines1w : [];
+                const klines15m_long = Array.isArray(payload.klines15m_long) ? payload.klines15m_long : [];
 
                 const processTF = (klines) => {
                     if (!klines || klines.length < 20 || !window.chartEngine) return null;
