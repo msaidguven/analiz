@@ -1244,7 +1244,7 @@
 
         // Fetch all data
         // Toast System
-        function showToast(message, type = 'success', title = 'Bildirim') {
+        function showToast(message, type = 'success', title = 'Bildirim', opts = {}) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
@@ -1259,6 +1259,12 @@
                 </div>
             `;
 
+            if (typeof opts.onClick === 'function') {
+                toast.style.cursor = 'pointer';
+                toast.title = opts.clickTitle || 'Detay için tıkla';
+                toast.addEventListener('click', () => opts.onClick());
+            }
+
             container.appendChild(toast);
 
             // Auto remove
@@ -1266,6 +1272,150 @@
                 toast.classList.add('fade-out');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        const kararDebugToastZaman = {};
+        function showKararDebugModal(symbol, list) {
+            const old = document.getElementById('kararDebugModal');
+            if (old) old.remove();
+
+            const wrap = document.createElement('div');
+            wrap.id = 'kararDebugModal';
+            wrap.style.position = 'fixed';
+            wrap.style.inset = '0';
+            wrap.style.zIndex = '10050';
+            wrap.style.background = 'rgba(0,0,0,0.72)';
+            wrap.style.backdropFilter = 'blur(4px)';
+            wrap.style.display = 'flex';
+            wrap.style.alignItems = 'center';
+            wrap.style.justifyContent = 'center';
+            wrap.style.padding = '16px';
+
+            const card = document.createElement('div');
+            card.style.width = 'min(760px, 96vw)';
+            card.style.maxHeight = '86vh';
+            card.style.overflow = 'auto';
+            card.style.background = 'var(--bg-card)';
+            card.style.border = '1px solid var(--border)';
+            card.style.borderRadius = '12px';
+            card.style.boxShadow = '0 24px 60px rgba(0,0,0,0.45)';
+            card.style.padding = '16px';
+
+            const title = document.createElement('div');
+            title.style.fontWeight = '800';
+            title.style.fontSize = '14px';
+            title.style.marginBottom = '10px';
+            title.textContent = `Karar Debug · ${String(symbol || 'GENEL').toUpperCase()}`;
+
+            const sub = document.createElement('div');
+            sub.style.fontSize = '12px';
+            sub.style.color = 'var(--text-secondary)';
+            sub.style.marginBottom = '12px';
+            sub.textContent = `Eksik/geçersiz alan sayısı: ${list.length}`;
+
+            const pre = document.createElement('pre');
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.wordBreak = 'break-word';
+            pre.style.fontSize = '12px';
+            pre.style.lineHeight = '1.45';
+            pre.style.margin = '0';
+            pre.style.padding = '12px';
+            pre.style.background = 'rgba(255,255,255,0.03)';
+            pre.style.border = '1px solid var(--border)';
+            pre.style.borderRadius = '8px';
+            pre.textContent = list.map((x, i) => `${i + 1}. ${x}`).join('\n');
+
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.justifyContent = 'flex-end';
+            actions.style.gap = '8px';
+            actions.style.marginTop = '12px';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = 'Kopyala';
+            copyBtn.style.border = '1px solid var(--border)';
+            copyBtn.style.background = 'transparent';
+            copyBtn.style.color = 'var(--text-primary)';
+            copyBtn.style.padding = '8px 12px';
+            copyBtn.style.borderRadius = '8px';
+            copyBtn.style.cursor = 'pointer';
+            copyBtn.onclick = async () => {
+                const payload = [
+                    `Karar Debug · ${String(symbol || 'GENEL').toUpperCase()}`,
+                    `Eksik/geçersiz alan sayısı: ${list.length}`,
+                    '',
+                    ...list.map((x, i) => `${i + 1}. ${x}`)
+                ].join('\n');
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(payload);
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = payload;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.focus();
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+                    showToast('Debug listesi panoya kopyalandı.', 'success', 'Karar Debug');
+                } catch (_) {
+                    showToast('Kopyalama başarısız oldu.', 'error', 'Karar Debug');
+                }
+            };
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Kapat';
+            closeBtn.style.border = '1px solid var(--border)';
+            closeBtn.style.background = 'transparent';
+            closeBtn.style.color = 'var(--text-primary)';
+            closeBtn.style.padding = '8px 12px';
+            closeBtn.style.borderRadius = '8px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.onclick = () => wrap.remove();
+
+            actions.appendChild(copyBtn);
+            actions.appendChild(closeBtn);
+            card.appendChild(title);
+            card.appendChild(sub);
+            card.appendChild(pre);
+            card.appendChild(actions);
+            wrap.appendChild(card);
+            document.body.appendChild(wrap);
+
+            wrap.addEventListener('click', (e) => {
+                if (e.target === wrap) wrap.remove();
+            });
+            document.addEventListener('keydown', function escOnce(ev) {
+                if (ev.key === 'Escape') {
+                    wrap.remove();
+                    document.removeEventListener('keydown', escOnce);
+                }
+            });
+        }
+
+        function maybeShowKararDebugToast(symbol, sonuc) {
+            const host = window.location.hostname;
+            const debugEnabled = host === 'localhost' || host === '127.0.0.1' || new URLSearchParams(window.location.search).get('debug') === '1';
+            if (!debugEnabled) return;
+
+            const list = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
+            if (list.length === 0) return;
+
+            const key = String(symbol || 'GENEL').toUpperCase();
+            const now = Date.now();
+            const last = kararDebugToastZaman[key] || 0;
+            if (now - last < 60000) return; // aynı coin için 60 sn'de bir göster
+            kararDebugToastZaman[key] = now;
+
+            const preview = list.slice(0, 3).join(', ');
+            const extra = list.length > 3 ? ` +${list.length - 3}` : '';
+            showToast(`${key}: ${preview}${extra}`, 'warning', 'Karar Debug', {
+                clickTitle: 'Tıkla: tüm eksik alanları göster',
+                onClick: () => showKararDebugModal(key, list),
+            });
         }
 
         async function fetchAllData() {
@@ -1509,6 +1659,7 @@
             // Karar motoru ile hesapla
             validateKararPayload(symbol, analysisData);
             const sonuc = window.kararMotoru(analysisData);
+            maybeShowKararDebugToast(symbol, sonuc);
             const mevcutFiyat = analysisData.price;
             const modelKarar = sonuc.karar;
 
@@ -1726,6 +1877,7 @@
             if (window.kararMotoru) {
                 validateKararPayload(symbol, analysisData);
                 const sonuc = window.kararMotoru(analysisData);
+                maybeShowKararDebugToast(symbol, sonuc);
 
                 const isBekle = sonuc.karar === 'BEKLE';
                 const isLong = sonuc.karar === 'LONG';

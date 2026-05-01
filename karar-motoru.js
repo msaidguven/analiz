@@ -67,6 +67,8 @@ function kararMotoru(d) {
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
     function pctDist(a, b) { return b !== 0 ? Math.abs(((a - b) / b) * 100) : 0; }
 
+    const data = (d && typeof d === 'object') ? d : {};
+
     const {
         price, chg24, volatility,
         rsi: rsiGlobal, macd: macdGlobal, boll,
@@ -76,14 +78,26 @@ function kararMotoru(d) {
         volumeSpike, spikeRatio,
         lhResult, msResult,
         analysisTime, multiTF, symbol: coinSymbol,
-    } = d;
+    } = data;
+
+    const normalizedMultiTF = multiTF && typeof multiTF === 'object'
+        ? multiTF
+        : {};
+    const debugEksikAlanlar = [];
+    const addEksik = (k, v) => debugEksikAlanlar.push(`${k}=${String(v)}`);
+
+    const topNumFields = { price, chg24, volatility, fundingAvg, oiChange, longPct, shortPct };
+    Object.entries(topNumFields).forEach(([k, v]) => {
+        if (v === undefined || v === null || Number.isNaN(Number(v))) addEksik(k, v);
+    });
+    if (!multiTF || typeof multiTF !== 'object') addEksik('multiTF', multiTF);
 
     // ─── Yeni coin tespiti ───────────────────────────────────
     let yeniCoin = false;
-    if (!multiTF || !multiTF['1w']) yeniCoin = true;
-    if (multiTF && multiTF['1w']) {
-        if ((multiTF['1w'].count !== undefined && multiTF['1w'].count < 10) ||
-            (multiTF['1w'].closes && multiTF['1w'].closes.length < 10)) {
+    if (!normalizedMultiTF['1w']) yeniCoin = true;
+    if (normalizedMultiTF['1w']) {
+        if ((normalizedMultiTF['1w'].count !== undefined && normalizedMultiTF['1w'].count < 10) ||
+            (normalizedMultiTF['1w'].closes && normalizedMultiTF['1w'].closes.length < 10)) {
             yeniCoin = true;
         }
     }
@@ -96,10 +110,17 @@ function kararMotoru(d) {
     const tfSonuclar = {};
 
     tfListesi.forEach(tf => {
-        const tfData = multiTF ? multiTF[tf] : null;
+        const tfData = normalizedMultiTF[tf] || normalizedMultiTF[tf.toUpperCase()] || null;
 
         if (!tfData) {
-            tfSonuclar[tf] = { yön: 'notr', güç: 0, güvenilirlik: 0, notlar: [], uzlaşım: 0, bullGüç: 0, bearGüç: 0, toplamGüç: 0 };
+            addEksik(`multiTF.${tf}`, tfData);
+            tfSonuclar[tf] = {
+                yön: 'notr', yon: 'notr',
+                güç: 0, guc: 0,
+                güvenilirlik: 0, guvenilirlik: 0,
+                notlar: [], uzlaşım: 0, uzlasim: 0,
+                bullGüç: 0, bullGuc: 0, bearGüç: 0, bearGuc: 0, toplamGüç: 0, toplamGuc: 0
+            };
             return;
         }
 
@@ -185,9 +206,13 @@ function kararMotoru(d) {
 
         tfSonuclar[tf] = {
             yön: tfYön,
+            yon: tfYön,
             bullGüç, bearGüç, toplamGüç,
+            bullGuc: bullGüç, bearGuc: bearGüç, toplamGuc: toplamGüç,
             uzlaşım,
+            uzlasim: uzlaşım,
             güvenilirlik,
+            guvenilirlik: güvenilirlik,
             rsi,
             notlar,
             tfAdi: tf,
@@ -248,8 +273,9 @@ function kararMotoru(d) {
     });
 
     // [DÜZ-5] Güvenilir veri yoksa belirsiz oran döner
-    const tfLongOran = toplamEfektifAğırlık > 0.05
-        ? (ağırlıklıBull / (ağırlıklıBull + ağırlıklıBear)) * 100
+    const tfPayda = ağırlıklıBull + ağırlıklıBear;
+    const tfLongOran = (toplamEfektifAğırlık > 0.05 && tfPayda > 0)
+        ? (ağırlıklıBull / tfPayda) * 100
         : 50;
 
     // ─── BÖLÜM 4: Türev/yapısal bağlam ─────────────────────
@@ -269,7 +295,7 @@ function kararMotoru(d) {
     let türevBull = 0;
     let türevBear = 0;
 
-    const fPct = (fundingAvg || 0) * 100;
+    const fPct = safeNum(fundingAvg || 0) * 100;
 
     // Funding — aşırı değerler kontrarian sinyal
     if (fPct < -0.30) { türevBull += 3; türevNotlar.push('Funding ciddi negatif — short squeeze riski'); }
@@ -289,10 +315,12 @@ function kararMotoru(d) {
 
     // OI değişimi
     if (oiChange !== null && oiChange !== undefined) {
-        if (chg24 > 2 && oiChange > 0.5)        { türevBull += 2; türevNotlar.push('OI + fiyat birlikte artıyor (güçlü trend)'); }
-        else if (chg24 > 2 && oiChange < -0.5)   { türevBear += 1; uyarılar.push('Fiyat yükseliyor ama OI azalıyor — kırılgan ralli'); }
-        else if (chg24 < -2 && oiChange > 0.5)   { türevBear += 2; türevNotlar.push('OI artarken fiyat düşüyor (kısa yükleniyor)'); }
-        else if (chg24 < -2 && oiChange < -0.5)  { türevBull += 1; türevNotlar.push('OI + fiyat birlikte düşüyor (short kapanıyor)'); }
+        const chg = safeNum(chg24);
+        const oi = safeNum(oiChange);
+        if (chg > 2 && oi > 0.5)        { türevBull += 2; türevNotlar.push('OI + fiyat birlikte artıyor (güçlü trend)'); }
+        else if (chg > 2 && oi < -0.5)   { türevBear += 1; uyarılar.push('Fiyat yükseliyor ama OI azalıyor — kırılgan ralli'); }
+        else if (chg < -2 && oi > 0.5)   { türevBear += 2; türevNotlar.push('OI artarken fiyat düşüyor (kısa yükleniyor)'); }
+        else if (chg < -2 && oi < -0.5)  { türevBull += 1; türevNotlar.push('OI + fiyat birlikte düşüyor (short kapanıyor)'); }
     }
 
     // Bollinger
@@ -316,8 +344,8 @@ function kararMotoru(d) {
 
     // ─── BÖLÜM 5: Nihai birleştirme ─────────────────────────
     // [DÜZ-8] TF %80, türev %20 (manipülasyona açık türev verilerine daha az ağırlık)
-    const finalLongOran  = (tfLongOran * 0.80) + (türevLongOran * 0.20);
-    const finalShortOran = 100 - finalLongOran;
+    const finalLongOran  = clamp((tfLongOran * 0.80) + (türevLongOran * 0.20), 0, 100);
+    const finalShortOran = clamp(100 - finalLongOran, 0, 100);
     const fark = finalLongOran - finalShortOran;
 
     // ─── BÖLÜM 6: Karar ─────────────────────────────────────
@@ -384,6 +412,9 @@ function kararMotoru(d) {
     }
 
     güven = Math.round(güven);
+    if (debugEksikAlanlar.length > 0) {
+        console.warn('[kararMotoru] Eksik/gecersiz alanlar:', debugEksikAlanlar);
+    }
 
     // ─── BÖLÜM 8: Risk skoru ────────────────────────────────
     let riskSkor = 3;
@@ -434,15 +465,22 @@ function kararMotoru(d) {
         yüksekTFUzlaşım,   // [YENİ] dışarıdan izlenebilir
         uyarılar,
         türevNotlar,
+        debugEksikAlanlar,
 
         // Meta
-        symbol: coinSymbol,
-        analysisTime,
+        symbol: coinSymbol || data.baseAsset || data.asset || 'N/A',
+        analysisTime: analysisTime || new Date().toISOString(),
         version: 'v6',
 
         // v4/v5 uyumluluğu
         longOran: finalLongOran,
         shortOran: finalShortOran,
+
+        // ASCII alias'lar (UI/JSON serileştirme uyumu)
+        tfCatismaVar: tfÇatışmaVar,
+        yuksekTFUzlasim: yüksekTFUzlaşım,
+        uyarilar: uyarılar,
+        turevNotlar: türevNotlar,
     };
 }
 
