@@ -1268,10 +1268,11 @@
             container.appendChild(toast);
 
             // Auto remove
+            const duration = Number.isFinite(Number(opts.durationMs)) ? Number(opts.durationMs) : 3000;
             setTimeout(() => {
                 toast.classList.add('fade-out');
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, duration);
         }
 
         const kararDebugToastZaman = {};
@@ -1397,12 +1398,21 @@
         }
 
         function maybeShowKararDebugToast(symbol, sonuc) {
-            const host = window.location.hostname;
-            const debugEnabled = host === 'localhost' || host === '127.0.0.1' || new URLSearchParams(window.location.search).get('debug') === '1';
+            const q = new URLSearchParams(window.location.search).get('debug');
+            const ls = localStorage.getItem('kararDebug');
+            const debugEnabled = q !== '0' && ls !== '0';
             if (!debugEnabled) return;
 
             const list = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
-            if (list.length === 0) return;
+            if (list.length === 0) {
+                const key0 = String(symbol || 'GENEL').toUpperCase();
+                showToast(`${key0}: eksik alan yok`, 'success', 'Karar Debug', {
+                    clickTitle: 'Tıkla: debug detayını göster',
+                    onClick: () => showKararDebugModal(key0, ['Eksik/geçersiz alan bulunmadı']),
+                    durationMs: 6000,
+                });
+                return;
+            }
 
             const key = String(symbol || 'GENEL').toUpperCase();
             const now = Date.now();
@@ -1415,6 +1425,7 @@
             showToast(`${key}: ${preview}${extra}`, 'warning', 'Karar Debug', {
                 clickTitle: 'Tıkla: tüm eksik alanları göster',
                 onClick: () => showKararDebugModal(key, list),
+                durationMs: 10000,
             });
         }
 
