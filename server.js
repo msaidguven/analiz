@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const DB_FILE = path.join(__dirname, 'coin_islem.json');
 const CUZDAN_FILE = path.join(__dirname, 'coin_cuzdan.json');
 const ENV_FILE = path.join(__dirname, '.env');

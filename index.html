@@ -1471,7 +1471,8 @@
                 // Fallback: CoinMarketCap proxy (opsiyonel)
                 let cmcMap = {};
                 try {
-                    const cmcRes = await fetch('/api/marketcap/cmc?limit=2000');
+                    const apiBase = String(window.API_BASE_URL || '').trim().replace(/\/+$/, '');
+                    const cmcRes = await fetch(`${apiBase}/api/marketcap/cmc?limit=2000`);
                     if (cmcRes.ok) {
                         const cmcData = await cmcRes.json();
                         const rows = Array.isArray(cmcData?.data) ? cmcData.data : [];

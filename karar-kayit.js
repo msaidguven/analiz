@@ -65,7 +65,8 @@ class KararKayitSistemi {
     }
 
     async supabaseInsertIslemViaApi(payload) {
-        const res = await fetch('/api/supabase/islemler', {
+        const apiBase = String(window.API_BASE_URL || '').trim().replace(/\/+$/, '');
+        const res = await fetch(`${apiBase}/api/supabase/islemler`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
