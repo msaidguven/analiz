@@ -43,6 +43,32 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // Binance bazı blok/limit durumlarında 200 ile obje dönebiliyor.
+    if (typeof ticker?.lastPrice === 'undefined' || typeof ticker?.priceChangePercent === 'undefined') {
+      return res.status(502).json({
+        error: 'Ticker formatı geçersiz',
+        detail: ticker?.msg || ticker?.message || 'Ticker alanları eksik'
+      });
+    }
+
+    const areKlinesOk =
+      Array.isArray(klines15m) &&
+      Array.isArray(klines1h) &&
+      Array.isArray(klines4h) &&
+      Array.isArray(klines1d) &&
+      Array.isArray(klines1w) &&
+      klines15m.length >= 20 &&
+      klines1h.length >= 20 &&
+      klines4h.length >= 20 &&
+      klines1d.length >= 20;
+
+    if (!areKlinesOk) {
+      return res.status(502).json({
+        error: 'Kline verisi geçersiz/eksik',
+        detail: 'Binance kline verisi beklenen formatta değil'
+      });
+    }
+
     return res.status(200).json({
       symbol,
       ticker,

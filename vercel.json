@@ -3,6 +3,9 @@
   "functions": {
     "api/binance/market-snapshot.js": {
       "regions": ["hkg1"]
+    },
+    "api/binance/analysis.js": {
+      "regions": ["hkg1"]
     }
   }
 }
