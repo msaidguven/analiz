@@ -1446,7 +1446,14 @@
                 // Önce backend proxy dene (IP ban riskini azaltır)
                 try {
                     const snapshotRes = await fetch(`${apiBase}/api/binance/market-snapshot`);
-                    const snapshotData = await snapshotRes.json();
+                    const snapshotRaw = await snapshotRes.text();
+                    let snapshotData = {};
+                    try {
+                        snapshotData = snapshotRaw ? JSON.parse(snapshotRaw) : {};
+                    } catch {
+                        const preview = String(snapshotRaw || '').slice(0, 160);
+                        throw new Error(`Snapshot API JSON dönmedi: ${preview}`);
+                    }
                     if (!snapshotRes.ok) {
                         throw new Error(snapshotData?.detail || snapshotData?.error || 'Snapshot API hatası');
                     }
@@ -1484,7 +1491,13 @@
                     const apiBase = String(window.API_BASE_URL || '').trim().replace(/\/+$/, '');
                     const cmcRes = await fetch(`${apiBase}/api/marketcap/cmc?limit=2000`);
                     if (cmcRes.ok) {
-                        const cmcData = await cmcRes.json();
+                        const cmcRaw = await cmcRes.text();
+                        let cmcData = {};
+                        try {
+                            cmcData = cmcRaw ? JSON.parse(cmcRaw) : {};
+                        } catch {
+                            cmcData = {};
+                        }
                         const rows = Array.isArray(cmcData?.data) ? cmcData.data : [];
                         rows.forEach(c => {
                             const sym = String(c.symbol || '').toUpperCase();
