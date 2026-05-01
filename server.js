@@ -31,6 +31,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+const marketSnapshotCache = {
+    ts: 0,
+    data: null
+};
+
 function getSupabaseConfig() {
     const supabaseUrl = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
     const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
@@ -148,6 +153,54 @@ app.post('/api/supabase/islemler', async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             error: 'Supabase proxy isteği sırasında sunucu hatası',
+            detail: error.message
+        });
+    }
+});
+
+// Binance market snapshot proxy + kısa cache
+app.get('/api/binance/market-snapshot', async (req, res) => {
+    const now = Date.now();
+    const ttlMs = 15 * 1000;
+    if (marketSnapshotCache.data && (now - marketSnapshotCache.ts) < ttlMs) {
+        return res.json({ ...marketSnapshotCache.data, cached: true });
+    }
+
+    try {
+        const BASE_F = 'https://fapi.binance.com';
+        const [exchangeRes, tickerRes, premiumRes] = await Promise.all([
+            fetch(`${BASE_F}/fapi/v1/exchangeInfo`),
+            fetch(`${BASE_F}/fapi/v1/ticker/24hr`),
+            fetch(`${BASE_F}/fapi/v1/premiumIndex`)
+        ]);
+
+        const [exchangeData, tickerData, premiumData] = await Promise.all([
+            exchangeRes.json(),
+            tickerRes.json(),
+            premiumRes.json()
+        ]);
+
+        if (!Array.isArray(exchangeData?.symbols)) {
+            return res.status(502).json({
+                error: 'Binance exchangeInfo verisi geçersiz',
+                detail: exchangeData?.msg || exchangeData?.message || ''
+            });
+        }
+        if (!Array.isArray(tickerData)) {
+            return res.status(502).json({
+                error: 'Binance ticker verisi geçersiz',
+                detail: tickerData?.msg || tickerData?.message || ''
+            });
+        }
+
+        const payload = { exchangeData, tickerData, premiumData };
+        marketSnapshotCache.ts = now;
+        marketSnapshotCache.data = payload;
+
+        return res.json(payload);
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Binance snapshot proxy hatası',
             detail: error.message
         });
     }

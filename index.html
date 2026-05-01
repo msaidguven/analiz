@@ -1438,16 +1438,33 @@
             coinGrid.innerHTML = '';
 
             try {
-                // Fetch exchange info
-                const exchangeRes = await fetch('https://fapi.binance.com/fapi/v1/exchangeInfo');
-                const exchangeData = await exchangeRes.json();
+                const apiBase = String(window.API_BASE_URL || '').trim().replace(/\/+$/, '');
+                let exchangeData = null;
+                let tickerData = null;
+                let premiumData = null;
 
-                // Fetch 24hr tickers
-                const tickerRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
-                const tickerData = await tickerRes.json();
-                // Funding rate (doğru kaynak)
-                const premiumRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex');
-                const premiumData = await premiumRes.json();
+                // Önce backend proxy dene (IP ban riskini azaltır)
+                try {
+                    const snapshotRes = await fetch(`${apiBase}/api/binance/market-snapshot`);
+                    const snapshotData = await snapshotRes.json();
+                    if (!snapshotRes.ok) {
+                        throw new Error(snapshotData?.detail || snapshotData?.error || 'Snapshot API hatası');
+                    }
+                    exchangeData = snapshotData.exchangeData;
+                    tickerData = snapshotData.tickerData;
+                    premiumData = snapshotData.premiumData;
+                } catch (proxyErr) {
+                    console.warn('Binance proxy kullanılamadı, direct fallback deneniyor:', proxyErr?.message || proxyErr);
+                    // Fallback: doğrudan Binance
+                    const exchangeRes = await fetch('https://fapi.binance.com/fapi/v1/exchangeInfo');
+                    exchangeData = await exchangeRes.json();
+
+                    const tickerRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
+                    tickerData = await tickerRes.json();
+
+                    const premiumRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex');
+                    premiumData = await premiumRes.json();
+                }
 
                 // Piyasa değeri verilerini Coingecko'dan çek (ilk 1000 coin, symbol collision güvenli)
                 let geckoMap = {};
