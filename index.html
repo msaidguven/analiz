@@ -1745,7 +1745,30 @@
             // Karar motoru ile hesapla
             validateKararPayload(symbol, analysisData);
             const sonuc = window.kararMotoru(analysisData);
-            maybeShowKararDebugToast(symbol, sonuc);
+            const eksikAlanlar = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
+            if (eksikAlanlar.length > 0) {
+                const previewElement = document.getElementById(`karar-preview-${symbol}`);
+                if (previewElement) {
+                    previewElement.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-premium-red"></span>
+                                <span class="text-[11px] font-black uppercase tracking-widest text-premium-red">Eksik veri var</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-binance-muted">Sinyal üretilmedi</span>
+                        </div>
+                    `;
+                }
+                const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
+                const shortBtn = document.querySelector(`.karar-kaydet-short-btn[data-symbol="${symbol}"]`);
+                if (longBtn && shortBtn) {
+                    longBtn.disabled = true;
+                    shortBtn.disabled = true;
+                    longBtn.title = 'Eksik veri var: sinyal kapalı';
+                    shortBtn.title = 'Eksik veri var: sinyal kapalı';
+                }
+                return;
+            }
             const mevcutFiyat = analysisData.price;
 
             if (!side || (side !== 'LONG' && side !== 'SHORT')) {
@@ -1956,7 +1979,31 @@
             if (window.kararMotoru) {
                 validateKararPayload(symbol, analysisData);
                 const sonuc = window.kararMotoru(analysisData);
-                maybeShowKararDebugToast(symbol, sonuc);
+                const eksikAlanlar = Array.isArray(sonuc?.debugEksikAlanlar) ? sonuc.debugEksikAlanlar : [];
+                const hasEksikVeri = eksikAlanlar.length > 0;
+
+                const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
+                const shortBtn = document.querySelector(`.karar-kaydet-short-btn[data-symbol="${symbol}"]`);
+
+                if (hasEksikVeri) {
+                    previewElement.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-premium-red"></span>
+                                <span class="text-[11px] font-black uppercase tracking-widest text-premium-red">Eksik veri var</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-binance-muted">Sinyal üretilmedi</span>
+                        </div>
+                    `;
+
+                    if (longBtn && shortBtn) {
+                        longBtn.disabled = true;
+                        shortBtn.disabled = true;
+                        longBtn.title = 'Eksik veri var: sinyal kapalı';
+                        shortBtn.title = 'Eksik veri var: sinyal kapalı';
+                    }
+                    return;
+                }
 
                 const isBekle = sonuc.karar === 'BEKLE';
                 const isLong = sonuc.karar === 'LONG';
@@ -1987,8 +2034,6 @@
                 `;
 
                 // Kullanıcı seçimi serbest: butonlar her zaman aktif
-                const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
-                const shortBtn = document.querySelector(`.karar-kaydet-short-btn[data-symbol="${symbol}"]`);
                 if (longBtn && shortBtn) {
                     longBtn.disabled = false;
                     shortBtn.disabled = false;
