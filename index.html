@@ -2038,14 +2038,7 @@
             if (!previewElement) return;
 
             const updateMissingState = (isMissing) => {
-                const prev = coinMissingDataState[symbol];
                 coinMissingDataState[symbol] = isMissing;
-                const changed = prev !== isMissing;
-                if (changed) {
-                    sortCoins();
-                    renderCoins();
-                    updateStats();
-                }
             };
 
             if (window.kararMotoru) {
