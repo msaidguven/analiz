@@ -1,8 +1,3 @@
 {
-  "version": 2,
-  "functions": {
-    "api/binance/market-snapshot.js": {
-      "regions": ["hkg1"]
-    }
-  }
+  "version": 2
 }
