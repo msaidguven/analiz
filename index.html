@@ -1042,6 +1042,15 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
+                <button class="sort-btn" onclick="refreshKararMotoru()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6" />
+                        <path d="M1 20v-6h6" />
+                        <path d="M3.5 9a9 9 0 0 1 14.13-3.36L23 10" />
+                        <path d="M20.5 15a9 9 0 0 1-14.13 3.36L1 14" />
+                    </svg>
+                    Karar Motoru Yenile
+                </button>
                 <button class="sort-btn active" data-sort="volume" onclick="setSort('volume')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2.5">
@@ -1443,6 +1452,9 @@
                 // Fetch 24hr tickers
                 const tickerRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
                 const tickerData = await tickerRes.json();
+                // Funding rate (doğru kaynak)
+                const premiumRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex');
+                const premiumData = await premiumRes.json();
 
                 // Piyasa değeri verilerini Coingecko'dan çek
                 let geckoMap = {};
@@ -1452,9 +1464,15 @@
                     geckoData.forEach(g => geckoMap[g.symbol.toUpperCase()] = g);
                 } catch (e) { console.warn('Piyasa değeri verisi alınamadı.'); }
 
-                // Create ticker map
+                // Create maps
                 const tickerMap = {};
                 tickerData.forEach(t => tickerMap[t.symbol] = t);
+                const fundingMap = {};
+                if (Array.isArray(premiumData)) {
+                    premiumData.forEach(p => fundingMap[p.symbol] = p);
+                } else if (premiumData && premiumData.symbol) {
+                    fundingMap[premiumData.symbol] = premiumData;
+                }
 
                 // Process coins
                 allCoinsData = exchangeData.symbols
@@ -1471,7 +1489,7 @@
                             highPrice: ticker.highPrice || '0',
                             lowPrice: ticker.lowPrice || '0',
                             volume: ticker.quoteVolume || '0',
-                            fundingRate: ticker.fundingRate || '0',
+                            fundingRate: fundingMap[s.symbol]?.lastFundingRate || '0',
                             nextFundingTime: ticker.nextFundingTime || null,
                             marketCap: gData.market_cap || 0,
                             rank: gData.market_cap_rank || '-'
@@ -1626,10 +1644,10 @@
                         </div>
 
                         <div class="flex gap-2 mt-auto">
-                            <button class="flex-1 py-3 rounded-xl text-sm font-black bg-binance-yellow text-black hover:bg-[#e0ab0a] transition-colors shadow-lg shadow-binance-yellow/10 uppercase tracking-widest" onclick="goToDetailedAnalysis('${coin.baseAsset}')">Analiz</button>
+                            <button class="flex-1 py-3 rounded-xl text-sm font-black bg-binance-yellow text-black hover:bg-[#e0ab0a] transition-colors shadow-lg shadow-binance-yellow/10 uppercase tracking-widest" onclick="refreshKararMotoru('${coin.baseAsset}')">${coin.baseAsset} Analizi</button>
                             <div class="flex-1 flex gap-2">
-                                <button class="karar-kaydet-long-btn flex-1 py-3 rounded-xl text-sm font-black bg-premium-green/10 border border-premium-green/30 text-premium-green hover:bg-premium-green hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}', 'LONG')" disabled>Long</button>
-                                <button class="karar-kaydet-short-btn flex-1 py-3 rounded-xl text-sm font-black bg-premium-red/10 border border-premium-red/30 text-premium-red hover:bg-premium-red hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}', 'SHORT')" disabled>Short</button>
+                                <button class="karar-kaydet-long-btn flex-1 py-3 rounded-xl text-sm font-black bg-premium-green/10 border border-premium-green/30 text-premium-green hover:bg-premium-green hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}', 'LONG')">Long</button>
+                                <button class="karar-kaydet-short-btn flex-1 py-3 rounded-xl text-sm font-black bg-premium-red/10 border border-premium-red/30 text-premium-red hover:bg-premium-red hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest" data-symbol="${coin.baseAsset}" onclick="saveCoin('${coin.baseAsset}', 'SHORT')">Short</button>
                             </div>
                         </div>
                     </div>
@@ -1672,16 +1690,9 @@
             const sonuc = window.kararMotoru(analysisData);
             maybeShowKararDebugToast(symbol, sonuc);
             const mevcutFiyat = analysisData.price;
-            const modelKarar = sonuc.karar;
 
             if (!side || (side !== 'LONG' && side !== 'SHORT')) {
                 showToast('Geçersiz yön seçimi!', 'error', 'Hata');
-                return;
-            }
-
-            // UI guard'a ek olarak, yanlış yöne kayıt tetiklenmesini kod tarafında da engelle.
-            if (modelKarar !== side) {
-                showToast(`Model sinyali ${modelKarar}. ${side} pasif.`, 'warning', 'Uyarı');
                 return;
             }
 
@@ -1918,27 +1929,14 @@
                     </div>
                 `;
 
-                // LONG/SHORT butonlarını model kararına göre güncelle
+                // Kullanıcı seçimi serbest: butonlar her zaman aktif
                 const longBtn = document.querySelector(`.karar-kaydet-long-btn[data-symbol="${symbol}"]`);
                 const shortBtn = document.querySelector(`.karar-kaydet-short-btn[data-symbol="${symbol}"]`);
-
                 if (longBtn && shortBtn) {
-                    if (isBekle) {
-                        longBtn.disabled = true;
-                        shortBtn.disabled = true;
-                        longBtn.title = 'Karar: BEKLE - Kaydedilemez';
-                        shortBtn.title = 'Karar: BEKLE - Kaydedilemez';
-                    } else if (isLong) {
-                        longBtn.disabled = false;
-                        shortBtn.disabled = true;
-                        longBtn.title = 'Model sinyali: LONG';
-                        shortBtn.title = 'Model sinyali LONG, SHORT pasif';
-                    } else if (isShort) {
-                        longBtn.disabled = true;
-                        shortBtn.disabled = false;
-                        longBtn.title = 'Model sinyali SHORT, LONG pasif';
-                        shortBtn.title = 'Model sinyali: SHORT';
-                    }
+                    longBtn.disabled = false;
+                    shortBtn.disabled = false;
+                    longBtn.title = 'LONG kaydet';
+                    shortBtn.title = 'SHORT kaydet';
                 }
             } else {
                 previewElement.innerHTML = `
@@ -1946,6 +1944,64 @@
                         <span class="text-[10px] text-premium-red font-bold uppercase">Motor Yüklenmedi</span>
                     </div>
                 `;
+            }
+        }
+
+        let kararMotoruReloadPromise = null;
+        function reloadKararMotoruScript() {
+            if (kararMotoruReloadPromise) return kararMotoruReloadPromise;
+
+            kararMotoruReloadPromise = new Promise((resolve, reject) => {
+                try {
+                    const oldScript = Array.from(document.querySelectorAll('script')).find((s) => {
+                        const src = s.getAttribute('src') || '';
+                        return src.includes('karar-motoru.js');
+                    });
+
+                    const script = document.createElement('script');
+                    script.src = `karar-motoru.js?v=${Date.now()}`;
+                    script.async = false;
+                    script.onload = () => resolve(true);
+                    script.onerror = () => reject(new Error('karar-motoru.js yeniden yüklenemedi'));
+
+                    if (oldScript && oldScript.parentNode) {
+                        oldScript.parentNode.insertBefore(script, oldScript.nextSibling);
+                        oldScript.remove();
+                    } else {
+                        document.head.appendChild(script);
+                    }
+                } catch (err) {
+                    reject(err);
+                }
+            }).finally(() => {
+                kararMotoruReloadPromise = null;
+            });
+
+            return kararMotoruReloadPromise;
+        }
+
+        async function refreshKararMotoru(symbol) {
+            const target = symbol ? String(symbol).toUpperCase() : 'TUM';
+            showToast(`${target}: karar motoru yenileniyor...`, 'warning', 'Karar Motoru');
+
+            try {
+                await reloadKararMotoruScript();
+
+                if (symbol) {
+                    await loadKararPreview(symbol);
+                    showToast(`${String(symbol).toUpperCase()}: karar verisi güncellendi`, 'success', 'Karar Motoru');
+                    return;
+                }
+
+                const previewIds = Array.from(document.querySelectorAll('[id^="karar-preview-"]'))
+                    .map((el) => String(el.id || '').replace('karar-preview-', ''))
+                    .filter(Boolean);
+
+                await Promise.all(previewIds.map((s) => loadKararPreview(s)));
+                showToast(`Karar motoru ve ${previewIds.length} coin verisi güncellendi`, 'success', 'Karar Motoru');
+            } catch (err) {
+                console.error('refreshKararMotoru hatası:', err);
+                showToast(err?.message || 'Karar motoru yenileme başarısız', 'error', 'Karar Motoru');
             }
         }
 
