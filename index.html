@@ -1455,7 +1455,7 @@
                     premiumData = snapshotData.premiumData;
                 } catch (proxyErr) {
                     console.error('Binance proxy kullanılamadı:', proxyErr?.message || proxyErr);
-                    throw new Error('Piyasa verisi backend üzerinden alınamadı. Render servisini kontrol edin.');
+                    throw new Error(proxyErr?.message || 'Piyasa verisi backend üzerinden alınamadı. API servisini kontrol edin.');
                 }
 
                 // Piyasa değeri verilerini Coingecko'dan çek (ilk 1000 coin, symbol collision güvenli)
