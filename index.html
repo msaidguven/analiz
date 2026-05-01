@@ -1507,6 +1507,7 @@
             }
 
             // Karar motoru ile hesapla
+            validateKararPayload(symbol, analysisData);
             const sonuc = window.kararMotoru(analysisData);
             const mevcutFiyat = analysisData.price;
             const modelKarar = sonuc.karar;
@@ -1661,11 +1662,69 @@
             }
         }
 
+        function validateKararPayload(symbol, data) {
+            const missing = [];
+            const invalid = [];
+            const pushMissing = (k) => missing.push(k);
+            const pushInvalid = (k, v) => invalid.push(`${k}=${String(v)}`);
+            const isNum = (v) => Number.isFinite(Number(v));
+
+            if (!data || typeof data !== 'object') {
+                console.error(`[KararPayload] ${symbol}: payload yok veya object değil.`);
+                return false;
+            }
+
+            const requiredTop = ['price', 'chg24', 'volatility', 'fundingAvg', 'oiChange', 'longPct', 'shortPct', 'multiTF'];
+            requiredTop.forEach((k) => {
+                if (data[k] === undefined || data[k] === null) pushMissing(k);
+            });
+
+            ['price', 'chg24', 'volatility', 'fundingAvg', 'oiChange', 'longPct', 'shortPct'].forEach((k) => {
+                if (data[k] !== undefined && data[k] !== null && !isNum(data[k])) pushInvalid(k, data[k]);
+            });
+
+            if (!data.multiTF || typeof data.multiTF !== 'object') {
+                pushMissing('multiTF');
+            } else {
+                ['15m', '1h', '4h', '1d', '1w'].forEach((tf) => {
+                    const tfData = data.multiTF[tf];
+                    if (!tfData) {
+                        pushMissing(`multiTF.${tf}`);
+                        return;
+                    }
+                    if (!isNum(tfData.rsi)) pushInvalid(`multiTF.${tf}.rsi`, tfData.rsi);
+                    if (!tfData.macd || !isNum(tfData.macd.macd) || !isNum(tfData.macd.histogram)) {
+                        pushInvalid(`multiTF.${tf}.macd`, JSON.stringify(tfData.macd || null));
+                    }
+                    if (!isNum(tfData.volume) || !isNum(tfData.volumeAvg)) {
+                        pushInvalid(`multiTF.${tf}.volume/volumeAvg`, `${tfData.volume}/${tfData.volumeAvg}`);
+                    }
+                    if (!tfData.smc || !tfData.smc.trend) {
+                        pushMissing(`multiTF.${tf}.smc.trend`);
+                    }
+                });
+            }
+
+            const lsTotal = Number(data.longPct) + Number(data.shortPct);
+            if (isNum(data.longPct) && isNum(data.shortPct) && Math.abs(lsTotal - 100) > 5) {
+                invalid.push(`longPct+shortPct=${lsTotal.toFixed(2)}`);
+            }
+
+            if (missing.length || invalid.length) {
+                console.warn(`[KararPayload] ${symbol}: eksik/geçersiz alan var.`, { missing, invalid, payload: data });
+                return false;
+            }
+
+            console.info(`[KararPayload] ${symbol}: payload OK`);
+            return true;
+        }
+
         function updateKararPreview(symbol, analysisData) {
             const previewElement = document.getElementById(`karar-preview-${symbol}`);
             if (!previewElement) return;
 
             if (window.kararMotoru) {
+                validateKararPayload(symbol, analysisData);
                 const sonuc = window.kararMotoru(analysisData);
 
                 const isBekle = sonuc.karar === 'BEKLE';
