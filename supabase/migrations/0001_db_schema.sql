@@ -26,5 +26,7 @@ CREATE TABLE public.islemler (
   kapanis_zamani timestamp with time zone,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  binance_order_id text,
+  binance_durum text DEFAULT 'BEKLIYOR'::text,
   CONSTRAINT islemler_pkey PRIMARY KEY (id)
 );
