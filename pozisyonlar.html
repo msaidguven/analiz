@@ -40,10 +40,8 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 0;
     }
 
-    /* ── Navbar ── */
     .navbar {
       display: flex;
       align-items: center;
@@ -85,15 +83,10 @@
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* ── Layout ── */
     .container { max-width: 1400px; margin: 0 auto; padding: 28px 24px; }
 
-    /* ── Header ── */
     .page-header {
       display: flex;
       align-items: center;
@@ -106,7 +99,6 @@
     .page-title span { color: var(--text2); font-weight: 400; font-size: 14px; margin-left: 10px; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
 
-    /* ── Stats Bar ── */
     .stats-bar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -121,18 +113,12 @@
     }
     .stat-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
     .stat-value { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
-    .stat-value.green { color: var(--green); }
-    .stat-value.red   { color: var(--red); }
-    .stat-value.white { color: var(--text); }
+    .stat-value.green  { color: var(--green); }
+    .stat-value.red    { color: var(--red); }
+    .stat-value.white  { color: var(--text); }
     .stat-value.yellow { color: var(--yellow); }
 
-    /* ── Filters ── */
-    .filters {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
+    .filters { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
     .filter-btn {
       font-family: 'Syne', sans-serif;
       font-size: 12px;
@@ -144,14 +130,12 @@
       color: var(--text2);
       cursor: pointer;
       transition: var(--transition);
-      letter-spacing: 0.3px;
     }
     .filter-btn:hover { border-color: var(--accent); color: var(--text); }
-    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .filter-btn.long-active  { background: var(--green2); border-color: var(--green); color: #000; }
-    .filter-btn.short-active { background: var(--red2); border-color: var(--red); color: #fff; }
+    .filter-btn.active       { background: var(--accent);  border-color: var(--accent); color: #fff; }
+    .filter-btn.long-active  { background: var(--green2);  border-color: var(--green);  color: #000; }
+    .filter-btn.short-active { background: var(--red2);    border-color: var(--red);    color: #fff; }
 
-    /* ── Group ── */
     .group-section { margin-bottom: 16px; }
     .group-header {
       display: flex;
@@ -177,23 +161,19 @@
     }
     .dir-long  { background: var(--long-bg);  color: var(--green); border: 1px solid var(--long-bdr); }
     .dir-short { background: var(--short-bg); color: var(--red);   border: 1px solid var(--short-bdr); }
-    .group-count {
-      font-size: 11px;
-      color: var(--text3);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .group-pnl {
-      font-size: 15px;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-    }
+    .group-count { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+    .group-pnl { font-size: 15px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
     .group-header-right { display: flex; align-items: center; gap: 14px; }
     .chevron { color: var(--text3); transition: transform 0.2s; font-size: 12px; }
     .group-section.collapsed .chevron { transform: rotate(-90deg); }
     .group-section.collapsed .group-items { display: none; }
 
-    /* ── Item ── */
-    .group-items { border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+    .group-items {
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      overflow: hidden;
+    }
     .position-item {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
@@ -214,12 +194,20 @@
     .pos-value.yellow { color: var(--yellow); }
     .pos-value.blue   { color: var(--blue); }
     .pos-value.muted  { color: var(--text2); }
+    .pos-value.waiting { color: var(--text3); font-style: italic; font-size: 11px; }
 
-    .pos-pnl-block { display: flex; flex-direction: column; gap: 3px; }
     .pnl-usdt { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
     .pnl-pct  { font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
 
-    /* ── Buttons ── */
+    /* Debug satırı — sorun çözülünce kaldırabilirsin */
+    .pos-debug {
+      font-size: 10px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 4px;
+      opacity: 0.6;
+    }
+
     .btn {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
@@ -229,15 +217,13 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      letter-spacing: 0.3px;
       white-space: nowrap;
     }
-    .btn-close-long  { background: rgba(255,77,106,0.12); color: var(--red);  border: 1px solid rgba(255,77,106,0.3); }
+    .btn-close-long  { background: rgba(255,77,106,0.12); color: var(--red);   border: 1px solid rgba(255,77,106,0.3); }
     .btn-close-short { background: rgba(0,212,170,0.12);  color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
     .btn-close-long:hover  { background: var(--red);   color: #fff; }
     .btn-close-short:hover { background: var(--green); color: #000; }
     .btn-close-long:disabled, .btn-close-short:disabled { opacity: 0.4; cursor: not-allowed; }
-
     .btn-refresh {
       background: var(--bg3);
       color: var(--text2);
@@ -246,7 +232,6 @@
     }
     .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* ── Loading / Empty ── */
     .loading-state, .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -265,7 +250,21 @@
     .empty-text { font-size: 15px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
     .empty-sub  { font-size: 13px; }
 
-    /* ── Toast ── */
+    /* Debug paneli */
+    .debug-panel {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      display: none;
+    }
+    .debug-panel.show { display: block; }
+    .debug-panel strong { color: var(--yellow); }
+
     .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
     .toast {
       background: var(--bg3);
@@ -284,7 +283,6 @@
     .toast.info    { border-color: var(--blue); }
     @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    /* ── Confirm Modal ── */
     .modal-overlay {
       display: none;
       position: fixed; inset: 0;
@@ -307,16 +305,12 @@
     .modal-body  { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
     .modal-body strong { color: var(--text); }
     .modal-actions { display: flex; gap: 10px; }
-    .btn-cancel  { flex: 1; background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
-    .btn-confirm-long  { flex: 1; background: var(--red);   color: #fff; }
-    .btn-confirm-short { flex: 1; background: var(--green); color: #000; }
+    .btn-cancel        { flex: 1; background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+    .btn-confirm-long  { flex: 1; background: var(--red);   color: #fff; border: none; }
+    .btn-confirm-short { flex: 1; background: var(--green); color: #000; border: none; }
 
-    /* ── Responsive ── */
     @media (max-width: 900px) {
-      .position-item {
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 10px;
-      }
+      .position-item { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
       .position-item > *:nth-child(n+4):not(:last-child) { display: none; }
     }
     @media (max-width: 600px) {
@@ -328,7 +322,6 @@
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="navbar">
   <div class="navbar-brand">Trader<span>.</span></div>
   <div class="navbar-links">
@@ -343,10 +336,8 @@
   </div>
 </nav>
 
-<!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Confirm Modal -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
     <div class="modal-title" id="modalTitle">Pozisyonu Kapat</div>
@@ -358,20 +349,24 @@
   </div>
 </div>
 
-<!-- Main -->
 <div class="container">
 
-  <!-- Header -->
   <div class="page-header">
     <div>
       <div class="page-title">Açık Pozisyonlar <span id="posCount"></span></div>
     </div>
     <div class="header-actions">
+      <button class="btn btn-refresh" onclick="toggleDebug()" style="font-size:11px;padding:6px 10px;">🔍 Debug</button>
       <button class="btn btn-refresh" onclick="loadPositions()">⟳ Yenile</button>
     </div>
   </div>
 
-  <!-- Stats -->
+  <!-- Debug paneli: ilk veriyi görmek için -->
+  <div class="debug-panel" id="debugPanel">
+    <strong>İlk kayıt alanları:</strong>
+    <pre id="debugContent" style="margin-top:8px;white-space:pre-wrap;word-break:break-all;"></pre>
+  </div>
+
   <div class="stats-bar">
     <div class="stat-card">
       <div class="stat-label">Toplam İşlem</div>
@@ -391,7 +386,6 @@
     </div>
   </div>
 
-  <!-- Filters -->
   <div class="filters">
     <button class="filter-btn active" onclick="setFilter('all', this)">Tümü</button>
     <button class="filter-btn" onclick="setFilter('LONG', this)">Long</button>
@@ -400,7 +394,6 @@
     <button class="filter-btn" onclick="setFilter('loss', this)">Zararda</button>
   </div>
 
-  <!-- List -->
   <div id="positionList">
     <div class="loading-state">
       <div class="loading-spinner"></div>
@@ -412,26 +405,26 @@
 
 <script>
 // ── Config ──────────────────────────────────────────────────
-const SUPABASE_URL        = window.SUPABASE_URL        || window.APP_CONFIG?.SUPABASE_URL
-const SUPABASE_ANON_KEY   = window.SUPABASE_ANON_KEY   || window.APP_CONFIG?.SUPABASE_ANON_KEY
-const SERVICE_ROLE_KEY    = window.SUPABASE_SERVICE_ROLE_KEY || window.APP_CONFIG?.SUPABASE_SERVICE_ROLE_KEY
-const FUNCTION_BASE       = `${SUPABASE_URL}/functions/v1`
-const sp            = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const SUPABASE_URL      = window.SUPABASE_URL      || window.APP_CONFIG?.SUPABASE_URL
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || window.APP_CONFIG?.SUPABASE_ANON_KEY
+const SERVICE_ROLE_KEY  = window.SUPABASE_SERVICE_ROLE_KEY || window.APP_CONFIG?.SUPABASE_SERVICE_ROLE_KEY
+const FUNCTION_BASE     = `${SUPABASE_URL}/functions/v1`
+const sp = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ── State ────────────────────────────────────────────────────
-let positions   = []   // DB'den gelen AKTIF + TAMAMLANDI işlemler
-let prices      = {}   // { BTCUSDT: 94500, ... }
-let filter      = 'all'
-let pendingClose = null // { islem, symbol, karar }
-let wsMap       = {}   // { BTCUSDT: WebSocket }
+let positions    = []
+let prices       = {}
+let filter       = 'all'
+let pendingClose = null
+let wsMap        = {}
 
 // ── Init ─────────────────────────────────────────────────────
 async function init() {
   await loadPositions()
-  setInterval(loadPositions, 60000) // 1 dk'da bir DB'yi yenile
+  setInterval(loadPositions, 60000)
 }
 
-// ── DB'den Pozisyonları Yükle ────────────────────────────────
+// ── DB ───────────────────────────────────────────────────────
 async function loadPositions() {
   try {
     const { data, error } = await sp
@@ -445,10 +438,13 @@ async function loadPositions() {
 
     positions = data || []
 
-    // Fiyat WebSocket bağlantılarını güncelle
-    updateWebSockets()
+    // Debug: ilk kaydın tüm alanlarını göster
+    if (positions.length > 0) {
+      document.getElementById('debugContent').textContent =
+        JSON.stringify(positions[0], null, 2)
+    }
 
-    // İlk render
+    updateWebSockets()
     render()
     updateStats()
     updateLastUpdate()
@@ -459,29 +455,28 @@ async function loadPositions() {
   }
 }
 
-// ── WebSocket Fiyat Takibi ───────────────────────────────────
+// ── WebSocket ────────────────────────────────────────────────
 function updateWebSockets() {
-  const symbols = [...new Set(positions.map(p => {
-    const s = p.symbol
-    return (s.endsWith('USDT') ? s : s + 'USDT').toLowerCase()
-  }))]
+  const symbols = [...new Set(positions.map(p =>
+    (p.symbol.endsWith('USDT') ? p.symbol : p.symbol + 'USDT').toLowerCase()
+  ))]
 
-  // Yeni sembollere bağlan
   symbols.forEach(sym => {
-    if (wsMap[sym]) return // Zaten bağlı
+    if (wsMap[sym]) return
     const ws = new WebSocket(`wss://fstream.binance.com/ws/${sym}@markPrice`)
     ws.onmessage = (e) => {
       const d = JSON.parse(e.data)
       if (d.p) {
+        prices[sym.toUpperCase().replace('USDT', '') + 'USDT'] = parseFloat(d.p)
+        // normalize: her zaman "BTCUSDT" formatında sakla
         prices[sym.toUpperCase()] = parseFloat(d.p)
-        renderPrices() // Sadece fiyatları güncelle
+        renderPrices()
       }
     }
     ws.onerror = () => console.warn(`WS hata: ${sym}`)
     wsMap[sym] = ws
   })
 
-  // Artık olmayan sembolleri kapat
   Object.keys(wsMap).forEach(sym => {
     if (!symbols.includes(sym)) {
       wsMap[sym].close()
@@ -490,32 +485,71 @@ function updateWebSockets() {
   })
 }
 
-// ── Fiyat Hesaplama ──────────────────────────────────────────
+// ── Fiyat al ─────────────────────────────────────────────────
 function getPrice(symbol) {
+  // Her iki formatta da dene: "BTC" → "BTCUSDT"
   const sym = (symbol.endsWith('USDT') ? symbol : symbol + 'USDT').toUpperCase()
   return prices[sym] || null
 }
 
+// ── PNL Hesapla ──────────────────────────────────────────────
+//
+// Miktar (qty) öncelik sırası:
+//   1. islem.miktar           — Binance'ten dönen gerçek coin miktarı (en doğrusu)
+//   2. islem.quantity         — alternatif alan adı
+//   3. islem.adet             — başka bir alternatif
+//   4. pozisyon_usdt * kaldirac / giris_fiyati — hiçbiri yoksa hesapla
+//
+// Eğer Supabase'deki alan adın farklıysa (örn. "lot", "coin_miktar" vb.)
+// aşağıya ekle.
+//
 function calcPnl(islem, currentPrice) {
   if (!currentPrice) return null
-  const entry    = parseFloat(islem.giris_fiyati)
-  const qty      = parseFloat(islem.pozisyon_usdt || 10) * (islem.kaldirac || 1) / entry
-  const isLong   = islem.karar === 'LONG'
-  const pnlUsdt  = isLong
+
+  const entry = parseFloat(islem.giris_fiyati)
+  if (!entry || entry <= 0) return null
+
+  // Miktar tespiti
+  let qty =
+    parseFloat(islem.miktar)    ||
+    parseFloat(islem.quantity)  ||
+    parseFloat(islem.adet)      ||
+    parseFloat(islem.coin_miktari) ||
+    parseFloat(islem.lot)       ||
+    null
+
+  if (!qty || qty <= 0) {
+    // Fallback: pozisyon_usdt * kaldirac / giris_fiyati
+    const usdt  = parseFloat(islem.pozisyon_usdt) || parseFloat(islem.usdt_miktar) || 0
+    const lev   = parseFloat(islem.kaldirac) || 1
+    if (usdt > 0) {
+      qty = (usdt * lev) / entry
+    }
+  }
+
+  if (!qty || qty <= 0) return null
+
+  const isLong = (islem.karar || '').toUpperCase() === 'LONG'
+  const lev    = parseFloat(islem.kaldirac) || 1
+
+  const pnlUsdt = isLong
     ? (currentPrice - entry) * qty
     : (entry - currentPrice) * qty
-  const pnlPct   = isLong
-    ? ((currentPrice - entry) / entry) * 100 * (islem.kaldirac || 1)
-    : ((entry - currentPrice) / entry) * 100 * (islem.kaldirac || 1)
-  return { pnlUsdt, pnlPct }
+
+  // Yüzde: kaldıraçlı
+  const pnlPct = isLong
+    ? ((currentPrice - entry) / entry) * 100 * lev
+    : ((entry - currentPrice) / entry) * 100 * lev
+
+  return { pnlUsdt, pnlPct, qty }
 }
 
 // ── Filter ───────────────────────────────────────────────────
 function setFilter(f, btn) {
   filter = f
-  document.querySelectorAll('.filter-btn').forEach(b => {
+  document.querySelectorAll('.filter-btn').forEach(b =>
     b.classList.remove('active', 'long-active', 'short-active')
-  })
+  )
   if (f === 'LONG')  btn.classList.add('long-active')
   else if (f === 'SHORT') btn.classList.add('short-active')
   else btn.classList.add('active')
@@ -524,16 +558,14 @@ function setFilter(f, btn) {
 
 function filteredPositions() {
   return positions.filter(p => {
-    if (filter === 'LONG')   return p.karar === 'LONG'
-    if (filter === 'SHORT')  return p.karar === 'SHORT'
+    if (filter === 'LONG')   return (p.karar || '').toUpperCase() === 'LONG'
+    if (filter === 'SHORT')  return (p.karar || '').toUpperCase() === 'SHORT'
     if (filter === 'profit') {
-      const price = getPrice(p.symbol)
-      const pnl   = calcPnl(p, price)
+      const pnl = calcPnl(p, getPrice(p.symbol))
       return pnl && pnl.pnlUsdt > 0
     }
     if (filter === 'loss') {
-      const price = getPrice(p.symbol)
-      const pnl   = calcPnl(p, price)
+      const pnl = calcPnl(p, getPrice(p.symbol))
       return pnl && pnl.pnlUsdt < 0
     }
     return true
@@ -549,19 +581,12 @@ function groupPositions(list) {
     groups[key].items.push(p)
   })
 
-  // Grupları PNL'ye göre sırala (en yüksek kâr üstte)
   return Object.values(groups).sort((a, b) => {
-    const pnlA = a.items.reduce((sum, p) => {
-      const price = getPrice(p.symbol)
-      const pnl   = calcPnl(p, price)
-      return sum + (pnl ? pnl.pnlUsdt : 0)
+    const sumPnl = (grp) => grp.items.reduce((s, p) => {
+      const pnl = calcPnl(p, getPrice(p.symbol))
+      return s + (pnl ? pnl.pnlUsdt : 0)
     }, 0)
-    const pnlB = b.items.reduce((sum, p) => {
-      const price = getPrice(p.symbol)
-      const pnl   = calcPnl(p, price)
-      return sum + (pnl ? pnl.pnlUsdt : 0)
-    }, 0)
-    return pnlB - pnlA
+    return sumPnl(b) - sumPnl(a)
   })
 }
 
@@ -596,20 +621,21 @@ function render() {
 }
 
 function renderGroup(group) {
-  const symbol  = group.symbol
-  const karar   = group.karar
-  const items   = group.items
-  const key     = `${symbol}_${karar}`
-  const sym     = symbol.endsWith('USDT') ? symbol : symbol + 'USDT'
-  const price   = getPrice(symbol)
+  const { symbol, karar, items } = group
+  const key   = `${symbol}_${karar}`
+  const sym   = symbol.endsWith('USDT') ? symbol : symbol + 'USDT'
+  const price = getPrice(symbol)
 
   const groupPnl = items.reduce((sum, p) => {
     const pnl = calcPnl(p, price)
     return sum + (pnl ? pnl.pnlUsdt : 0)
   }, 0)
 
-  const pnlColor = groupPnl > 0 ? 'green' : groupPnl < 0 ? 'red' : 'muted'
-  const pnlSign  = groupPnl > 0 ? '+' : ''
+  const hasPnl    = items.some(p => calcPnl(p, price) !== null)
+  const pnlColor  = !hasPnl ? 'muted' : groupPnl > 0 ? 'green' : 'red'
+  const pnlText   = !hasPnl
+    ? 'Fiyat bekleniyor...'
+    : (groupPnl > 0 ? '+' : '') + groupPnl.toFixed(2) + ' USDT'
 
   return `
     <div class="group-section" id="group-${key}">
@@ -620,9 +646,7 @@ function renderGroup(group) {
           <span class="group-count">${items.length} işlem</span>
         </div>
         <div class="group-header-right">
-          <span class="group-pnl" style="color: var(--${pnlColor})">
-            ${pnlSign}${groupPnl.toFixed(2)} USDT
-          </span>
+          <span class="group-pnl" style="color: var(--${pnlColor})">${pnlText}</span>
           <span class="chevron">▾</span>
         </div>
       </div>
@@ -635,26 +659,41 @@ function renderGroup(group) {
 
 function renderItem(islem, karar, currentPrice) {
   const pnl      = calcPnl(islem, currentPrice)
-  const pnlUsdt  = pnl ? pnl.pnlUsdt : null
-  const pnlPct   = pnl ? pnl.pnlPct  : null
+  const pnlUsdt  = pnl?.pnlUsdt ?? null
+  const pnlPct   = pnl?.pnlPct  ?? null
   const pnlColor = pnlUsdt === null ? 'muted' : pnlUsdt > 0 ? 'green' : 'red'
   const pnlSign  = pnlUsdt > 0 ? '+' : ''
 
-  const entry   = parseFloat(islem.giris_fiyati)
-  const tp      = parseFloat(islem.take_profit_2 || islem.take_profit_1 || 0)
-  const sl      = parseFloat(islem.stop_loss || 0)
-  const btnClass = karar === 'LONG' ? 'btn-close-long' : 'btn-close-short'
-  const btnText  = karar === 'LONG' ? 'Sat / Kapat' : 'Al / Kapat'
+  const entry = parseFloat(islem.giris_fiyati)
+  const tp    = parseFloat(islem.take_profit_2 || islem.take_profit_1 || 0)
+  const sl    = parseFloat(islem.stop_loss || 0)
 
   const priceStr   = currentPrice ? '$' + currentPrice.toFixed(getDecimals(currentPrice)) : '—'
   const entryStr   = '$' + entry.toFixed(getDecimals(entry))
   const tpStr      = tp ? '$' + tp.toFixed(getDecimals(tp)) : '—'
   const slStr      = sl ? '$' + sl.toFixed(getDecimals(sl)) : '—'
-  const pnlUsdtStr = pnlUsdt !== null ? pnlSign + pnlUsdt.toFixed(2) + ' $' : '—'
-  const pnlPctStr  = pnlPct  !== null ? pnlSign + pnlPct.toFixed(2)  + '%'  : ''
 
-  const acilis = new Date(islem.acilis_zamani)
-  const sure   = formatDuration(acilis)
+  // PNL gösterimi
+  let pnlUsdtStr, pnlPctStr
+  if (pnlUsdt === null) {
+    pnlUsdtStr = currentPrice ? 'Hesaplanıyor...' : 'Fiyat bekleniyor'
+    pnlPctStr  = ''
+  } else {
+    pnlUsdtStr = pnlSign + pnlUsdt.toFixed(2) + ' $'
+    pnlPctStr  = pnlSign + pnlPct.toFixed(2) + '%'
+  }
+
+  // Miktar göster (qty nereden geldi)
+  const qty    = pnl?.qty ?? null
+  const qtyStr = qty ? qty.toFixed(getDecimals(qty)) + ' coin' : '—'
+
+  const sure     = formatDuration(new Date(islem.acilis_zamani))
+  const btnClass = karar === 'LONG' ? 'btn-close-long' : 'btn-close-short'
+  const btnText  = karar === 'LONG' ? 'Sat / Kapat' : 'Al / Kapat'
+
+  // pozisyon büyüklüğü
+  const posUsdt = parseFloat(islem.pozisyon_usdt) || parseFloat(islem.usdt_miktar) || 0
+  const lev     = parseFloat(islem.kaldirac) || 1
 
   return `
     <div class="position-item" id="item-${islem.id}">
@@ -665,8 +704,8 @@ function renderItem(islem, karar, currentPrice) {
       </div>
       <div class="pos-field">
         <div class="pos-label">PNL</div>
-        <div class="pnl-usdt pos-value ${pnlColor}" id="pnl-usdt-${islem.id}">${pnlUsdtStr}</div>
-        <div class="pnl-pct pos-value ${pnlColor}" id="pnl-pct-${islem.id}">${pnlPctStr}</div>
+        <div class="pnl-usdt pos-value ${pnlUsdt === null ? 'waiting' : pnlColor}" id="pnl-usdt-${islem.id}">${pnlUsdtStr}</div>
+        <div class="pnl-pct  pos-value ${pnlColor}" id="pnl-pct-${islem.id}">${pnlPctStr}</div>
       </div>
       <div class="pos-field">
         <div class="pos-label">TP2 / SL</div>
@@ -675,8 +714,8 @@ function renderItem(islem, karar, currentPrice) {
       </div>
       <div class="pos-field">
         <div class="pos-label">Pozisyon / Kaldıraç</div>
-        <div class="pos-value muted">$${parseFloat(islem.pozisyon_usdt || 10).toFixed(0)}</div>
-        <div class="pos-value yellow">${islem.kaldirac || 1}x</div>
+        <div class="pos-value muted">${posUsdt > 0 ? '$' + posUsdt.toFixed(0) : qtyStr}</div>
+        <div class="pos-value yellow">${lev}x</div>
       </div>
       <div class="pos-field">
         <div class="pos-label">Süre</div>
@@ -690,27 +729,26 @@ function renderItem(islem, karar, currentPrice) {
   `
 }
 
-// ── Sadece Fiyatları Güncelle (DOM diffing) ──────────────────
+// ── Sadece fiyat/PNL güncelle (DOM diffing) ──────────────────
 function renderPrices() {
   positions.forEach(p => {
-    const price = getPrice(p.symbol)
+    const price   = getPrice(p.symbol)
     if (!price) return
 
-    const priceEl   = document.getElementById(`price-${p.id}`)
-    const pnlUEl    = document.getElementById(`pnl-usdt-${p.id}`)
-    const pnlPEl    = document.getElementById(`pnl-pct-${p.id}`)
-
+    const priceEl = document.getElementById(`price-${p.id}`)
+    const pnlUEl  = document.getElementById(`pnl-usdt-${p.id}`)
+    const pnlPEl  = document.getElementById(`pnl-pct-${p.id}`)
     if (!priceEl) return
 
     priceEl.textContent = '$' + price.toFixed(getDecimals(price))
 
     const pnl = calcPnl(p, price)
     if (pnl) {
-      const color  = pnl.pnlUsdt > 0 ? 'green' : 'red'
-      const sign   = pnl.pnlUsdt > 0 ? '+' : ''
-      const cs     = `pos-value ${color}`
+      const color = pnl.pnlUsdt > 0 ? 'green' : 'red'
+      const sign  = pnl.pnlUsdt > 0 ? '+' : ''
+      const cs    = `pos-value ${color}`
       pnlUEl.className = `pnl-usdt ${cs}`
-      pnlPEl.className = `pnl-pct ${cs}`
+      pnlPEl.className = `pnl-pct  ${cs}`
       pnlUEl.textContent = sign + pnl.pnlUsdt.toFixed(2) + ' $'
       pnlPEl.textContent = sign + pnl.pnlPct.toFixed(2)  + '%'
     }
@@ -721,7 +759,6 @@ function renderPrices() {
 
 // ── Stats ────────────────────────────────────────────────────
 function updateStats() {
-  const total = positions.length
   let totalPnl = 0, longCount = 0, shortCount = 0, profit = 0, loss = 0
 
   positions.forEach(p => {
@@ -732,15 +769,15 @@ function updateStats() {
       if (pnl.pnlUsdt > 0) profit++
       else loss++
     }
-    if (p.karar === 'LONG')  longCount++
+    if ((p.karar || '').toUpperCase() === 'LONG') longCount++
     else shortCount++
   })
 
-  document.getElementById('statTotal').textContent     = total
+  document.getElementById('statTotal').textContent = positions.length
   const pnlEl = document.getElementById('statPnl')
-  pnlEl.textContent  = (totalPnl >= 0 ? '+' : '') + totalPnl.toFixed(2) + ' $'
-  pnlEl.className    = 'stat-value ' + (totalPnl > 0 ? 'green' : totalPnl < 0 ? 'red' : 'white')
-  document.getElementById('statLongShort').textContent = `${longCount} / ${shortCount}`
+  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + totalPnl.toFixed(2) + ' $'
+  pnlEl.className   = 'stat-value ' + (totalPnl > 0 ? 'green' : totalPnl < 0 ? 'red' : 'white')
+  document.getElementById('statLongShort').textContent  = `${longCount} / ${shortCount}`
   document.getElementById('statProfitLoss').textContent = `${profit} / ${loss}`
 }
 
@@ -749,28 +786,26 @@ function openCloseModal(id) {
   const islem = positions.find(p => p.id === id)
   if (!islem) return
 
-  const sym     = islem.symbol.endsWith('USDT') ? islem.symbol : islem.symbol + 'USDT'
-  const price   = getPrice(islem.symbol)
-  const pnl     = calcPnl(islem, price)
-  const offset  = islem.karar === 'LONG' ? 0.999 : 1.001
-  const limFiy  = price ? (price * offset).toFixed(getDecimals(price)) : '—'
+  const sym    = islem.symbol.endsWith('USDT') ? islem.symbol : islem.symbol + 'USDT'
+  const price  = getPrice(islem.symbol)
+  const pnl    = calcPnl(islem, price)
+  const offset = islem.karar === 'LONG' ? 0.999 : 1.001
+  const limFiy = price ? (price * offset).toFixed(getDecimals(price)) : '—'
 
   pendingClose = { islem, symbol: sym }
 
-  document.getElementById('modalTitle').textContent =
-    `${sym} ${islem.karar} Kapat`
-
+  document.getElementById('modalTitle').textContent = `${sym} ${islem.karar} Kapat`
   document.getElementById('modalBody').innerHTML = `
     <strong>Giriş:</strong> $${parseFloat(islem.giris_fiyati).toFixed(getDecimals(parseFloat(islem.giris_fiyati)))}<br>
     <strong>Anlık Fiyat:</strong> $${price ? price.toFixed(getDecimals(price)) : '—'}<br>
-    <strong>Limit Kapatma Fiyatı:</strong> $${limFiy} (binde 1)<br>
+    <strong>Limit Kapatma:</strong> $${limFiy} (binde 1 kayma)<br>
     ${pnl ? `<strong>Tahmini PNL:</strong> ${pnl.pnlUsdt > 0 ? '+' : ''}${pnl.pnlUsdt.toFixed(2)} $ (${pnl.pnlPct.toFixed(2)}%)<br>` : ''}
-    <br>Binde 1 limit emirle kapatılacak. Onaylıyor musunuz?
+    <br>Onaylıyor musunuz?
   `
 
-  const confirmBtn = document.getElementById('modalConfirmBtn')
-  confirmBtn.className = 'btn ' + (islem.karar === 'LONG' ? 'btn-confirm-long' : 'btn-confirm-short')
-  confirmBtn.textContent = islem.karar === 'LONG' ? 'Evet, Sat' : 'Evet, Al'
+  const btn = document.getElementById('modalConfirmBtn')
+  btn.className   = 'btn ' + (islem.karar === 'LONG' ? 'btn-confirm-long' : 'btn-confirm-short')
+  btn.textContent = islem.karar === 'LONG' ? 'Evet, Sat' : 'Evet, Al'
 
   document.getElementById('confirmModal').classList.add('open')
 }
@@ -813,13 +848,17 @@ async function confirmClose() {
   }
 }
 
-// ── Toggle Group ─────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────
 function toggleGroup(key) {
   document.getElementById(`group-${key}`).classList.toggle('collapsed')
 }
 
-// ── Helpers ──────────────────────────────────────────────────
+function toggleDebug() {
+  document.getElementById('debugPanel').classList.toggle('show')
+}
+
 function getDecimals(num) {
+  if (!num) return 2
   if (num >= 1000) return 2
   if (num >= 100)  return 3
   if (num >= 1)    return 4
@@ -829,10 +868,10 @@ function getDecimals(num) {
 
 function formatDuration(from) {
   const diff = Date.now() - from.getTime()
-  const m = Math.floor(diff / 60000)
-  if (m < 60)   return m + ' dk'
+  const m    = Math.floor(diff / 60000)
+  if (m < 60)  return m + ' dk'
   const h = Math.floor(m / 60)
-  if (h < 24)   return h + ' sa ' + (m % 60) + ' dk'
+  if (h < 24)  return h + ' sa ' + (m % 60) + ' dk'
   return Math.floor(h / 24) + ' gün'
 }
 
@@ -843,13 +882,12 @@ function updateLastUpdate() {
 
 function showToast(msg, type = 'info') {
   const el = document.createElement('div')
-  el.className = `toast ${type}`
+  el.className  = `toast ${type}`
   el.textContent = msg
   document.getElementById('toastContainer').appendChild(el)
   setTimeout(() => el.remove(), 4000)
 }
 
-// ── Start ────────────────────────────────────────────────────
 init()
 </script>
 </body>
