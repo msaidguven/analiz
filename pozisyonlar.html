@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pozisyonlar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0c0f;
+      --bg2:       #111318;
+      --bg3:       #181c23;
+      --border:    #1e2330;
+      --border2:   #252b3a;
+      --text:      #e2e8f0;
+      --text2:     #8892a4;
+      --text3:     #4a5568;
+      --green:     #00d4aa;
+      --green2:    #00a884;
+      --red:       #ff4d6a;
+      --red2:      #cc3d55;
+      --yellow:    #f5c842;
+      --blue:      #4d9fff;
+      --accent:    #7c6fff;
+      --long-bg:   rgba(0, 212, 170, 0.06);
+      --short-bg:  rgba(255, 77, 106, 0.06);
+      --long-bdr:  rgba(0, 212, 170, 0.2);
+      --short-bdr: rgba(255, 77, 106, 0.2);
+      --radius:    10px;
+      --transition: 0.18s ease;
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+    .navbar-brand span { color: var(--green); }
+    .navbar-links { display: flex; gap: 6px; }
+    .navbar-links a {
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+    .navbar-links a:hover { background: var(--bg3); color: var(--text); }
+    .navbar-links a.active { background: var(--bg3); color: var(--green); }
+    .navbar-right { display: flex; align-items: center; gap: 12px; }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 28px 24px; }
+
+    /* ── Header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .page-title span { color: var(--text2); font-weight: 400; font-size: 14px; margin-left: 10px; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+    }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .stat-value { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red   { color: var(--red); }
+    .stat-value.white { color: var(--text); }
+    .stat-value.yellow { color: var(--yellow); }
+
+    /* ── Filters ── */
+    .filters {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: var(--bg2);
+      color: var(--text2);
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-btn.long-active  { background: var(--green2); border-color: var(--green); color: #000; }
+    .filter-btn.short-active { background: var(--red2); border-color: var(--red); color: #fff; }
+
+    /* ── Group ── */
+    .group-section { margin-bottom: 16px; }
+    .group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) 0 0;
+      cursor: pointer;
+      user-select: none;
+      transition: var(--transition);
+    }
+    .group-header:hover { border-color: var(--border2); }
+    .group-header-left { display: flex; align-items: center; gap: 10px; }
+    .group-symbol { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+    .group-dir {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .dir-long  { background: var(--long-bg);  color: var(--green); border: 1px solid var(--long-bdr); }
+    .dir-short { background: var(--short-bg); color: var(--red);   border: 1px solid var(--short-bdr); }
+    .group-count {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .group-pnl {
+      font-size: 15px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .group-header-right { display: flex; align-items: center; gap: 14px; }
+    .chevron { color: var(--text3); transition: transform 0.2s; font-size: 12px; }
+    .group-section.collapsed .chevron { transform: rotate(-90deg); }
+    .group-section.collapsed .group-items { display: none; }
+
+    /* ── Item ── */
+    .group-items { border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+    .position-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .position-item:last-child { border-bottom: none; }
+    .position-item:hover { background: rgba(255,255,255,0.02); }
+
+    .pos-field { display: flex; flex-direction: column; gap: 3px; }
+    .pos-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; }
+    .pos-value { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .pos-value.green  { color: var(--green); }
+    .pos-value.red    { color: var(--red); }
+    .pos-value.yellow { color: var(--yellow); }
+    .pos-value.blue   { color: var(--blue); }
+    .pos-value.muted  { color: var(--text2); }
+
+    .pos-pnl-block { display: flex; flex-direction: column; gap: 3px; }
+    .pnl-usdt { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .pnl-pct  { font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .btn-close-long  { background: rgba(255,77,106,0.12); color: var(--red);  border: 1px solid rgba(255,77,106,0.3); }
+    .btn-close-short { background: rgba(0,212,170,0.12);  color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
+    .btn-close-long:hover  { background: var(--red);   color: #fff; }
+    .btn-close-short:hover { background: var(--green); color: #000; }
+    .btn-close-long:disabled, .btn-close-short:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-refresh {
+      background: var(--bg3);
+      color: var(--text2);
+      border: 1px solid var(--border2);
+      padding: 8px 16px;
+    }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Loading / Empty ── */
+    .loading-state, .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text3);
+    }
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-text { font-size: 15px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+    .empty-sub  { font-size: 13px; }
+
+    /* ── Toast ── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideIn 0.2s ease;
+      max-width: 320px;
+    }
+    .toast.success { border-color: var(--green); }
+    .toast.error   { border-color: var(--red); }
+    .toast.info    { border-color: var(--blue); }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── Confirm Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+    .modal-body  { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+    .modal-body strong { color: var(--text); }
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-cancel  { flex: 1; background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+    .btn-confirm-long  { flex: 1; background: var(--red);   color: #fff; }
+    .btn-confirm-short { flex: 1; background: var(--green); color: #000; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .position-item {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+      .position-item > *:nth-child(n+4):not(:last-child) { display: none; }
+    }
+    @media (max-width: 600px) {
+      .position-item { grid-template-columns: 1fr 1fr; }
+      .navbar-links { display: none; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-brand">Trader<span>.</span></div>
+  <div class="navbar-links">
+    <a href="index.html">Ana Sayfa</a>
+    <a href="pozisyonlar.html" class="active">Pozisyonlar</a>
+  </div>
+  <div class="navbar-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <span id="lastUpdate">--:--:--</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Pozisyonu Kapat</div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">İptal</button>
+      <button class="btn" id="modalConfirmBtn" onclick="confirmClose()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Açık Pozisyonlar <span id="posCount"></span></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-refresh" onclick="loadPositions()">⟳ Yenile</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Toplam İşlem</div>
+      <div class="stat-value white" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Toplam PNL</div>
+      <div class="stat-value" id="statPnl">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Long / Short</div>
+      <div class="stat-value white" id="statLongShort">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Karda / Zararda</div>
+      <div class="stat-value white" id="statProfitLoss">—</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">Tümü</button>
+    <button class="filter-btn" onclick="setFilter('LONG', this)">Long</button>
+    <button class="filter-btn" onclick="setFilter('SHORT', this)">Short</button>
+    <button class="filter-btn" onclick="setFilter('profit', this)">Karda</button>
+    <button class="filter-btn" onclick="setFilter('loss', this)">Zararda</button>
+  </div>
+
+  <!-- List -->
+  <div id="positionList">
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Pozisyonlar yükleniyor...</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────
+const SUPABASE_URL        = window.SUPABASE_URL        || window.APP_CONFIG?.SUPABASE_URL
+const SUPABASE_ANON_KEY   = window.SUPABASE_ANON_KEY   || window.APP_CONFIG?.SUPABASE_ANON_KEY
+const SERVICE_ROLE_KEY    = window.SUPABASE_SERVICE_ROLE_KEY || window.APP_CONFIG?.SUPABASE_SERVICE_ROLE_KEY
+const FUNCTION_BASE       = `${SUPABASE_URL}/functions/v1`
+const supabase            = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ── State ────────────────────────────────────────────────────
+let positions   = []   // DB'den gelen AKTIF + TAMAMLANDI işlemler
+let prices      = {}   // { BTCUSDT: 94500, ... }
+let filter      = 'all'
+let pendingClose = null // { islem, symbol, karar }
+let wsMap       = {}   // { BTCUSDT: WebSocket }
+
+// ── Init ─────────────────────────────────────────────────────
+async function init() {
+  await loadPositions()
+  setInterval(loadPositions, 60000) // 1 dk'da bir DB'yi yenile
+}
+
+// ── DB'den Pozisyonları Yükle ────────────────────────────────
+async function loadPositions() {
+  try {
+    const { data, error } = await supabase
+      .from('islemler')
+      .select('*')
+      .in('durum', ['AKTIF'])
+      .in('binance_durum', ['TAMAMLANDI', 'EMIR_ACILDI', 'EMIR_DOLDU', 'ISLENIYOR'])
+      .order('acilis_zamani', { ascending: false })
+
+    if (error) throw error
+
+    positions = data || []
+
+    // Fiyat WebSocket bağlantılarını güncelle
+    updateWebSockets()
+
+    // İlk render
+    render()
+    updateStats()
+    updateLastUpdate()
+
+  } catch (e) {
+    console.error('Yükleme hatası:', e)
+    showToast('Veriler yüklenemedi: ' + e.message, 'error')
+  }
+}
+
+// ── WebSocket Fiyat Takibi ───────────────────────────────────
+function updateWebSockets() {
+  const symbols = [...new Set(positions.map(p => {
+    const s = p.symbol
+    return (s.endsWith('USDT') ? s : s + 'USDT').toLowerCase()
+  }))]
+
+  // Yeni sembollere bağlan
+  symbols.forEach(sym => {
+    if (wsMap[sym]) return // Zaten bağlı
+    const ws = new WebSocket(`wss://fstream.binance.com/ws/${sym}@markPrice`)
+    ws.onmessage = (e) => {
+      const d = JSON.parse(e.data)
+      if (d.p) {
+        prices[sym.toUpperCase()] = parseFloat(d.p)
+        renderPrices() // Sadece fiyatları güncelle
+      }
+    }
+    ws.onerror = () => console.warn(`WS hata: ${sym}`)
+    wsMap[sym] = ws
+  })
+
+  // Artık olmayan sembolleri kapat
+  Object.keys(wsMap).forEach(sym => {
+    if (!symbols.includes(sym)) {
+      wsMap[sym].close()
+      delete wsMap[sym]
+    }
+  })
+}
+
+// ── Fiyat Hesaplama ──────────────────────────────────────────
+function getPrice(symbol) {
+  const sym = (symbol.endsWith('USDT') ? symbol : symbol + 'USDT').toUpperCase()
+  return prices[sym] || null
+}
+
+function calcPnl(islem, currentPrice) {
+  if (!currentPrice) return null
+  const entry    = parseFloat(islem.giris_fiyati)
+  const qty      = parseFloat(islem.pozisyon_usdt || 10) * (islem.kaldirac || 1) / entry
+  const isLong   = islem.karar === 'LONG'
+  const pnlUsdt  = isLong
+    ? (currentPrice - entry) * qty
+    : (entry - currentPrice) * qty
+  const pnlPct   = isLong
+    ? ((currentPrice - entry) / entry) * 100 * (islem.kaldirac || 1)
+    : ((entry - currentPrice) / entry) * 100 * (islem.kaldirac || 1)
+  return { pnlUsdt, pnlPct }
+}
+
+// ── Filter ───────────────────────────────────────────────────
+function setFilter(f, btn) {
+  filter = f
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active', 'long-active', 'short-active')
+  })
+  if (f === 'LONG')  btn.classList.add('long-active')
+  else if (f === 'SHORT') btn.classList.add('short-active')
+  else btn.classList.add('active')
+  render()
+}
+
+function filteredPositions() {
+  return positions.filter(p => {
+    if (filter === 'LONG')   return p.karar === 'LONG'
+    if (filter === 'SHORT')  return p.karar === 'SHORT'
+    if (filter === 'profit') {
+      const price = getPrice(p.symbol)
+      const pnl   = calcPnl(p, price)
+      return pnl && pnl.pnlUsdt > 0
+    }
+    if (filter === 'loss') {
+      const price = getPrice(p.symbol)
+      const pnl   = calcPnl(p, price)
+      return pnl && pnl.pnlUsdt < 0
+    }
+    return true
+  })
+}
+
+// ── Grupla ───────────────────────────────────────────────────
+function groupPositions(list) {
+  const groups = {}
+  list.forEach(p => {
+    const key = `${p.symbol}_${p.karar}`
+    if (!groups[key]) groups[key] = { symbol: p.symbol, karar: p.karar, items: [] }
+    groups[key].items.push(p)
+  })
+
+  // Grupları PNL'ye göre sırala (en yüksek kâr üstte)
+  return Object.values(groups).sort((a, b) => {
+    const pnlA = a.items.reduce((sum, p) => {
+      const price = getPrice(p.symbol)
+      const pnl   = calcPnl(p, price)
+      return sum + (pnl ? pnl.pnlUsdt : 0)
+    }, 0)
+    const pnlB = b.items.reduce((sum, p) => {
+      const price = getPrice(p.symbol)
+      const pnl   = calcPnl(p, price)
+      return sum + (pnl ? pnl.pnlUsdt : 0)
+    }, 0)
+    return pnlB - pnlA
+  })
+}
+
+// ── Render ───────────────────────────────────────────────────
+function render() {
+  const list = filteredPositions()
+  const el   = document.getElementById('positionList')
+
+  document.getElementById('posCount').textContent =
+    positions.length ? `(${positions.length})` : ''
+
+  if (!positions.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">Açık pozisyon yok</div>
+      <div class="empty-sub">Yeni bir sinyal geldiğinde burada görünecek</div>
+    </div>`
+    return
+  }
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-text">Filtre sonucu boş</div>
+      <div class="empty-sub">Farklı bir filtre seçin</div>
+    </div>`
+    return
+  }
+
+  const groups = groupPositions(list)
+  el.innerHTML = groups.map(g => renderGroup(g)).join('')
+}
+
+function renderGroup(group) {
+  const symbol  = group.symbol
+  const karar   = group.karar
+  const items   = group.items
+  const key     = `${symbol}_${karar}`
+  const sym     = symbol.endsWith('USDT') ? symbol : symbol + 'USDT'
+  const price   = getPrice(symbol)
+
+  const groupPnl = items.reduce((sum, p) => {
+    const pnl = calcPnl(p, price)
+    return sum + (pnl ? pnl.pnlUsdt : 0)
+  }, 0)
+
+  const pnlColor = groupPnl > 0 ? 'green' : groupPnl < 0 ? 'red' : 'muted'
+  const pnlSign  = groupPnl > 0 ? '+' : ''
+
+  return `
+    <div class="group-section" id="group-${key}">
+      <div class="group-header" onclick="toggleGroup('${key}')">
+        <div class="group-header-left">
+          <span class="group-symbol">${sym}</span>
+          <span class="group-dir dir-${karar.toLowerCase()}">${karar}</span>
+          <span class="group-count">${items.length} işlem</span>
+        </div>
+        <div class="group-header-right">
+          <span class="group-pnl" style="color: var(--${pnlColor})">
+            ${pnlSign}${groupPnl.toFixed(2)} USDT
+          </span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="group-items">
+        ${items.map(p => renderItem(p, karar, price)).join('')}
+      </div>
+    </div>
+  `
+}
+
+function renderItem(islem, karar, currentPrice) {
+  const pnl      = calcPnl(islem, currentPrice)
+  const pnlUsdt  = pnl ? pnl.pnlUsdt : null
+  const pnlPct   = pnl ? pnl.pnlPct  : null
+  const pnlColor = pnlUsdt === null ? 'muted' : pnlUsdt > 0 ? 'green' : 'red'
+  const pnlSign  = pnlUsdt > 0 ? '+' : ''
+
+  const entry   = parseFloat(islem.giris_fiyati)
+  const tp      = parseFloat(islem.take_profit_2 || islem.take_profit_1 || 0)
+  const sl      = parseFloat(islem.stop_loss || 0)
+  const btnClass = karar === 'LONG' ? 'btn-close-long' : 'btn-close-short'
+  const btnText  = karar === 'LONG' ? 'Sat / Kapat' : 'Al / Kapat'
+
+  const priceStr   = currentPrice ? '$' + currentPrice.toFixed(getDecimals(currentPrice)) : '—'
+  const entryStr   = '$' + entry.toFixed(getDecimals(entry))
+  const tpStr      = tp ? '$' + tp.toFixed(getDecimals(tp)) : '—'
+  const slStr      = sl ? '$' + sl.toFixed(getDecimals(sl)) : '—'
+  const pnlUsdtStr = pnlUsdt !== null ? pnlSign + pnlUsdt.toFixed(2) + ' $' : '—'
+  const pnlPctStr  = pnlPct  !== null ? pnlSign + pnlPct.toFixed(2)  + '%'  : ''
+
+  const acilis = new Date(islem.acilis_zamani)
+  const sure   = formatDuration(acilis)
+
+  return `
+    <div class="position-item" id="item-${islem.id}">
+      <div class="pos-field">
+        <div class="pos-label">Giriş / Anlık</div>
+        <div class="pos-value muted">${entryStr}</div>
+        <div class="pos-value blue" id="price-${islem.id}">${priceStr}</div>
+      </div>
+      <div class="pos-field">
+        <div class="pos-label">PNL</div>
+        <div class="pnl-usdt pos-value ${pnlColor}" id="pnl-usdt-${islem.id}">${pnlUsdtStr}</div>
+        <div class="pnl-pct pos-value ${pnlColor}" id="pnl-pct-${islem.id}">${pnlPctStr}</div>
+      </div>
+      <div class="pos-field">
+        <div class="pos-label">TP2 / SL</div>
+        <div class="pos-value green">${tpStr}</div>
+        <div class="pos-value red">${slStr}</div>
+      </div>
+      <div class="pos-field">
+        <div class="pos-label">Pozisyon / Kaldıraç</div>
+        <div class="pos-value muted">$${parseFloat(islem.pozisyon_usdt || 10).toFixed(0)}</div>
+        <div class="pos-value yellow">${islem.kaldirac || 1}x</div>
+      </div>
+      <div class="pos-field">
+        <div class="pos-label">Süre</div>
+        <div class="pos-value muted" id="sure-${islem.id}">${sure}</div>
+        <div class="pos-value muted" style="font-size:11px">${islem.binance_durum || ''}</div>
+      </div>
+      <div>
+        <button class="btn ${btnClass}" onclick="openCloseModal(${islem.id})">${btnText}</button>
+      </div>
+    </div>
+  `
+}
+
+// ── Sadece Fiyatları Güncelle (DOM diffing) ──────────────────
+function renderPrices() {
+  positions.forEach(p => {
+    const price = getPrice(p.symbol)
+    if (!price) return
+
+    const priceEl   = document.getElementById(`price-${p.id}`)
+    const pnlUEl    = document.getElementById(`pnl-usdt-${p.id}`)
+    const pnlPEl    = document.getElementById(`pnl-pct-${p.id}`)
+
+    if (!priceEl) return
+
+    priceEl.textContent = '$' + price.toFixed(getDecimals(price))
+
+    const pnl = calcPnl(p, price)
+    if (pnl) {
+      const color  = pnl.pnlUsdt > 0 ? 'green' : 'red'
+      const sign   = pnl.pnlUsdt > 0 ? '+' : ''
+      const cs     = `pos-value ${color}`
+      pnlUEl.className = `pnl-usdt ${cs}`
+      pnlPEl.className = `pnl-pct ${cs}`
+      pnlUEl.textContent = sign + pnl.pnlUsdt.toFixed(2) + ' $'
+      pnlPEl.textContent = sign + pnl.pnlPct.toFixed(2)  + '%'
+    }
+  })
+
+  updateStats()
+}
+
+// ── Stats ────────────────────────────────────────────────────
+function updateStats() {
+  const total = positions.length
+  let totalPnl = 0, longCount = 0, shortCount = 0, profit = 0, loss = 0
+
+  positions.forEach(p => {
+    const price = getPrice(p.symbol)
+    const pnl   = calcPnl(p, price)
+    if (pnl) {
+      totalPnl += pnl.pnlUsdt
+      if (pnl.pnlUsdt > 0) profit++
+      else loss++
+    }
+    if (p.karar === 'LONG')  longCount++
+    else shortCount++
+  })
+
+  document.getElementById('statTotal').textContent     = total
+  const pnlEl = document.getElementById('statPnl')
+  pnlEl.textContent  = (totalPnl >= 0 ? '+' : '') + totalPnl.toFixed(2) + ' $'
+  pnlEl.className    = 'stat-value ' + (totalPnl > 0 ? 'green' : totalPnl < 0 ? 'red' : 'white')
+  document.getElementById('statLongShort').textContent = `${longCount} / ${shortCount}`
+  document.getElementById('statProfitLoss').textContent = `${profit} / ${loss}`
+}
+
+// ── Modal ────────────────────────────────────────────────────
+function openCloseModal(id) {
+  const islem = positions.find(p => p.id === id)
+  if (!islem) return
+
+  const sym     = islem.symbol.endsWith('USDT') ? islem.symbol : islem.symbol + 'USDT'
+  const price   = getPrice(islem.symbol)
+  const pnl     = calcPnl(islem, price)
+  const offset  = islem.karar === 'LONG' ? 0.999 : 1.001
+  const limFiy  = price ? (price * offset).toFixed(getDecimals(price)) : '—'
+
+  pendingClose = { islem, symbol: sym }
+
+  document.getElementById('modalTitle').textContent =
+    `${sym} ${islem.karar} Kapat`
+
+  document.getElementById('modalBody').innerHTML = `
+    <strong>Giriş:</strong> $${parseFloat(islem.giris_fiyati).toFixed(getDecimals(parseFloat(islem.giris_fiyati)))}<br>
+    <strong>Anlık Fiyat:</strong> $${price ? price.toFixed(getDecimals(price)) : '—'}<br>
+    <strong>Limit Kapatma Fiyatı:</strong> $${limFiy} (binde 1)<br>
+    ${pnl ? `<strong>Tahmini PNL:</strong> ${pnl.pnlUsdt > 0 ? '+' : ''}${pnl.pnlUsdt.toFixed(2)} $ (${pnl.pnlPct.toFixed(2)}%)<br>` : ''}
+    <br>Binde 1 limit emirle kapatılacak. Onaylıyor musunuz?
+  `
+
+  const confirmBtn = document.getElementById('modalConfirmBtn')
+  confirmBtn.className = 'btn ' + (islem.karar === 'LONG' ? 'btn-confirm-long' : 'btn-confirm-short')
+  confirmBtn.textContent = islem.karar === 'LONG' ? 'Evet, Sat' : 'Evet, Al'
+
+  document.getElementById('confirmModal').classList.add('open')
+}
+
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('open')
+  pendingClose = null
+}
+
+async function confirmClose() {
+  if (!pendingClose) return
+  closeModal()
+
+  const { islem, symbol } = pendingClose
+  const btn = document.querySelector(`#item-${islem.id} .btn`)
+  if (btn) { btn.disabled = true; btn.textContent = 'Gönderiliyor...' }
+
+  try {
+    const res = await fetch(`${FUNCTION_BASE}/binance-close`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SERVICE_ROLE_KEY}`
+      },
+      body: JSON.stringify({ islemId: islem.id })
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      showToast(`${symbol} kapatma emri gönderildi!`, 'success')
+      setTimeout(loadPositions, 3000)
+    } else {
+      showToast('Hata: ' + (data.error || 'Bilinmeyen hata'), 'error')
+      if (btn) { btn.disabled = false; btn.textContent = islem.karar === 'LONG' ? 'Sat / Kapat' : 'Al / Kapat' }
+    }
+  } catch (e) {
+    showToast('Bağlantı hatası: ' + e.message, 'error')
+    if (btn) { btn.disabled = false; btn.textContent = islem.karar === 'LONG' ? 'Sat / Kapat' : 'Al / Kapat' }
+  }
+}
+
+// ── Toggle Group ─────────────────────────────────────────────
+function toggleGroup(key) {
+  document.getElementById(`group-${key}`).classList.toggle('collapsed')
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function getDecimals(num) {
+  if (num >= 1000) return 2
+  if (num >= 100)  return 3
+  if (num >= 1)    return 4
+  if (num >= 0.1)  return 5
+  return 6
+}
+
+function formatDuration(from) {
+  const diff = Date.now() - from.getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 60)   return m + ' dk'
+  const h = Math.floor(m / 60)
+  if (h < 24)   return h + ' sa ' + (m % 60) + ' dk'
+  return Math.floor(h / 24) + ' gün'
+}
+
+function updateLastUpdate() {
+  document.getElementById('lastUpdate').textContent =
+    new Date().toLocaleTimeString('tr-TR')
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.createElement('div')
+  el.className = `toast ${type}`
+  el.textContent = msg
+  document.getElementById('toastContainer').appendChild(el)
+  setTimeout(() => el.remove(), 4000)
+}
+
+// ── Start ────────────────────────────────────────────────────
+init()
+</script>
+</body>
+</html>
