@@ -455,34 +455,57 @@ async function loadPositions() {
   }
 }
 
-// ── WebSocket ────────────────────────────────────────────────
+// ── REST Fiyat Polling ───────────────────────────────────────
+// WebSocket yerine her 3sn REST API — Türkiye'de WS stream engelli
+let priceInterval = null
+
 function updateWebSockets() {
+  // İlk yüklemede hemen fiyat çek
+  fetchPrices()
+  // Sonra her 3 saniyede bir
+  if (!priceInterval) {
+    priceInterval = setInterval(fetchPrices, 3000)
+  }
+}
+
+async function fetchPrices() {
+  if (!positions.length) return
+
   const symbols = [...new Set(positions.map(p =>
-    (p.symbol.endsWith('USDT') ? p.symbol : p.symbol + 'USDT').toLowerCase()
+    (p.symbol.endsWith('USDT') ? p.symbol : p.symbol + 'USDT').toUpperCase()
   ))]
 
-  symbols.forEach(sym => {
-    if (wsMap[sym]) return
-    const ws = new WebSocket(`wss://fstream.binance.com/ws/${sym}@markPrice`)
-    ws.onmessage = (e) => {
-      const d = JSON.parse(e.data)
-      if (d.p) {
-        prices[sym.toUpperCase().replace('USDT', '') + 'USDT'] = parseFloat(d.p)
-        // normalize: her zaman "BTCUSDT" formatında sakla
-        prices[sym.toUpperCase()] = parseFloat(d.p)
-        renderPrices()
+  // Binance Futures mark price — tüm sembolleri tek istekle çek
+  try {
+    const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex')
+    if (!res.ok) throw new Error('fapi yanıt vermedi')
+    const data = await res.json()
+    let updated = false
+    data.forEach(item => {
+      if (symbols.includes(item.symbol) && item.markPrice) {
+        prices[item.symbol] = parseFloat(item.markPrice)
+        updated = true
       }
-    }
-    ws.onerror = () => console.warn(`WS hata: ${sym}`)
-    wsMap[sym] = ws
-  })
+    })
+    if (updated) renderPrices()
+    return
+  } catch (e) {
+    console.warn('Futures API başarısız, Spot deneniyor:', e.message)
+  }
 
-  Object.keys(wsMap).forEach(sym => {
-    if (!symbols.includes(sym)) {
-      wsMap[sym].close()
-      delete wsMap[sym]
-    }
-  })
+  // Fallback: Binance Spot fiyatı
+  try {
+    const params = symbols.map(s => `"${s}"`).join(',')
+    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=[${params}]`)
+    if (!res.ok) throw new Error('spot api yanıt vermedi')
+    const data = await res.json()
+    data.forEach(item => {
+      if (item.price) prices[item.symbol] = parseFloat(item.price)
+    })
+    renderPrices()
+  } catch (e) {
+    console.warn('Spot API de başarısız:', e.message)
+  }
 }
 
 // ── Fiyat al ─────────────────────────────────────────────────
