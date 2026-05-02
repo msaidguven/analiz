@@ -81,17 +81,23 @@ class BalanceManager {
     }
 
     getSupabaseKey() {
-        // 1. Window config'den al
+        // 1. Önce class içindeki anahtarı kullan
+        if (this.SUPABASE_ANON_KEY && this.SUPABASE_ANON_KEY !== 'SUPABASE_ANON_KEY') {
+            return this.SUPABASE_ANON_KEY;
+        }
+        
+        // 2. Window config'den al
         if (window.SUPABASE_ANON_KEY && window.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
             return window.SUPABASE_ANON_KEY;
         }
         
-        // 2. Global değişkenden al
+        // 3. Global değişkenden al
         if (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
             return SUPABASE_ANON_KEY;
         }
         
-        return null;
+        console.warn('⚠️ Supabase anahtarı bulunamadı, mevcut anahtar:', this.SUPABASE_ANON_KEY);
+        return this.SUPABASE_ANON_KEY;
     }
 
     saveToCache() {
