@@ -54,10 +54,20 @@ class BalanceManager {
             console.log('📊 Data:', data);
             
             if (data.availableBalance !== undefined) {
+                // Tüm bakiye verilerini sakla
                 this.balance = data.availableBalance;
+                this.totalBalance = data.totalWalletBalance;
+                this.marginBalance = data.totalMarginBalance;
+                this.unrealizedProfit = data.totalUnrealizedProfit;
                 this.lastUpdate = new Date();
                 this.error = null;
-                console.log('✅ Balance loaded:', this.balance);
+                
+                console.log('✅ Tüm bakiye verileri yüklendi:', {
+                    available: this.balance,
+                    total: this.totalBalance,
+                    margin: this.marginBalance,
+                    unrealized: this.unrealizedProfit
+                });
                 console.log('🔄 isLoading false yapılıyor');
                 this.isLoading = false; // BURASI ÖNEMLİ
                 this.updateUI();
@@ -170,6 +180,9 @@ class BalanceManager {
                 `<div class="text-red-500 text-center p-4"><svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div>Bakiye yüklenemedi</div><div class="text-sm opacity-75">${this.error}</div></div>`;
         } else if (this.balance !== null) {
             const formattedBalance = this.formatBalance(this.balance);
+            const formattedTotal = this.totalBalance ? this.formatBalance(this.totalBalance) : null;
+            const formattedMargin = this.marginBalance ? this.formatBalance(this.marginBalance) : null;
+            const formattedUnrealized = this.unrealizedProfit ? this.formatBalance(this.unrealizedProfit) : null;
             const lastUpdateText = this.lastUpdate ? this.formatTime(this.lastUpdate) : '';
             
             if (isCompact) {
@@ -179,22 +192,53 @@ class BalanceManager {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span class="text-sm font-semibold text-green-600">${formattedBalance}</span>
+                        ${formattedUnrealized ? `<span class="text-xs ${parseFloat(this.unrealizedProfit) >= 0 ? 'text-green-500' : 'text-red-500'}">(${formattedUnrealized})</span>` : ''}
                     </div>
                 `;
             } else if (isDetailed) {
                 html = `
                     <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 shadow-sm">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-sm font-medium text-gray-700">Binance Bakiye</h3>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-medium text-gray-700">Binance Bakiye Detayları</h3>
                             <div class="flex items-center gap-1">
                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <span class="text-xs text-gray-500">Canlı</span>
                             </div>
                         </div>
-                        <div class="text-2xl font-bold text-green-600 mb-1">${formattedBalance}</div>
-                        <div class="text-xs text-gray-500">Son güncelleme: ${lastUpdateText}</div>
-                        <button onclick="window.balanceManager.loadBalance()" class="mt-2 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors">
-                            Yenile
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">Kullanılabilir</div>
+                                <div class="text-lg font-bold text-green-600">${formattedBalance}</div>
+                            </div>
+                            ${formattedTotal ? `
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">Toplam</div>
+                                <div class="text-lg font-bold text-blue-600">${formattedTotal}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${formattedMargin || formattedUnrealized ? `
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            ${formattedMargin ? `
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">Margin</div>
+                                <div class="text-sm font-semibold text-purple-600">${formattedMargin}</div>
+                            </div>
+                            ` : ''}
+                            ${formattedUnrealized ? `
+                            <div>
+                                <div class="text-xs text-gray-500 mb-1">Kar/Zarar</div>
+                                <div class="text-sm font-semibold ${parseFloat(this.unrealizedProfit) >= 0 ? 'text-green-600' : 'text-red-600'}">${formattedUnrealized}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+                        
+                        <div class="text-xs text-gray-500 mb-2">Son güncelleme: ${lastUpdateText}</div>
+                        <button onclick="window.balanceManager.loadBalance()" class="text-xs bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 transition-colors w-full">
+                            🔄 Bakiyeyi Yenile
                         </button>
                     </div>
                 `;
@@ -212,6 +256,7 @@ class BalanceManager {
                         <div class="flex-1">
                             <div class="text-sm text-gray-500">Mevcut Bakiye</div>
                             <div class="text-lg font-semibold text-green-600">${formattedBalance}</div>
+                            ${formattedUnrealized ? `<div class="text-xs ${parseFloat(this.unrealizedProfit) >= 0 ? 'text-green-500' : 'text-red-500'}">Kar/Zarar: ${formattedUnrealized}</div>` : ''}
                             ${lastUpdateText ? `<div class="text-xs text-gray-400">${lastUpdateText}</div>` : ''}
                         </div>
                         <button onclick="window.balanceManager.loadBalance()" class="text-gray-400 hover:text-gray-600 transition-colors">
