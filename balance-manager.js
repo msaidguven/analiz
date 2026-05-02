@@ -64,9 +64,11 @@ class BalanceManager {
             }
             
         } catch (error) {
-            console.error('❌ Error:', error);
+            console.error('❌ Bakiye yükleme hatası:', error);
+            console.error('❌ Hata detayı:', error.message);
+            console.error('❌ Stack trace:', error.stack);
             this.error = error.message;
-            this.balance = 1000; // Test için sabit değer
+            this.balance = null;
             this.updateUI();
         } finally {
             this.isLoading = false;
@@ -141,7 +143,11 @@ class BalanceManager {
 
     updateUI() {
         const balanceElements = document.querySelectorAll('[data-balance-display]');
+        console.log('🔍 Bakiye component\'ları bulundu:', balanceElements.length);
+        console.log('🔍 Component elementleri:', balanceElements);
+        
         balanceElements.forEach(element => {
+            console.log('🎨 Component render ediliyor:', element.dataset.balanceDisplay);
             this.renderBalance(element);
         });
     }
