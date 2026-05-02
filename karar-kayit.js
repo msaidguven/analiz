@@ -4,6 +4,10 @@
 
 class KararKayitSistemi {
     constructor() {
+        this.DEFAULT_TRADE_SETTINGS = Object.freeze({
+            kaldirac: 10,
+            pozisyon_usdt: 1
+        });
         this.SUPABASE_URL = this.normalizeSupabaseUrl(window.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '');
         this.SUPABASE_ANON_KEY = this.normalizeSupabaseKey(window.SUPABASE_ANON_KEY || localStorage.getItem('SUPABASE_ANON_KEY') || '');
         this.supabaseClient = this.createSupabaseClient();
@@ -35,6 +39,24 @@ class KararKayitSistemi {
     normalizeSupabaseKey(key) {
         // Kopyalama sırasında giren whitespace/newline karakterlerini temizle.
         return String(key || '').trim().replace(/\s+/g, '');
+    }
+
+    getTradeSettings() {
+        const raw = localStorage.getItem('tradeSettings');
+        let parsed = {};
+        try {
+            parsed = raw ? JSON.parse(raw) : {};
+        } catch {
+            parsed = {};
+        }
+
+        const kaldirac = Number(parsed?.kaldirac);
+        const pozisyonUsdt = Number(parsed?.pozisyon_usdt);
+
+        return {
+            kaldirac: Number.isFinite(kaldirac) && kaldirac > 0 ? kaldirac : this.DEFAULT_TRADE_SETTINGS.kaldirac,
+            pozisyon_usdt: Number.isFinite(pozisyonUsdt) && pozisyonUsdt > 0 ? pozisyonUsdt : this.DEFAULT_TRADE_SETTINGS.pozisyon_usdt
+        };
     }
 
     isSupabaseConfigured() {
@@ -89,16 +111,17 @@ class KararKayitSistemi {
     }
 
     async supabaseInsertIslem(yeniKayit) {
+        const ayarlar = this.getTradeSettings();
         const payload = {
             symbol: yeniKayit.symbol,
             karar: yeniKayit.karar,
-            kaldirac: 10,        // istediğin kaldıraç
-            pozisyon_usdt: 1,   // istediğin USDT miktarı
             long_oran: yeniKayit.longOran,
             short_oran: yeniKayit.shortOran,
             risk_skor: yeniKayit.riskSkor,
             guven: yeniKayit.guven,
             giris_fiyati: yeniKayit.girisFiyati,
+            pozisyon_usdt: yeniKayit.pozisyonUsdt ?? ayarlar.pozisyon_usdt,
+            kaldirac: yeniKayit.kaldirac ?? ayarlar.kaldirac,
             stop_loss: yeniKayit.stopLoss,
             take_profit_1: yeniKayit.takeProfit1,
             take_profit_2: yeniKayit.takeProfit2,
@@ -199,6 +222,7 @@ class KararKayitSistemi {
 
     // Karar kaydet
     async kararKayit(symbol, sonuc, mevcutFiyat) {
+        const ayarlar = this.getTradeSettings();
         const yeniKayit = {
             id: Date.now() + Math.floor(Math.random() * 1000), // Çakışma önleyici
             tarih: new Date().toISOString(),
@@ -213,6 +237,8 @@ class KararKayitSistemi {
             stopLoss: this.stopLossHesapla(sonuc.karar, mevcutFiyat),
             takeProfit1: this.takeProfitHesapla(sonuc.karar, mevcutFiyat, 1),
             takeProfit2: this.takeProfitHesapla(sonuc.karar, mevcutFiyat, 2),
+            kaldirac: ayarlar.kaldirac,
+            pozisyonUsdt: ayarlar.pozisyon_usdt,
             fark: sonuc.fark,
             analizZamani: sonuc.analysisTime || new Date().toISOString()
         };

@@ -106,6 +106,8 @@ app.post('/api/supabase/islemler', async (req, res) => {
         risk_skor: req.body.risk_skor,
         guven: req.body.guven,
         giris_fiyati: req.body.giris_fiyati,
+        pozisyon_usdt: req.body.pozisyon_usdt,
+        kaldirac: req.body.kaldirac,
         stop_loss: req.body.stop_loss,
         take_profit_1: req.body.take_profit_1,
         take_profit_2: req.body.take_profit_2,
