@@ -1797,6 +1797,15 @@
             }
         });
 
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchAllData();
+            // Veri yüklendikten sonra otomatik yenilemeyi başlat (2 saniye sonra)
+            setTimeout(() => {
+                toggleAutoPriceRefresh();
+            }, 2000);
+        });
+
         // Sort coins
         function setSort(sortType) {
             currentSort = sortType;
