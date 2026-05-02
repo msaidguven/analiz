@@ -10,6 +10,7 @@ class KararKayitSistemi {
         
         this.kayitlar = [];
         this.cuzdanKayitlari = [];
+        this.islemKuyrugu = Promise.resolve();
         
         console.log(`📊 Karar Kayıt Sistemi başlatıldı (Supabase Modu)`);
     }
@@ -195,7 +196,52 @@ class KararKayitSistemi {
         // }
     }
 
-    // JSONBin kaldırıldı - artık Supabase kullanılıyor
+    // Supabase'den aktif işlemleri yükle
+    async kayitlariYukle() {
+        try {
+            console.log('📡 Supabase\'den işlemler yükleniyor...');
+            
+            if (!this.supabaseClient) {
+                console.warn('⚠️ Supabase client yok, boş liste dönülüyor');
+                this.kayitlar = [];
+                return this.kayitlar;
+            }
+
+            const { data, error } = await this.supabaseClient
+                .from('islemler')
+                .select('*')
+                .eq('durum', 'aktif')
+                .order('tarih', { ascending: false });
+
+            if (error) {
+                console.error('❌ Supabase hatası:', error);
+                this.kayitlar = [];
+                return this.kayitlar;
+            }
+
+            this.kayitlar = data || [];
+            console.log(`✅ Aktif işlemler yüklendi: ${this.kayitlar.length} kayıt`);
+            return this.kayitlar;
+        } catch (error) {
+            console.error('❌ İşlemler yüklenemedi:', error);
+            this.kayitlar = [];
+            return this.kayitlar;
+        }
+    }
+
+    // İşlem Kuyruğu (Race condition önleyici)
+    async enqueue(task) {
+        return new Promise((resolve, reject) => {
+            this.islemKuyrugu = this.islemKuyrugu.finally(async () => {
+                try {
+                    const result = await task();
+                    resolve(result);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+    }
 
     // Karar kaydet
     async kararKayit(symbol, sonuc, mevcutFiyat) {
