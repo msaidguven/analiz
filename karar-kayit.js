@@ -53,10 +53,20 @@ class KararKayitSistemi {
         const kaldirac = Number(parsed?.kaldirac);
         const pozisyonUsdt = Number(parsed?.pozisyon_usdt);
 
-        return {
+        const settings = {
             kaldirac: Number.isFinite(kaldirac) && kaldirac > 0 ? kaldirac : this.DEFAULT_TRADE_SETTINGS.kaldirac,
             pozisyon_usdt: Number.isFinite(pozisyonUsdt) && pozisyonUsdt > 0 ? pozisyonUsdt : this.DEFAULT_TRADE_SETTINGS.pozisyon_usdt
         };
+
+        // Debug logging to help identify the issue
+        console.log('🔧 Trade Settings Debug:', {
+            rawLocalStorage: raw,
+            parsed: parsed,
+            finalSettings: settings,
+            defaults: this.DEFAULT_TRADE_SETTINGS
+        });
+
+        return settings;
     }
 
     isSupabaseConfigured() {
@@ -127,6 +137,17 @@ class KararKayitSistemi {
             take_profit_2: yeniKayit.takeProfit2,
             acilis_zamani: yeniKayit.analizZamani || new Date().toISOString()
         };
+
+        // Debug logging to track the payload being sent to database
+        console.log('🚀 Supabase Payload Debug:', {
+            payload: payload,
+            yeniKayitPozisyonUsdt: yeniKayit.pozisyonUsdt,
+            yeniKayitKaldirac: yeniKayit.kaldirac,
+            ayarlarPozisyonUsdt: ayarlar.pozisyon_usdt,
+            ayarlarKaldirac: ayarlar.kaldirac,
+            finalPozisyonUsdt: payload.pozisyon_usdt,
+            finalKaldirac: payload.kaldirac
+        });
 
         // GitHub Pages'te backend API yok; doğrudan Supabase'e yaz.
         if (this.isGitHubPages()) {
@@ -242,6 +263,16 @@ class KararKayitSistemi {
             fark: sonuc.fark,
             analizZamani: sonuc.analysisTime || new Date().toISOString()
         };
+
+        // Debug logging to track what values are being saved
+        console.log('💾 Karar Kayıt Debug:', {
+            symbol: symbol,
+            karar: sonuc.karar,
+            ayarlar: ayarlar,
+            yeniKayitPozisyonUsdt: yeniKayit.pozisyonUsdt,
+            yeniKayitKaldirac: yeniKayit.kaldirac,
+            mevcutFiyat: mevcutFiyat
+        });
 
         return this.enqueue(async () => {
             console.log('📡 Supabase islemler tablosuna ekleniyor...');
@@ -493,7 +524,52 @@ class KararKayitSistemi {
     }
 }
 
+// Test function to verify localStorage settings
+function testTradeSettings() {
+    console.log('🧪 Testing Trade Settings...');
+    
+    // Test 1: Check what's currently in localStorage
+    const currentRaw = localStorage.getItem('tradeSettings');
+    console.log('📋 Current localStorage raw:', currentRaw);
+    
+    // Test 2: Try to parse it
+    let currentParsed = {};
+    try {
+        currentParsed = currentRaw ? JSON.parse(currentRaw) : {};
+    } catch (e) {
+        console.error('❌ Failed to parse localStorage:', e);
+        currentParsed = {};
+    }
+    console.log('📋 Current localStorage parsed:', currentParsed);
+    
+    // Test 3: Manually set the values the user wants (1 USD, 10x leverage)
+    const userSettings = { kaldirac: 10, pozisyon_usdt: 1 };
+    console.log('🔧 Setting user settings:', userSettings);
+    localStorage.setItem('tradeSettings', JSON.stringify(userSettings));
+    
+    // Test 4: Read them back using our function
+    const kararKayitSistemi = window.kararKayitSistemi;
+    if (kararKayitSistemi) {
+        const settings = kararKayitSistemi.getTradeSettings();
+        console.log('✅ Settings read back:', settings);
+        
+        // Test 5: Verify the values are correct
+        if (settings.kaldirac === 10 && settings.pozisyon_usdt === 1) {
+            console.log('🎉 SUCCESS: Settings are correct!');
+        } else {
+            console.log('❌ FAILURE: Settings are incorrect!');
+        }
+    }
+}
+
 // Global instance
 if (typeof window !== 'undefined') {
     window.kararKayitSistemi = new KararKayitSistemi();
+    // Make test function available globally
+    window.testTradeSettings = testTradeSettings;
+    
+    // Auto-run test in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        setTimeout(testTradeSettings, 1000);
+    }
 }

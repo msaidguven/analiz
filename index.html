@@ -1885,10 +1885,20 @@
             const kaldirac = Number(parsed?.kaldirac);
             const pozisyonUsdt = Number(parsed?.pozisyon_usdt);
 
-            return {
+            const settings = {
                 kaldirac: Number.isFinite(kaldirac) && kaldirac > 0 ? kaldirac : defaults.kaldirac,
                 pozisyon_usdt: Number.isFinite(pozisyonUsdt) && pozisyonUsdt > 0 ? pozisyonUsdt : defaults.pozisyon_usdt
             };
+
+            // Debug logging for index.html
+            console.log('🔧 Index.html Trade Settings Debug:', {
+                rawLocalStorage: raw,
+                parsed: parsed,
+                finalSettings: settings,
+                defaults: defaults
+            });
+
+            return settings;
         }
 
         function signalLong(symbol) {
