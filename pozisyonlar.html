@@ -416,7 +416,7 @@ const SUPABASE_URL        = window.SUPABASE_URL        || window.APP_CONFIG?.SUP
 const SUPABASE_ANON_KEY   = window.SUPABASE_ANON_KEY   || window.APP_CONFIG?.SUPABASE_ANON_KEY
 const SERVICE_ROLE_KEY    = window.SUPABASE_SERVICE_ROLE_KEY || window.APP_CONFIG?.SUPABASE_SERVICE_ROLE_KEY
 const FUNCTION_BASE       = `${SUPABASE_URL}/functions/v1`
-const supabase            = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const sp            = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ── State ────────────────────────────────────────────────────
 let positions   = []   // DB'den gelen AKTIF + TAMAMLANDI işlemler
@@ -434,7 +434,7 @@ async function init() {
 // ── DB'den Pozisyonları Yükle ────────────────────────────────
 async function loadPositions() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sp
       .from('islemler')
       .select('*')
       .in('durum', ['AKTIF'])
