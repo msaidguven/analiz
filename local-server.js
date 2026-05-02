@@ -91,6 +91,21 @@ app.post('/api/kayitlar', (req, res) => {
 
 // Anasayfa "Kaydet" için Supabase insert proxy
 app.post('/api/supabase/islemler', async (req, res) => {
+    console.log('📡 Supabase islemler insert request received:', {
+        headers: req.headers,
+        body: req.body,
+        rawBody: JSON.stringify(req.body)
+    });
+
+    // DETAY LOG: Her alanı tek tek kontrol et
+    console.log('🔍 Backend Detailed Field Check:', {
+        'req.body.pozisyon_usdt': req.body.pozisyon_usdt,
+        'typeof pozisyon_usdt': typeof req.body.pozisyon_usdt,
+        'req.body.kaldirac': req.body.kaldirac,
+        'typeof kaldirac': typeof req.body.kaldirac,
+        'JSON.stringify payload': JSON.stringify(req.body)
+    });
+
     const { supabaseUrl, apiKey, serviceRoleKey } = getSupabaseConfig();
     if (!supabaseUrl || !apiKey) {
         return res.status(500).json({
@@ -114,6 +129,11 @@ app.post('/api/supabase/islemler', async (req, res) => {
         acilis_zamani: req.body.acilis_zamani
     };
 
+    console.log('🚀 Backend Final Payload to Supabase:', {
+        payload: payload,
+        payloadString: JSON.stringify(payload)
+    });
+
     try {
         const headers = {
             'Content-Type': 'application/json',
@@ -126,6 +146,14 @@ app.post('/api/supabase/islemler', async (req, res) => {
             headers.Authorization = `Bearer ${apiKey}`;
         }
 
+        console.log('🌐 Backend to Supabase Request:', {
+            url: `${supabaseUrl}/rest/v1/islemler`,
+            method: 'POST',
+            headers: headers,
+            payload: payload,
+            payloadString: JSON.stringify(payload)
+        });
+
         const response = await fetch(`${supabaseUrl}/rest/v1/islemler`, {
             method: 'POST',
             headers,
@@ -133,6 +161,13 @@ app.post('/api/supabase/islemler', async (req, res) => {
         });
 
         const raw = await response.text();
+        
+        console.log('🌐 Backend to Supabase Response:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries()),
+            rawResponse: raw
+        });
         if (!response.ok) {
             return res.status(response.status).json({
                 error: `Supabase insert hatası: ${response.status}`,
@@ -147,11 +182,19 @@ app.post('/api/supabase/islemler', async (req, res) => {
             data = [];
         }
 
-        return res.json({
+        const responseToClient = {
             success: true,
             kayit: Array.isArray(data) && data[0] ? data[0] : null,
             authMode: serviceRoleKey ? 'service_role' : 'anon'
+        };
+
+        console.log('📤 Backend Response to Client:', {
+            responseToClient: responseToClient,
+            supabaseData: data,
+            firstRecord: Array.isArray(data) && data[0] ? data[0] : null
         });
+
+        return res.json(responseToClient);
     } catch (error) {
         return res.status(500).json({
             error: 'Supabase proxy isteği sırasında sunucu hatası',

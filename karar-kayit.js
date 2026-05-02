@@ -66,11 +66,28 @@ class KararKayitSistemi {
         if (!this.supabaseClient) {
             throw new Error('Supabase client başlatılamadı. config.js veya supabase-js scriptini kontrol edin.');
         }
+
+        console.log('🔥 DIRECT Supabase Insert Attempt:', {
+            payload: payload,
+            payloadString: JSON.stringify(payload),
+            clientConfig: {
+                url: this.SUPABASE_URL,
+                hasKey: !!this.SUPABASE_ANON_KEY
+            }
+        });
+
         const { data, error } = await this.supabaseClient
             .from('islemler')
             .insert(payload)
             .select()
             .single();
+
+        console.log('🔥 DIRECT Supabase Response:', {
+            data: data,
+            error: error,
+            success: !error,
+            returnedData: data || null
+        });
 
         if (error) {
             throw new Error(`Supabase insert hatası: ${error.message}`);
@@ -81,7 +98,16 @@ class KararKayitSistemi {
 
     async supabaseInsertIslemViaApi(payload) {
         const apiBase = String(window.API_BASE_URL || '').trim().replace(/\/+$/, '');
-        const res = await fetch(`${apiBase}/api/supabase/islemler`, {
+        const url = `${apiBase}/api/supabase/islemler`;
+        
+        console.log('🌐 Backend API Request:', {
+            url: url,
+            method: 'POST',
+            payload: payload,
+            payloadString: JSON.stringify(payload)
+        });
+
+        const res = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -90,6 +116,14 @@ class KararKayitSistemi {
         });
 
         const raw = await res.text().catch(() => '');
+        
+        console.log('🌐 Backend API Response:', {
+            status: res.status,
+            statusText: res.statusText,
+            headers: Object.fromEntries(res.headers.entries()),
+            rawResponse: raw
+        });
+
         if (!res.ok) {
             throw new Error(`Supabase proxy insert başarısız: ${res.status} ${raw}`);
         }
@@ -100,11 +134,32 @@ class KararKayitSistemi {
         } catch {
             body = {};
         }
+        
+        console.log('🌐 Backend API Parsed Response:', {
+            body: body,
+            kayit: body?.kayit
+        });
+
         return body?.kayit || null;
     }
 
     async supabaseInsertIslem(yeniKayit) {
-        const ayarlar = this.getTradeSettings();
+        // ⏰ TIMING FIX: Ayarları güvenli şekilde al
+        let ayarlar;
+        try {
+            if (window.tradeSettingsManager) {
+                ayarlar = window.tradeSettingsManager.getSettings();
+            } else {
+                console.warn('⚠️ Trade settings manager not found in supabaseInsertIslem, using fallback');
+                ayarlar = this.getTradeSettings();
+            }
+        } catch (error) {
+            console.error('❌ Error getting trade settings in supabaseInsertIslem:', error);
+            ayarlar = this.DEFAULT_TRADE_SETTINGS;
+        }
+
+        console.log('⏰ Timing Fix - Supabase Ayarlar alındı:', ayarlar);
+
         const payload = {
             symbol: yeniKayit.symbol,
             karar: yeniKayit.karar,
@@ -226,7 +281,22 @@ class KararKayitSistemi {
 
     // Karar kaydet
     async kararKayit(symbol, sonuc, mevcutFiyat) {
-        const ayarlar = this.getTradeSettings();
+        // ⏰ TIMING FIX: Ayarları güvenli şekilde al
+        let ayarlar;
+        try {
+            if (window.tradeSettingsManager) {
+                ayarlar = window.tradeSettingsManager.getSettings();
+            } else {
+                console.warn('⚠️ Trade settings manager not found, using fallback');
+                ayarlar = this.getTradeSettings();
+            }
+        } catch (error) {
+            console.error('❌ Error getting trade settings:', error);
+            ayarlar = this.DEFAULT_TRADE_SETTINGS;
+        }
+
+        console.log('⏰ Timing Fix - Ayarlar alındı:', ayarlar);
+
         const yeniKayit = {
             id: Date.now() + Math.floor(Math.random() * 1000), // Çakışma önleyici
             tarih: new Date().toISOString(),
@@ -507,7 +577,66 @@ class KararKayitSistemi {
     }
 }
 
+// KESİN ÇÖZÜM TEST FONKSİYONU
+async function debugFullPipeline() {
+    console.log('🔍 === TAM DEBUG TEST BAŞLATILIYOR ===');
+    
+    // 1. Trade Settings kontrol
+    console.log('1️⃣ Trade Settings Test:');
+    const settings = window.tradeSettingsManager.getSettings();
+    console.log('Settings:', settings);
+    
+    // 2. Test payload oluştur
+    const testPayload = {
+        symbol: 'TEST',
+        karar: 'LONG',
+        longOran: 50,
+        shortOran: 50,
+        riskSkor: 3,
+        guven: 70,
+        girisFiyati: 1.0,
+        stopLoss: 0.95,
+        takeProfit1: 1.08,
+        takeProfit2: 1.15,
+        kaldirac: settings.kaldirac,
+        pozisyonUsdt: settings.pozisyon_usdt,
+        analizZamani: new Date().toISOString()
+    };
+    
+    console.log('2️⃣ Test Payload:', testPayload);
+    
+    // 3. Karar Kayıt Sistemi test
+    const kararKayitSistemi = window.kararKayitSistemi;
+    if (!kararKayitSistemi) {
+        console.error('❌ Karar Kayıt Sistemi bulunamadı!');
+        return;
+    }
+    
+    try {
+        // 4. Backend API test
+        console.log('3️⃣ Backend API Test:');
+        const apiResult = await kararKayitSistemi.supabaseInsertIslemViaApi(testPayload);
+        console.log('Backend API Result:', apiResult);
+        
+        // 5. Direkt Supabase test
+        console.log('4️⃣ Direct Supabase Test:');
+        const directResult = await kararKayitSistemi.supabaseInsertIslemDirect(testPayload);
+        console.log('Direct Supabase Result:', directResult);
+        
+        console.log('✅ === DEBUG TEST TAMAMLANDI ===');
+        
+    } catch (error) {
+        console.error('❌ DEBUG TEST HATASI:', error);
+    }
+}
+
 // Global instance
 if (typeof window !== 'undefined') {
     window.kararKayitSistemi = new KararKayitSistemi();
+    window.debugFullPipeline = debugFullPipeline;
+    
+    // Otomatik test
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        setTimeout(debugFullPipeline, 2000);
+    }
 }
