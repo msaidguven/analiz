@@ -92,6 +92,8 @@ class KararKayitSistemi {
         const payload = {
             symbol: yeniKayit.symbol,
             karar: yeniKayit.karar,
+            kaldirac: 10,        // istediğin kaldıraç
+            pozisyon_usdt: 1,   // istediğin USDT miktarı
             long_oran: yeniKayit.longOran,
             short_oran: yeniKayit.shortOran,
             risk_skor: yeniKayit.riskSkor,
