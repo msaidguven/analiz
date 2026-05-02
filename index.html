@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="trade-settings.js"></script>
+    <script src="balance-manager.js"></script>
     <script src="chart-engine.js"></script>
     <script src="karar-motoru.js"></script>
     <script src="config.js"></script>
@@ -1032,6 +1033,8 @@
                     </svg>
                     Ayarlar
                 </a>
+                <!-- Bakiye Gösterim Component -->
+                <div class="balance-component" data-balance-display="compact"></div>
             </nav>
         </header>
 
@@ -1095,6 +1098,12 @@
                 </button>
             </div>
         </div>
+
+        <!-- Bakiye Gösterim Kartı -->
+        <div class="mb-8">
+            <div class="balance-component" data-balance-display="detailed"></div>
+        </div>
+
         <!-- Search Box -->
         <div class="relative max-w-2xl mx-auto mb-10 group">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

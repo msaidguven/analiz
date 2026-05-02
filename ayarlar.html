@@ -39,10 +39,16 @@
                 </div>
                 <p id="status" class="text-sm text-white/70"></p>
             </form>
+        
+        <!-- Bakiye Gösterim Component -->
+        <div class="mt-8">
+            <div class="balance-component" data-balance-display="detailed"></div>
+        </div>
         </div>
     </div>
 
     <script src="trade-settings.js"></script>
+<script src="balance-manager.js"></script>
     <script>
         function render() {
             if (window.tradeSettingsManager) {
