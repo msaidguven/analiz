@@ -4,7 +4,7 @@
 class BalanceManager {
     constructor() {
         this.SUPABASE_URL = 'https://hsdrpjgswsahtnmwobll.supabase.co';
-        this.SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY'; // Config'den alınacak
+        this.SUPABASE_ANON_KEY = 'sb_publishable_HMNycDbCD-n3kdoJAk_nxw_00IWbKWb'; // Config'den alınacak
         this.BALANCE_FUNCTION_URL = `${this.SUPABASE_URL}/functions/v1/binance-balance`;
         this.balance = null;
         this.isLoading = false;
