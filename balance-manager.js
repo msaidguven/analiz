@@ -35,18 +35,34 @@ class BalanceManager {
                 throw new Error('Supabase anahtarı yapılandırılmamış');
             }
 
+            console.log('🔑 Using API key:', apiKey.substring(0, 20) + '...');
+            console.log('🌐 Request URL:', this.BALANCE_FUNCTION_URL);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
+
             const res = await fetch(this.BALANCE_FUNCTION_URL, {
+                method: 'GET',
                 headers: { 
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
+
+            console.log('📡 Response status:', res.status, res.statusText);
+            console.log('📡 Response headers:', Object.fromEntries(res.headers.entries()));
+
             if (!res.ok) {
-                throw new Error(`Balance API error: ${res.status}`);
+                const errorText = await res.text();
+                console.error('❌ API Error Response:', errorText);
+                throw new Error(`Balance API error: ${res.status} - ${errorText}`);
             }
 
             const data = await res.json();
+            console.log('📊 Response data:', data);
             
             if (data.availableBalance !== undefined) {
                 this.balance = data.availableBalance;
@@ -69,7 +85,14 @@ class BalanceManager {
             
         } catch (error) {
             console.error('❌ Balance loading error:', error);
-            this.error = error.message;
+            
+            // AbortError (timeout) için özel mesaj
+            if (error.name === 'AbortError') {
+                this.error = 'İstek zaman aşımına uğradı (10 saniye)';
+                console.error('⏰ Request timeout after 10 seconds');
+            } else {
+                this.error = error.message;
+            }
             
             // Cache'den yükle dene
             this.loadFromCache();
