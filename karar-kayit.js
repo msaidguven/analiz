@@ -187,20 +187,24 @@ class KararKayitSistemi {
             finalKaldirac: payload.kaldirac
         });
 
-        // GitHub Pages'te backend API yok; doğrudan Supabase'e yaz.
-        if (this.isGitHubPages()) {
-            return this.supabaseInsertIslemDirect(payload);
-        }
+        // 🔥 PRODUCTION FIX: Her zaman direkt Supabase'e yaz (backend'i atla)
+        console.log('🔥 PRODUCTION MODE: Direct Supabase connection forced');
+        return this.supabaseInsertIslemDirect(payload);
 
-        // Local/Node ortamında önce backend proxy dene; yoksa direct fallback.
-        try {
-            return await this.supabaseInsertIslemViaApi(payload);
-        } catch (proxyError) {
-            if (this.isSupabaseConfigured()) {
-                return this.supabaseInsertIslemDirect(payload);
-            }
-            throw proxyError;
-        }
+        // Eski kod (backup olarak tutuluyor)
+        // if (this.isGitHubPages()) {
+        //     return this.supabaseInsertIslemDirect(payload);
+        // }
+
+        // // Local/Node ortamında önce backend proxy dene; yoksa direct fallback.
+        // try {
+        //     return await this.supabaseInsertIslemViaApi(payload);
+        // } catch (proxyError) {
+        //     if (this.isSupabaseConfigured()) {
+        //         return this.supabaseInsertIslemDirect(payload);
+        //     }
+        //     throw proxyError;
+        // }
     }
 
     // JSONBin İşlem Kuyruğu (Race condition önleyici)
