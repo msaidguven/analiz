@@ -10,6 +10,7 @@
     <script src="chart-engine.js"></script>
     <script src="karar-motoru.js"></script>
     <script src="config.js"></script>
+    <script src="trade-settings.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script src="karar-kayit.js"></script>
@@ -1872,34 +1873,7 @@
             return s;
         }
 
-        function getTradeSettings() {
-            const defaults = { kaldirac: 10, pozisyon_usdt: 1 };
-            const raw = localStorage.getItem('tradeSettings');
-            let parsed = {};
-            try {
-                parsed = raw ? JSON.parse(raw) : {};
-            } catch {
-                parsed = {};
-            }
-
-            const kaldirac = Number(parsed?.kaldirac);
-            const pozisyonUsdt = Number(parsed?.pozisyon_usdt);
-
-            const settings = {
-                kaldirac: Number.isFinite(kaldirac) && kaldirac > 0 ? kaldirac : defaults.kaldirac,
-                pozisyon_usdt: Number.isFinite(pozisyonUsdt) && pozisyonUsdt > 0 ? pozisyonUsdt : defaults.pozisyon_usdt
-            };
-
-            // Debug logging for index.html
-            console.log('🔧 Index.html Trade Settings Debug:', {
-                rawLocalStorage: raw,
-                parsed: parsed,
-                finalSettings: settings,
-                defaults: defaults
-            });
-
-            return settings;
-        }
+        // getTradeSettings fonksiyonu artık trade-settings.js dosyasından yönetiliyor
 
         function signalLong(symbol) {
             const orderSymbol = normalizeOrderSymbol(symbol);

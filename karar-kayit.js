@@ -42,31 +42,14 @@ class KararKayitSistemi {
     }
 
     getTradeSettings() {
-        const raw = localStorage.getItem('tradeSettings');
-        let parsed = {};
-        try {
-            parsed = raw ? JSON.parse(raw) : {};
-        } catch {
-            parsed = {};
+        // Artık merkezi yönetim sistemini kullanıyoruz
+        if (window.tradeSettingsManager) {
+            return window.tradeSettingsManager.getSettings();
         }
-
-        const kaldirac = Number(parsed?.kaldirac);
-        const pozisyonUsdt = Number(parsed?.pozisyon_usdt);
-
-        const settings = {
-            kaldirac: Number.isFinite(kaldirac) && kaldirac > 0 ? kaldirac : this.DEFAULT_TRADE_SETTINGS.kaldirac,
-            pozisyon_usdt: Number.isFinite(pozisyonUsdt) && pozisyonUsdt > 0 ? pozisyonUsdt : this.DEFAULT_TRADE_SETTINGS.pozisyon_usdt
-        };
-
-        // Debug logging to help identify the issue
-        console.log('🔧 Trade Settings Debug:', {
-            rawLocalStorage: raw,
-            parsed: parsed,
-            finalSettings: settings,
-            defaults: this.DEFAULT_TRADE_SETTINGS
-        });
-
-        return settings;
+        
+        // Fallback - merkezi sistem yüklenmemişse
+        console.warn('⚠️ Trade settings manager not found, using fallback');
+        return this.DEFAULT_TRADE_SETTINGS;
     }
 
     isSupabaseConfigured() {
@@ -524,52 +507,7 @@ class KararKayitSistemi {
     }
 }
 
-// Test function to verify localStorage settings
-function testTradeSettings() {
-    console.log('🧪 Testing Trade Settings...');
-    
-    // Test 1: Check what's currently in localStorage
-    const currentRaw = localStorage.getItem('tradeSettings');
-    console.log('📋 Current localStorage raw:', currentRaw);
-    
-    // Test 2: Try to parse it
-    let currentParsed = {};
-    try {
-        currentParsed = currentRaw ? JSON.parse(currentRaw) : {};
-    } catch (e) {
-        console.error('❌ Failed to parse localStorage:', e);
-        currentParsed = {};
-    }
-    console.log('📋 Current localStorage parsed:', currentParsed);
-    
-    // Test 3: Manually set the values the user wants (1 USD, 10x leverage)
-    const userSettings = { kaldirac: 10, pozisyon_usdt: 1 };
-    console.log('🔧 Setting user settings:', userSettings);
-    localStorage.setItem('tradeSettings', JSON.stringify(userSettings));
-    
-    // Test 4: Read them back using our function
-    const kararKayitSistemi = window.kararKayitSistemi;
-    if (kararKayitSistemi) {
-        const settings = kararKayitSistemi.getTradeSettings();
-        console.log('✅ Settings read back:', settings);
-        
-        // Test 5: Verify the values are correct
-        if (settings.kaldirac === 10 && settings.pozisyon_usdt === 1) {
-            console.log('🎉 SUCCESS: Settings are correct!');
-        } else {
-            console.log('❌ FAILURE: Settings are incorrect!');
-        }
-    }
-}
-
 // Global instance
 if (typeof window !== 'undefined') {
     window.kararKayitSistemi = new KararKayitSistemi();
-    // Make test function available globally
-    window.testTradeSettings = testTradeSettings;
-    
-    // Auto-run test in development
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        setTimeout(testTradeSettings, 1000);
-    }
 }

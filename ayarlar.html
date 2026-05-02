@@ -42,27 +42,14 @@
         </div>
     </div>
 
+    <script src="trade-settings.js"></script>
     <script>
-        const DEFAULTS = { kaldirac: 10, pozisyon_usdt: 1 };
-
-        function getSettings() {
-            const raw = localStorage.getItem('tradeSettings');
-            let parsed = {};
-            try { parsed = raw ? JSON.parse(raw) : {}; } catch { parsed = {}; }
-
-            const kaldirac = Number(parsed.kaldirac);
-            const pozisyonUsdt = Number(parsed.pozisyon_usdt);
-
-            return {
-                kaldirac: Number.isFinite(kaldirac) && kaldirac > 0 ? kaldirac : DEFAULTS.kaldirac,
-                pozisyon_usdt: Number.isFinite(pozisyonUsdt) && pozisyonUsdt > 0 ? pozisyonUsdt : DEFAULTS.pozisyon_usdt
-            };
-        }
-
         function render() {
-            const s = getSettings();
-            document.getElementById('kaldirac').value = s.kaldirac;
-            document.getElementById('pozisyonUsdt').value = s.pozisyon_usdt;
+            if (window.tradeSettingsManager) {
+                const s = window.tradeSettingsManager.getSettings();
+                document.getElementById('kaldirac').value = s.kaldirac;
+                document.getElementById('pozisyonUsdt').value = s.pozisyon_usdt;
+            }
         }
 
         document.getElementById('settingsForm').addEventListener('submit', function (e) {
@@ -75,18 +62,22 @@
                 return;
             }
 
-            const next = { kaldirac, pozisyon_usdt: pozisyonUsdt };
-            localStorage.setItem('tradeSettings', JSON.stringify(next));
-            document.getElementById('status').textContent = 'Ayarlar kaydedildi.';
+            if (window.tradeSettingsManager) {
+                window.tradeSettingsManager.saveSettings(kaldirac, pozisyonUsdt);
+                document.getElementById('status').textContent = 'Ayarlar kaydedildi.';
+            }
         });
 
         document.getElementById('resetBtn').addEventListener('click', function () {
-            localStorage.setItem('tradeSettings', JSON.stringify(DEFAULTS));
-            render();
-            document.getElementById('status').textContent = 'Varsayılan değerlere dönüldü.';
+            if (window.tradeSettingsManager) {
+                window.tradeSettingsManager.resetToDefaults();
+                render();
+                document.getElementById('status').textContent = 'Varsayılan değerlere dönüldü.';
+            }
         });
 
-        render();
+        // Sayfa yüklendiğinde ayarları göster
+        setTimeout(render, 100);
     </script>
 </body>
 </html>
