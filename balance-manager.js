@@ -58,6 +58,8 @@ class BalanceManager {
                 this.lastUpdate = new Date();
                 this.error = null;
                 console.log('✅ Balance loaded:', this.balance);
+                console.log('🔄 isLoading false yapılıyor');
+                this.isLoading = false; // BURASI ÖNEMLİ
                 this.updateUI();
             } else {
                 throw new Error('No balance data');
