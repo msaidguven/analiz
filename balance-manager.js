@@ -27,75 +27,46 @@ class BalanceManager {
         this.updateUI();
         
         try {
-            console.log('🔄 Loading balance from Supabase...');
+            console.log('🔄 Loading balance...');
             
-            // Config'den Supabase anahtarını al
-            const apiKey = this.getSupabaseKey();
-            if (!apiKey || apiKey === 'SUPABASE_ANON_KEY') {
-                throw new Error('Supabase anahtarı yapılandırılmamış');
-            }
-
-            console.log('🔑 Using API key:', apiKey.substring(0, 20) + '...');
-            console.log('🌐 Request URL:', this.BALANCE_FUNCTION_URL);
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
-
-            const res = await fetch(this.BALANCE_FUNCTION_URL, {
+            const apiKey = window.SUPABASE_SERVICE_ROLE_KEY || window.SUPABASE_ANON_KEY;
+            const url = 'https://hsdrpjgswsahtnmwobll.supabase.co/functions/v1/binance-balance';
+            
+            console.log('🌐 URL:', url);
+            console.log('🔑 Key exists:', !!apiKey);
+            
+            const res = await fetch(url, {
                 method: 'GET',
                 headers: { 
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
-                },
-                signal: controller.signal
+                }
             });
 
-            clearTimeout(timeoutId);
-
-            console.log('📡 Response status:', res.status, res.statusText);
-            console.log('📡 Response headers:', Object.fromEntries(res.headers.entries()));
-
+            console.log('📡 Status:', res.status);
+            
             if (!res.ok) {
-                const errorText = await res.text();
-                console.error('❌ API Error Response:', errorText);
-                throw new Error(`Balance API error: ${res.status} - ${errorText}`);
+                const text = await res.text();
+                throw new Error(`HTTP ${res.status}: ${text}`);
             }
 
             const data = await res.json();
-            console.log('📊 Response data:', data);
+            console.log('📊 Data:', data);
             
             if (data.availableBalance !== undefined) {
                 this.balance = data.availableBalance;
                 this.lastUpdate = new Date();
                 this.error = null;
-                
-                console.log('💰 Balance loaded:', {
-                    balance: this.balance,
-                    currency: data.currency || 'USDT',
-                    timestamp: this.lastUpdate
-                });
-                
-                // localStorage'a kaydet
-                this.saveToCache();
+                console.log('✅ Balance loaded:', this.balance);
                 this.updateUI();
-                this.notifyBalanceUpdate();
             } else {
-                throw new Error('Invalid balance data');
+                throw new Error('No balance data');
             }
             
         } catch (error) {
-            console.error('❌ Balance loading error:', error);
-            
-            // AbortError (timeout) için özel mesaj
-            if (error.name === 'AbortError') {
-                this.error = 'İstek zaman aşımına uğradı (10 saniye)';
-                console.error('⏰ Request timeout after 10 seconds');
-            } else {
-                this.error = error.message;
-            }
-            
-            // Cache'den yükle dene
-            this.loadFromCache();
+            console.error('❌ Error:', error);
+            this.error = error.message;
+            this.balance = 1000; // Test için sabit değer
             this.updateUI();
         } finally {
             this.isLoading = false;
