@@ -1,29 +1,17 @@
 // Karar Kayıt ve Analiz Sistemi
-// Tamamen JSONBin.io API (Frontend) üzerinden çalışır
+// Supabase üzerinden çalışır
 // GitHub Pages uyumlu
 
 class KararKayitSistemi {
     constructor() {
-        this.DEFAULT_TRADE_SETTINGS = Object.freeze({
-            kaldirac: 10,
-            pozisyon_usdt: 1
-        });
         this.SUPABASE_URL = this.normalizeSupabaseUrl(window.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '');
         this.SUPABASE_ANON_KEY = this.normalizeSupabaseKey(window.SUPABASE_ANON_KEY || localStorage.getItem('SUPABASE_ANON_KEY') || '');
         this.supabaseClient = this.createSupabaseClient();
-
-        this.JSONBIN_API_KEY = '$2a$10$QktBwuRvzkwJz80digmRQeloC2dYzzK7gpR2GgV3t1nFXY/AUIgaW';
-        this.BIN_ISLEM = '69deaf66aaba882197fc8e6f';
-        this.BIN_CUZDAN = '69deb11c856a6821893456df';
-        this.JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
         
         this.kayitlar = [];
         this.cuzdanKayitlari = [];
-        this.islemKuyrugu = Promise.resolve();
         
-        console.log(`📊 Karar Kayıt Sistemi başlatıldı (Supabase Kaydet + JSONBin Okuma Modu)`);
-        
-        this.kayitlariYukle();
+        console.log(`📊 Karar Kayıt Sistemi başlatıldı (Supabase Modu)`);
     }
 
     createSupabaseClient() {
@@ -207,81 +195,7 @@ class KararKayitSistemi {
         // }
     }
 
-    // JSONBin İşlem Kuyruğu (Race condition önleyici)
-    async enqueue(task) {
-        return new Promise((resolve, reject) => {
-            this.islemKuyrugu = this.islemKuyrugu.finally(async () => {
-                try {
-                    const result = await task();
-                    resolve(result);
-                } catch (err) {
-                    reject(err);
-                }
-            });
-        });
-    }
-
-    // JSONBin'den Fetch Data Yardımcı Fonksiyonu
-    async fetchFromBin(binId) {
-        try {
-            const res = await fetch(`${this.JSONBIN_BASE_URL}/${binId}/latest`, {
-                method: 'GET',
-                headers: {
-                    'X-Access-Key': this.JSONBIN_API_KEY
-                }
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            const data = await res.json();
-            // JSONBin V3 format: { record: { ... } }
-            return data.record || { kayitlar: [] };
-        } catch (error) {
-            console.error(`❌ JSONBin'den veri çekilemedi (Bin: ${binId}):`, error);
-            // Fallback to local storage on read error so UI doesn't crash completely
-            const localData = localStorage.getItem(`bin_${binId}`);
-            return localData ? JSON.parse(localData) : { kayitlar: [] };
-        }
-    }
-
-    // JSONBin'e Data Güncelleme Yardımcı Fonksiyonu
-    async putToBin(binId, data) {
-        try {
-            // Optimistic update of local cache
-            localStorage.setItem(`bin_${binId}`, JSON.stringify(data));
-            
-            const res = await fetch(`${this.JSONBIN_BASE_URL}/${binId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Access-Key': this.JSONBIN_API_KEY
-                },
-                body: JSON.stringify(data)
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            return true;
-        } catch (error) {
-            console.error(`❌ JSONBin'e veri yazılamadı (Bin: ${binId}):`, error);
-            // Can be queued for retry here, but basic error management for now
-            return false;
-        }
-    }
-
-    // JSONBin'den aktif işlemleri yükle
-    async kayitlariYukle() {
-        console.log('📡 JSONBin.io coin_islem okunuyor...');
-        const data = await this.fetchFromBin(this.BIN_ISLEM);
-        this.kayitlar = data.kayitlar || [];
-        console.log(`✅ Aktif işlemler yüklendi: ${this.kayitlar.length} kayıt`);
-        return this.kayitlar;
-    }
-
-    // JSONBin'den cüzdan geçmişini yükle
-    async cuzdanYukle() {
-        console.log('📡 JSONBin.io coin_cuzdan okunuyor...');
-        const data = await this.fetchFromBin(this.BIN_CUZDAN);
-        this.cuzdanKayitlari = data.kayitlar || [];
-        console.log(`✅ Cüzdan geçmişi yüklendi: ${this.cuzdanKayitlari.length} kayıt`);
-        return this.cuzdanKayitlari;
-    }
+    // JSONBin kaldırıldı - artık Supabase kullanılıyor
 
     // Karar kaydet
     async kararKayit(symbol, sonuc, mevcutFiyat) {

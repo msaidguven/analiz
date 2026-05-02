@@ -80,28 +80,28 @@ class BalanceManager {
     }
 
     getSupabaseKey() {
-        // 1. Window config'den al (config.js'den)
+        // 1. Service Role Key'i önce kullan (function'lar için)
+        if (window.SUPABASE_SERVICE_ROLE_KEY && window.SUPABASE_SERVICE_ROLE_KEY !== 'sb_service_role_xxxxxxxxxxxxxxxxxxxxxxxxx') {
+            console.log('✅ Supabase service role key kullanılıyor (function için)');
+            return window.SUPABASE_SERVICE_ROLE_KEY;
+        }
+        
+        // 2. APP_CONFIG service role key'den al
+        if (window.APP_CONFIG && window.APP_CONFIG.SUPABASE_SERVICE_ROLE_KEY && window.APP_CONFIG.SUPABASE_SERVICE_ROLE_KEY !== 'sb_service_role_xxxxxxxxxxxxxxxxxxxxxxxxx') {
+            console.log('✅ Supabase service role key APP_CONFIG\'den alındı');
+            return window.APP_CONFIG.SUPABASE_SERVICE_ROLE_KEY;
+        }
+        
+        // 3. Anon key'i fallback olarak kullan
         if (window.SUPABASE_ANON_KEY && window.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            console.log('✅ Supabase anahtarı config.js\'den alındı');
+            console.log('⚠️ Anon key fallback olarak kullanılıyor');
             return window.SUPABASE_ANON_KEY;
         }
         
-        // 2. APP_CONFIG'den al
-        if (window.APP_CONFIG && window.APP_CONFIG.SUPABASE_ANON_KEY && window.APP_CONFIG.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            console.log('✅ Supabase anahtarı APP_CONFIG\'den alındı');
-            return window.APP_CONFIG.SUPABASE_ANON_KEY;
-        }
-        
-        // 3. Global değişkenden al
-        if (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            console.log('✅ Supabase anahtarı global değişkenden alındı');
-            return SUPABASE_ANON_KEY;
-        }
-        
         console.error('❌ Supabase anahtarı bulunamadı! Mevcut config:', {
+            'window.SUPABASE_SERVICE_ROLE_KEY': window.SUPABASE_SERVICE_ROLE_KEY,
             'window.SUPABASE_ANON_KEY': window.SUPABASE_ANON_KEY,
-            'window.APP_CONFIG': window.APP_CONFIG,
-            'SUPABASE_ANON_KEY': typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : 'undefined'
+            'window.APP_CONFIG': window.APP_CONFIG
         });
         return null;
     }
