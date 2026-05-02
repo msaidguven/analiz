@@ -4,7 +4,6 @@
 class BalanceManager {
     constructor() {
         this.SUPABASE_URL = 'https://hsdrpjgswsahtnmwobll.supabase.co';
-        this.SUPABASE_ANON_KEY = 'sb_publishable_HMNycDbCD-n3kdoJAk_nxw_00IWbKWb'; // Config'den alınacak
         this.BALANCE_FUNCTION_URL = `${this.SUPABASE_URL}/functions/v1/binance-balance`;
         this.balance = null;
         this.isLoading = false;
@@ -81,23 +80,30 @@ class BalanceManager {
     }
 
     getSupabaseKey() {
-        // 1. Önce class içindeki anahtarı kullan
-        if (this.SUPABASE_ANON_KEY && this.SUPABASE_ANON_KEY !== 'SUPABASE_ANON_KEY') {
-            return this.SUPABASE_ANON_KEY;
+        // 1. Window config'den al (config.js'den)
+        if (window.SUPABASE_ANON_KEY && window.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            console.log('✅ Supabase anahtarı config.js\'den alındı');
+            return window.SUPABASE_ANON_KEY;
         }
         
-        // 2. Window config'den al
-        if (window.SUPABASE_ANON_KEY && window.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            return window.SUPABASE_ANON_KEY;
+        // 2. APP_CONFIG'den al
+        if (window.APP_CONFIG && window.APP_CONFIG.SUPABASE_ANON_KEY && window.APP_CONFIG.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            console.log('✅ Supabase anahtarı APP_CONFIG\'den alındı');
+            return window.APP_CONFIG.SUPABASE_ANON_KEY;
         }
         
         // 3. Global değişkenden al
         if (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            console.log('✅ Supabase anahtarı global değişkenden alındı');
             return SUPABASE_ANON_KEY;
         }
         
-        console.warn('⚠️ Supabase anahtarı bulunamadı, mevcut anahtar:', this.SUPABASE_ANON_KEY);
-        return this.SUPABASE_ANON_KEY;
+        console.error('❌ Supabase anahtarı bulunamadı! Mevcut config:', {
+            'window.SUPABASE_ANON_KEY': window.SUPABASE_ANON_KEY,
+            'window.APP_CONFIG': window.APP_CONFIG,
+            'SUPABASE_ANON_KEY': typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : 'undefined'
+        });
+        return null;
     }
 
     saveToCache() {
