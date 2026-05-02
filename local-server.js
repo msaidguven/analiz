@@ -97,6 +97,18 @@ app.post('/api/supabase/islemler', async (req, res) => {
         rawBody: JSON.stringify(req.body)
     });
 
+    // 🔥 CRITICAL DEBUG: Request body'nin tamamını kontrol et
+    console.log('🔥 RAW REQUEST BODY ANALYSIS:', {
+        'req.body': req.body,
+        'req.body.pozisyon_usdt': req.body.pozisyon_usdt,
+        'typeof pozisyon_usdt': typeof req.body.pozisyon_usdt,
+        'req.body.kaldirac': req.body.kaldirac,
+        'typeof kaldirac': typeof req.body.kaldirac,
+        'content-type header': req.headers['content-type'],
+        'body keys': Object.keys(req.body),
+        'body values': Object.values(req.body)
+    });
+
     // DETAY LOG: Her alanı tek tek kontrol et
     console.log('🔍 Backend Detailed Field Check:', {
         'req.body.pozisyon_usdt': req.body.pozisyon_usdt,
@@ -128,6 +140,18 @@ app.post('/api/supabase/islemler', async (req, res) => {
         take_profit_2: req.body.take_profit_2,
         acilis_zamani: req.body.acilis_zamani
     };
+
+    // 🔥 CRITICAL: Backend'de gelen değerleri kontrol et
+    console.log('🔥 BACKEND GEREK DEĞERLER KONTROLÜ:', {
+        'req.body.pozisyon_usdt': req.body.pozisyon_usdt,
+        'req.body.kaldirac': req.body.kaldirac,
+        'payload.pozisyon_usdt': payload.pozisyon_usdt,
+        'payload.kaldirac': payload.kaldirac,
+        'DEĞERLER EŞİT Mİ?': {
+            'pozisyon_usdt': req.body.pozisyon_usdt === payload.pozisyon_usdt,
+            'kaldirac': req.body.kaldirac === payload.kaldirac
+        }
+    });
 
     console.log('🚀 Backend Final Payload to Supabase:', {
         payload: payload,
