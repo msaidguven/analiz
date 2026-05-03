@@ -1635,6 +1635,16 @@
                 sortCoins();
                 updateStats();
                 handleSearch(false);
+                
+                // İlk açılışta sinyalleri yükle
+                setTimeout(() => {
+                    const start = (currentPage - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+                    const pageCoins = filteredCoins.slice(start, end);
+                    pageCoins.forEach(coin => {
+                        loadKararPreview(coin.baseAsset);
+                    });
+                }, 500);
 
             } catch (error) {
                 console.error('Fetch error:', error);
