@@ -267,7 +267,7 @@ async function loadClosedPositions() {
     const { data, error } = await sp
       .from('islemler')
       .select('*')
-      .in('durum', ['KAPANDI', 'KAPATILDI'])
+      .in('durum', ['KAPANDI'])
       .order('kapanis_zamani', { ascending: false })
       .limit(100)
 
