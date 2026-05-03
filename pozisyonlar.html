@@ -62,64 +62,121 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Ana Sayfa
     </a>
-    <a href="pozisyonlar.html" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-premium-blue/10 border border-premium-blue/40 text-xs font-black uppercase tracking-widest text-premium-blue shadow-sm">
+    <button onclick="showTab('open')" id="openTab" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-premium-blue/10 border border-premium-blue/40 text-xs font-black uppercase tracking-widest text-premium-blue shadow-sm">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-      Pozisyonlar
-    </a>
+      Açık Pozisyonlar
+    </button>
+    <button onclick="showTab('closed')" id="closedTab" class="flex items-center gap-2 px-5 py-3 rounded-xl glass-card text-xs font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-blue transition-all">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m9 15 6-6"/><path d="m15 15-6-6"/></svg>
+      Kapanmış İşlemler
+    </button>
   </nav>
 
-  <div class="text-center mb-10 slide-up" style="animation-delay:.08s">
-    <h1 class="font-bebas text-5xl md:text-6xl tracking-[4px] text-analiz-text mb-3">
-      AÇIK POZİSYONLAR <span id="posCount" class="text-premium-blue"></span>
-    </h1>
-    <div class="flex items-center justify-center gap-2 text-analiz-text2 text-xs font-bold uppercase tracking-widest">
-      <span class="w-2 h-2 rounded-full bg-premium-green live-dot inline-block"></span>
-      <span id="lastUpdate">--:--:--</span>
+  <div id="openSection" class="tab-content">
+    <div class="text-center mb-10 slide-up" style="animation-delay:.08s">
+      <h1 class="font-bebas text-6xl md:text-7xl tracking-[4px] text-analiz-text mb-3">
+        AÇIK POZİSYONLAR <span id="posCount" class="text-premium-blue"></span>
+      </h1>
+      <div class="flex items-center justify-center gap-2 text-analiz-text2 text-sm font-bold uppercase tracking-widest">
+        <span class="w-2 h-2 rounded-full bg-premium-green live-dot inline-block"></span>
+        <span id="lastUpdate">--:--:--</span>
+      </div>
     </div>
-  </div>
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 slide-up" style="animation-delay:.15s">
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[10px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Toplam İşlem</div>
-      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statTotal">—</div>
+      <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Toplam İşlem</div>
+      <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="statTotal">—</div>
     </div>
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[10px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Toplam PNL</div>
-      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statPnl">—</div>
+      <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Toplam PNL</div>
+      <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="statPnl">—</div>
     </div>
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[10px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Long / Short</div>
-      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statLongShort">—</div>
+      <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Long / Short</div>
+      <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="statLongShort">—</div>
     </div>
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[10px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Karda / Zararda</div>
-      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statProfitLoss">—</div>
+      <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Karda / Zararda</div>
+      <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="statProfitLoss">—</div>
     </div>
   </div>
 
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-6 slide-up" style="animation-delay:.2s">
-    <div class="flex gap-2 flex-wrap">
-      <button onclick="setFilter('all', this)"    class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-blue text-white shadow-sm transition-all">Tümü</button>
-      <button onclick="setFilter('LONG', this)"   class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-green transition-all">Long</button>
-      <button onclick="setFilter('SHORT', this)"  class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-red transition-all">Short</button>
-      <button onclick="setFilter('profit', this)" class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-green transition-all">Karda</button>
-      <button onclick="setFilter('loss', this)"   class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-red transition-all">Zararda</button>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 slide-up" style="animation-delay:.2s">
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="setFilter('all', this)"    class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-blue text-white shadow-sm transition-all">Tümü</button>
+        <button onclick="setFilter('LONG', this)"   class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-green transition-all">Long</button>
+        <button onclick="setFilter('SHORT', this)"  class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-red transition-all">Short</button>
+        <button onclick="setFilter('profit', this)" class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-green transition-all">Karda</button>
+        <button onclick="setFilter('loss', this)"   class="filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-red transition-all">Zararda</button>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="toggleDebug()" class="flex items-center gap-2 px-4 py-2.5 glass-card rounded-xl text-[11px] font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-yellow transition-all">🔍 Debug</button>
+        <button onclick="loadPositions()" class="flex items-center gap-2 px-5 py-2.5 glass-card rounded-xl text-[11px] font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-blue hover:scale-105 active:scale-95 transition-all">⟳ Yenile</button>
+      </div>
     </div>
-    <div class="flex gap-2">
-      <button onclick="toggleDebug()" class="flex items-center gap-2 px-4 py-2.5 glass-card rounded-xl text-[11px] font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-yellow transition-all">🔍 Debug</button>
-      <button onclick="loadPositions()" class="flex items-center gap-2 px-5 py-2.5 glass-card rounded-xl text-[11px] font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-blue hover:scale-105 active:scale-95 transition-all">⟳ Yenile</button>
+
+    <div id="debugPanel" class="hidden glass-card rounded-2xl p-4 mb-6 border-l-4 border-premium-yellow slide-up">
+      <div class="text-[10px] font-black uppercase tracking-widest text-premium-yellow mb-2">İlk kayıt alanları</div>
+      <pre id="debugContent" class="text-[11px] text-analiz-text2 font-mono whitespace-pre-wrap break-all leading-relaxed"></pre>
+    </div>
+
+    <div id="positionList" class="slide-up" style="animation-delay:.25s">
+      <div class="flex flex-col items-center justify-center py-20 glass-card rounded-3xl">
+        <div class="w-10 h-10 border-2 border-premium-blue/20 border-t-premium-blue rounded-full spin mb-4"></div>
+        <div class="text-analiz-text2 font-bebas text-xl tracking-widest">Pozisyonlar yükleniyor...</div>
+      </div>
     </div>
   </div>
 
-  <div id="debugPanel" class="hidden glass-card rounded-2xl p-4 mb-6 border-l-4 border-premium-yellow slide-up">
-    <div class="text-[10px] font-black uppercase tracking-widest text-premium-yellow mb-2">İlk kayıt alanları</div>
-    <pre id="debugContent" class="text-[11px] text-analiz-text2 font-mono whitespace-pre-wrap break-all leading-relaxed"></pre>
-  </div>
+  <div id="closedSection" class="tab-content hidden">
+    <div class="text-center mb-10 slide-up" style="animation-delay:.08s">
+      <h1 class="font-bebas text-6xl md:text-7xl tracking-[4px] text-analiz-text mb-3">
+        KAPANMIŞ İŞLEMLER <span id="closedCount" class="text-premium-blue"></span>
+      </h1>
+      <div class="flex items-center justify-center gap-2 text-analiz-text2 text-sm font-bold uppercase tracking-widest">
+        <span class="w-2 h-2 rounded-full bg-premium-red inline-block"></span>
+        <span id="closedLastUpdate">--:--:--</span>
+      </div>
+    </div>
 
-  <div id="positionList" class="slide-up" style="animation-delay:.25s">
-    <div class="flex flex-col items-center justify-center py-20 glass-card rounded-3xl">
-      <div class="w-10 h-10 border-2 border-premium-blue/20 border-t-premium-blue rounded-full spin mb-4"></div>
-      <div class="text-analiz-text2 font-bebas text-xl tracking-widest">Pozisyonlar yükleniyor...</div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 slide-up" style="animation-delay:.15s">
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Toplam İşlem</div>
+        <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="closedStatTotal">—</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Toplam PNL</div>
+        <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="closedStatPnl">—</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Başarı Oranı</div>
+        <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="closedStatWinRate">—</div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 text-center">
+        <div class="text-[11px] font-black text-analiz-text2 uppercase tracking-widest mb-2">Ort. Süre</div>
+        <div class="font-bebas text-5xl tracking-wider text-analiz-text" id="closedStatAvgTime">—</div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 slide-up" style="animation-delay:.2s">
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="setClosedFilter('all', this)"    class="closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-blue text-white shadow-sm transition-all">Tümü</button>
+        <button onclick="setClosedFilter('LONG', this)"   class="closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-green transition-all">Long</button>
+        <button onclick="setClosedFilter('SHORT', this)"  class="closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-red transition-all">Short</button>
+        <button onclick="setClosedFilter('profit', this)" class="closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-green transition-all">Karda</button>
+        <button onclick="setClosedFilter('loss', this)"   class="closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-red transition-all">Zararda</button>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="loadClosedPositions()" class="flex items-center gap-2 px-5 py-2.5 glass-card rounded-xl text-[11px] font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-blue hover:scale-105 active:scale-95 transition-all">⟳ Yenile</button>
+      </div>
+    </div>
+
+    <div id="closedPositionList" class="slide-up" style="animation-delay:.25s">
+      <div class="flex flex-col items-center justify-center py-20 glass-card rounded-3xl">
+        <div class="w-10 h-10 border-2 border-premium-blue/20 border-t-premium-blue rounded-full spin mb-4"></div>
+        <div class="text-analiz-text2 font-bebas text-xl tracking-widest">Kapanmış işlemler yükleniyor...</div>
+      </div>
     </div>
   </div>
 
@@ -136,15 +193,41 @@ const sp = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ── State ────────────────────────────────────────────────────
 let positions    = []
+let closedPositions = []
 let prices       = {}
 let filter       = 'all'
+let closedFilter = 'all'
 let pendingClose = null
 let wsMap        = {}
+let currentTab   = 'open'
 
 // ── Init ─────────────────────────────────────────────────────
 async function init() {
   await loadPositions()
+  await loadClosedPositions()
   setInterval(loadPositions, 60000)
+  setInterval(loadClosedPositions, 60000)
+}
+
+// ── Tab Management ─────────────────────────────────────────────
+function showTab(tab) {
+  currentTab = tab
+  
+  // Update tab buttons
+  const openTab = document.getElementById('openTab')
+  const closedTab = document.getElementById('closedTab')
+  
+  if (tab === 'open') {
+    openTab.className = 'flex items-center gap-2 px-5 py-3 rounded-xl bg-premium-blue/10 border border-premium-blue/40 text-xs font-black uppercase tracking-widest text-premium-blue shadow-sm'
+    closedTab.className = 'flex items-center gap-2 px-5 py-3 rounded-xl glass-card text-xs font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-blue transition-all'
+    document.getElementById('openSection').classList.remove('hidden')
+    document.getElementById('closedSection').classList.add('hidden')
+  } else {
+    closedTab.className = 'flex items-center gap-2 px-5 py-3 rounded-xl bg-premium-blue/10 border border-premium-blue/40 text-xs font-black uppercase tracking-widest text-premium-blue shadow-sm'
+    openTab.className = 'flex items-center gap-2 px-5 py-3 rounded-xl glass-card text-xs font-black uppercase tracking-widest text-analiz-text2 hover:text-premium-blue transition-all'
+    document.getElementById('closedSection').classList.remove('hidden')
+    document.getElementById('openSection').classList.add('hidden')
+  }
 }
 
 // ── DB ───────────────────────────────────────────────────────
@@ -175,6 +258,29 @@ async function loadPositions() {
   } catch (e) {
     console.error('Yükleme hatası:', e)
     showToast('Veriler yüklenemedi: ' + e.message, 'error')
+  }
+}
+
+// ── DB (Closed Positions) ────────────────────────────────────────
+async function loadClosedPositions() {
+  try {
+    const { data, error } = await sp
+      .from('islemler')
+      .select('*')
+      .in('durum', ['KAPANDI', 'KAPATILDI'])
+      .order('kapanis_zamani', { ascending: false })
+      .limit(100)
+
+    if (error) throw error
+
+    closedPositions = data || []
+    renderClosedPositions()
+    updateClosedStats()
+    updateClosedLastUpdate()
+
+  } catch (e) {
+    console.error('Kapanmış işlemler yükleme hatası:', e)
+    showToast('Kapanmış işlemler yüklenemedi: ' + e.message, 'error')
   }
 }
 
@@ -290,7 +396,22 @@ function calcPnl(islem, currentPrice) {
   return { pnlUsdt, pnlPct, qty }
 }
 
-// ── Filter ───────────────────────────────────────────────────
+// ── Filter (Closed) ───────────────────────────────────────────────
+function filteredClosedPositions() {
+  return closedPositions.filter(p => {
+    if (closedFilter === 'LONG')   return (p.karar || '').toUpperCase() === 'LONG'
+    if (closedFilter === 'SHORT')  return (p.karar || '').toUpperCase() === 'SHORT'
+    if (closedFilter === 'profit') {
+      return (p.pnl_usdt || 0) > 0
+    }
+    if (closedFilter === 'loss') {
+      return (p.pnl_usdt || 0) < 0
+    }
+    return true
+  })
+}
+
+// ── Filter (Open) ───────────────────────────────────────────────────
 function filteredPositions() {
   return positions.filter(p => {
     if (filter === 'LONG')   return (p.karar || '').toUpperCase() === 'LONG'
@@ -306,7 +427,6 @@ function filteredPositions() {
     return true
   })
 }
-
 // ── Grupla ───────────────────────────────────────────────────
 function groupPositions(list) {
   const groups = {}
@@ -325,10 +445,149 @@ function groupPositions(list) {
   })
 }
 
-// ── Render ───────────────────────────────────────────────────
-// ── Sadece fiyat/PNL güncelle (DOM diffing) ──────────────────
-// ── Stats ────────────────────────────────────────────────────
-// ── Modal ────────────────────────────────────────────────────
+// ── Render (Closed Positions) ───────────────────────────────────────
+function renderClosedPositions() {
+  const list = filteredClosedPositions()
+  const el   = document.getElementById('closedPositionList')
+
+  document.getElementById('closedCount').textContent =
+    closedPositions.length ? `(${closedPositions.length})` : ''
+
+  if (!closedPositions.length) {
+    el.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-24 glass-card rounded-3xl border-2 border-dashed border-analiz-border">
+        <div class="text-6xl mb-4 opacity-20">📭</div>
+        <div class="font-bebas text-2xl tracking-widest text-analiz-text2 opacity-40">Kapanmış İşlem Yok</div>
+        <div class="text-sm text-analiz-text2/50 mt-2">Henüz kapanmış işlem bulunmuyor</div>
+      </div>`
+    return
+  }
+
+  if (!list.length) {
+    el.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-24 glass-card rounded-3xl border-2 border-dashed border-analiz-border">
+        <div class="text-6xl mb-4 opacity-20">🔍</div>
+        <div class="font-bebas text-2xl tracking-widest text-analiz-text2 opacity-40">Filtre Sonucu Boş</div>
+      </div>`
+    return
+  }
+
+  el.innerHTML = `<div class="space-y-4">${list.map(p => renderClosedItem(p)).join('')}</div>`
+}
+
+function renderClosedItem(islem) {
+  const pnlUsdt = parseFloat(islem.pnl_usdt) || 0
+  const pnlPct = parseFloat(islem.pnl_yuzde) || 0
+  const isProfit = pnlUsdt >= 0
+  const pnlCls = isProfit ? 'text-premium-green' : 'text-premium-red'
+  const sign = pnlUsdt > 0 ? '+' : ''
+
+  const entry = parseFloat(islem.giris_fiyati) || 0
+  const exit = parseFloat(islem.cikis_fiyati) || 0
+  const tp = parseFloat(islem.take_profit_2 || islem.take_profit_1 || 0)
+  const sl = parseFloat(islem.stop_loss || 0)
+  const posUsd = parseFloat(islem.pozisyon_usdt) || 0
+  const lev = parseFloat(islem.kaldirac) || 1
+  const sure = parseFloat(islem.sure_dakika) || 0
+
+  const entryStr = entry ? '$' + entry.toFixed(getDecimals(entry)) : '—'
+  const exitStr = exit ? '$' + exit.toFixed(getDecimals(exit)) : '—'
+  const tpStr = tp ? '$' + tp.toFixed(getDecimals(tp)) : '—'
+  const slStr = sl ? '$' + sl.toFixed(getDecimals(sl)) : '—'
+  const pnlUsdtStr = sign + pnlUsdt.toFixed(2) + ' $'
+  const pnlPctStr = sign + pnlPct.toFixed(2) + '%'
+  const sureStr = sure ? sure + ' dk' : '—'
+
+  const dirBg = islem.karar === 'LONG'
+    ? 'bg-premium-green/10 text-premium-green border border-premium-green/30'
+    : 'bg-premium-red/10 text-premium-red border border-premium-red/30'
+
+  return `
+    <div class="glass-card rounded-2xl overflow-hidden border-l-4 ${isProfit ? 'border-premium-green' : 'border-premium-red'}">
+      <div class="px-5 py-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <span class="font-bebas text-xl tracking-wider text-analiz-text">${islem.symbol}USDT</span>
+            <span class="text-[9px] font-black px-2 py-1 rounded-lg ${dirBg}">${islem.karar}</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="font-bebas text-xl tracking-wider ${pnlCls}">${pnlUsdtStr}</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Giriş / Çıkış</div>
+            <div class="text-xs font-mono font-bold text-analiz-text2">${entryStr}</div>
+            <div class="text-xs font-mono font-bold text-premium-blue">${exitStr}</div>
+          </div>
+          <div>
+            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">PNL</div>
+            <div class="text-sm font-black font-mono ${pnlCls}">${pnlUsdtStr}</div>
+            <div class="text-xs font-bold font-mono ${pnlCls} opacity-80">${pnlPctStr}</div>
+          </div>
+          <div>
+            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">TP2 / SL</div>
+            <div class="text-xs font-mono font-bold text-premium-green">${tpStr}</div>
+            <div class="text-xs font-mono font-bold text-premium-red">${slStr}</div>
+          </div>
+          <div>
+            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Süre / Kaldıraç</div>
+            <div class="text-xs font-mono text-analiz-text2">${sureStr}</div>
+            <div class="text-xs font-black text-premium-yellow">${lev}x</div>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-analiz-border/50">
+          <div class="flex items-center justify-between text-xs text-analiz-text2">
+            <span>Kapanma: ${islem.kapanis_zamani ? new Date(islem.kapanis_zamani).toLocaleString('tr-TR') : '—'}</span>
+            <span>Neden: ${islem.kapanma_nedeni || '—'}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+// ── Stats (Closed) ────────────────────────────────────────────────────
+function updateClosedStats() {
+  let totalPnl = 0, longC = 0, shortC = 0, profit = 0, loss = 0, totalTime = 0, count = 0
+  
+  closedPositions.forEach(p => {
+    const pnl = parseFloat(p.pnl_usdt) || 0
+    totalPnl += pnl
+    if (pnl > 0) profit++ else if (pnl < 0) loss++
+    ;(p.karar || '').toUpperCase() === 'LONG' ? longC++ : shortC++
+    totalTime += parseFloat(p.sure_dakika) || 0
+    count++
+  })
+  
+  document.getElementById('closedStatTotal').textContent = closedPositions.length
+  const pnlEl = document.getElementById('closedStatPnl')
+  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + totalPnl.toFixed(2) + ' $'
+  pnlEl.className = 'font-bebas text-5xl tracking-wider ' + (totalPnl > 0 ? 'text-premium-green' : totalPnl < 0 ? 'text-premium-red' : 'text-analiz-text')
+  
+  const winRate = count > 0 ? ((profit / count) * 100).toFixed(1) : '0'
+  document.getElementById('closedStatWinRate').textContent = winRate + '%'
+  
+  const avgTime = count > 0 ? Math.round(totalTime / count) : 0
+  document.getElementById('closedStatAvgTime').textContent = avgTime + ' dk'
+}
+
+function updateClosedLastUpdate() {
+  document.getElementById('closedLastUpdate').textContent = new Date().toLocaleTimeString('tr-TR')
+}
+
+function setClosedFilter(f, btn) {
+  closedFilter = f
+  document.querySelectorAll('.closed-filter-btn').forEach(b => {
+    b.className = 'closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest glass-card text-analiz-text2 hover:text-premium-blue transition-all'
+  })
+  if (f === 'LONG')        btn.className = 'closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-green/20 text-premium-green border border-premium-green/40 transition-all'
+  else if (f === 'SHORT')  btn.className = 'closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-red/20 text-premium-red border border-premium-red/40 transition-all'
+  else if (f === 'profit') btn.className = 'closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-green/10 text-premium-green border border-premium-green/30 transition-all'
+  else if (f === 'loss')   btn.className = 'closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-red/10 text-premium-red border border-premium-red/30 transition-all'
+  else btn.className = 'closed-filter-btn px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-premium-blue text-white shadow-sm transition-all'
+  renderClosedPositions()
+}
 async function confirmClose() {
   if (!pendingClose) return
   const { islem, symbol } = pendingClose
