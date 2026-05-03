@@ -74,7 +74,7 @@
 
   <div id="openSection" class="tab-content">
     <div class="text-center mb-10 slide-up" style="animation-delay:.08s">
-      <h1 class="font-bebas text-6xl md:text-7xl tracking-[4px] text-analiz-text mb-3">
+      <h1 class="font-bebas text-5xl md:text-6xl tracking-[4px] text-analiz-text mb-3">
         AÇIK POZİSYONLAR <span id="posCount" class="text-premium-blue"></span>
       </h1>
       <div class="flex items-center justify-center gap-2 text-analiz-text2 text-sm font-bold uppercase tracking-widest">
@@ -85,20 +85,20 @@
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 slide-up" style="animation-delay:.15s">
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[13px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Toplam İşlem</div>
-      <div class="font-bebas text-6xl tracking-wider text-analiz-text" id="statTotal">—</div>
+      <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Toplam İşlem</div>
+      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statTotal">—</div>
     </div>
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[13px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Toplam PNL</div>
-      <div class="font-bebas text-6xl tracking-wider text-analiz-text" id="statPnl">—</div>
+      <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Toplam PNL</div>
+      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statPnl">—</div>
     </div>
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[13px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Long / Short</div>
-      <div class="font-bebas text-6xl tracking-wider text-analiz-text" id="statLongShort">—</div>
+      <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Long / Short</div>
+      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statLongShort">—</div>
     </div>
     <div class="glass-card rounded-2xl p-5 text-center">
-      <div class="text-[13px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Karda / Zararda</div>
-      <div class="font-bebas text-6xl tracking-wider text-analiz-text" id="statProfitLoss">—</div>
+      <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-2">Karda / Zararda</div>
+      <div class="font-bebas text-4xl tracking-wider text-analiz-text" id="statProfitLoss">—</div>
     </div>
   </div>
 
@@ -507,28 +507,28 @@ function renderClosedItem(islem) {
       <div class="px-5 py-4">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-3">
-            <span class="font-bebas text-xl tracking-wider text-analiz-text">${islem.symbol}USDT</span>
-            <span class="text-[9px] font-black px-2 py-1 rounded-lg ${dirBg}">${islem.karar}</span>
+            <span class="font-bebas text-2xl tracking-wider text-analiz-text">${islem.symbol}USDT</span>
+            <span class="text-[11px] font-black px-2 py-1 rounded-lg ${dirBg}">${islem.karar}</span>
           </div>
           <div class="flex items-center gap-4">
-            <span class="font-bebas text-xl tracking-wider ${pnlCls}">${pnlUsdtStr}</span>
+            <span class="font-bebas text-2xl tracking-wider ${pnlCls}">${pnlUsdtStr}</span>
           </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Giriş / Çıkış</div>
-            <div class="text-xs font-mono font-bold text-analiz-text2">${entryStr}</div>
-            <div class="text-xs font-mono font-bold text-premium-blue">${exitStr}</div>
+            <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">Giriş / Çıkış</div>
+            <div class="text-sm font-mono font-bold text-analiz-text2">${entryStr}</div>
+            <div class="text-sm font-mono font-bold text-premium-blue">${exitStr}</div>
           </div>
           <div>
-            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">PNL</div>
-            <div class="text-sm font-black font-mono ${pnlCls}">${pnlUsdtStr}</div>
-            <div class="text-xs font-bold font-mono ${pnlCls} opacity-80">${pnlPctStr}</div>
+            <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">PNL</div>
+            <div class="text-base font-black font-mono ${pnlCls}">${pnlUsdtStr}</div>
+            <div class="text-sm font-bold font-mono ${pnlCls} opacity-80">${pnlPctStr}</div>
           </div>
           <div>
-            <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">TP2 / SL</div>
-            <div class="text-xs font-mono font-bold text-premium-green">${tpStr}</div>
-            <div class="text-xs font-mono font-bold text-premium-red">${slStr}</div>
+            <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">TP1 / SL</div>
+            <div class="text-sm font-mono font-bold text-premium-green">${tpStr}</div>
+            <div class="text-sm font-mono font-bold text-premium-red">${slStr}</div>
           </div>
           <div>
             <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Süre / Kaldıraç</div>
@@ -752,32 +752,32 @@ function renderItem(islem, karar, currentPrice) {
   return `
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 px-5 py-4 hover:bg-white/40 transition-all" id="item-${islem.id}">
       <div>
-        <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Giriş / Anlık</div>
-        <div class="text-xs font-mono font-bold text-analiz-text2">${entryStr}</div>
-        <div class="text-xs font-mono font-bold text-premium-blue" id="price-${islem.id}">${priceStr}</div>
+        <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">Giriş / Anlık</div>
+        <div class="text-sm font-mono font-bold text-analiz-text2">${entryStr}</div>
+        <div class="text-sm font-mono font-bold text-premium-blue" id="price-${islem.id}">${priceStr}</div>
       </div>
       <div>
-        <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">PNL</div>
-        <div class="text-sm font-black font-mono ${pnlCls}" id="pnl-usdt-${islem.id}">${pnlUsdtStr}</div>
-        <div class="text-xs font-bold font-mono ${pnlCls} opacity-80" id="pnl-pct-${islem.id}">${pnlPctStr}</div>
+        <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">PNL</div>
+        <div class="text-base font-black font-mono ${pnlCls}" id="pnl-usdt-${islem.id}">${pnlUsdtStr}</div>
+        <div class="text-sm font-bold font-mono ${pnlCls} opacity-80" id="pnl-pct-${islem.id}">${pnlPctStr}</div>
       </div>
       <div>
-        <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">TP2 / SL</div>
-        <div class="text-xs font-mono font-bold text-premium-green">${tpStr}</div>
-        <div class="text-xs font-mono font-bold text-premium-red">${slStr}</div>
+        <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">TP2 / SL</div>
+        <div class="text-sm font-mono font-bold text-premium-green">${tpStr}</div>
+        <div class="text-sm font-mono font-bold text-premium-red">${slStr}</div>
       </div>
       <div>
-        <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Pozisyon / Kaldıraç</div>
-        <div class="text-xs font-mono font-bold text-analiz-text2">${posUsd > 0 ? '$'+posUsd.toFixed(0) : '—'}</div>
-        <div class="text-xs font-black text-premium-yellow">${lev}x</div>
+        <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">Pozisyon / Kaldıraç</div>
+        <div class="text-sm font-mono font-bold text-analiz-text2">${posUsd > 0 ? '$'+posUsd.toFixed(0) : '—'}</div>
+        <div class="text-sm font-black text-premium-yellow">${lev}x</div>
       </div>
       <div>
-        <div class="text-[9px] font-black text-analiz-text2 uppercase tracking-widest mb-1">Süre</div>
-        <div class="text-xs font-mono text-analiz-text2" id="sure-${islem.id}">${sure}</div>
-        <div class="text-[10px] text-analiz-text2/60">${islem.binance_durum || ''}</div>
+        <div class="text-[11px] font-bold text-analiz-text2 uppercase tracking-widest mb-1">Süre</div>
+        <div class="text-sm font-mono text-analiz-text2" id="sure-${islem.id}">${sure}</div>
+        <div class="text-[11px] text-analiz-text2/60">${islem.binance_durum || ''}</div>
       </div>
       <div class="flex items-center justify-end">
-        <button class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${btnCls}" onclick="openCloseModal(${islem.id})">${btnTxt}</button>
+        <button class="px-4 py-2 rounded-xl text-[12px] font-bold uppercase tracking-widest transition-all ${btnCls}" onclick="openCloseModal(${islem.id})">${btnTxt}</button>
       </div>
     </div>
   `
