@@ -554,7 +554,11 @@ function updateClosedStats() {
   closedPositions.forEach(p => {
     const pnl = parseFloat(p.pnl_usdt) || 0
     totalPnl += pnl
-    if (pnl > 0) profit++ else if (pnl < 0) loss++
+    if (pnl > 0) {
+      profit++
+    } else if (pnl < 0) {
+      loss++
+    }
     ;(p.karar || '').toUpperCase() === 'LONG' ? longC++ : shortC++
     totalTime += parseFloat(p.sure_dakika) || 0
     count++
