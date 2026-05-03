@@ -840,9 +840,8 @@ function closeModal() {
 
 async function confirmClose() {
   if (!pendingClose) return
-  closeModal()
-
   const { islem, symbol } = pendingClose
+  closeModal()
   const btn = document.querySelector(`#item-${islem.id} .btn`)
   if (btn) { btn.disabled = true; btn.textContent = 'Gönderiliyor...' }
 
