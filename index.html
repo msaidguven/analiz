@@ -1889,6 +1889,15 @@
             const end = start + itemsPerPage;
             const pageCoins = filteredCoins.slice(start, end);
 
+            // Mevcut karar preview'lerini kaydet (fiyat güncellemesinde sinyallerin kaybolmaması için)
+            const savedPreviews = {};
+            pageCoins.forEach(coin => {
+                const previewEl = document.getElementById(`karar-preview-${coin.baseAsset}`);
+                if (previewEl && previewEl.innerHTML.trim() && !previewEl.innerHTML.includes('Analiz Ediliyor...')) {
+                    savedPreviews[coin.baseAsset] = previewEl.innerHTML;
+                }
+            });
+
             if (pageCoins.length === 0 && filteredCoins.length === 0) {
                 emptyState.style.display = 'block';
                 coinGrid.innerHTML = '';
@@ -1974,10 +1983,7 @@
                         </div>
 
                         <div id="karar-preview-${coin.baseAsset}" class="bg-binance-dark/50 rounded-xl p-3 mb-5 min-h-[60px] border border-binance-border/50">
-                            <div class="flex items-center justify-center gap-2 h-full py-2">
-                                <div class="w-5 h-5 border-2 border-binance-yellow/20 border-t-binance-yellow rounded-full animate-spin"></div>
-                                <span class="text-xs text-binance-text font-black tracking-widest uppercase">Analiz Ediliyor...</span>
-                            </div>
+                            <!-- Mevcut sinyal içeriği korunacak -->
                         </div>
 
                         <div class="flex gap-2 mt-auto">
@@ -1993,8 +1999,15 @@
 
             renderPagination();
 
-            // Sinyaller sadece ilk açılışta ve manuel yenilemede yüklenir
-            // Fiyat güncellemesinde sinyaller yeniden yüklenmez
+            // Kaydedilen karar preview'lerini geri yükle
+            setTimeout(() => {
+                Object.entries(savedPreviews).forEach(([symbol, content]) => {
+                    const previewEl = document.getElementById(`karar-preview-${symbol}`);
+                    if (previewEl && content) {
+                        previewEl.innerHTML = content;
+                    }
+                });
+            }, 50);
         }
 
         // Update stats
