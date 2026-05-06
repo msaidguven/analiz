@@ -599,6 +599,291 @@ body::before {
   flex-shrink:0;
 }
 
+/* ─── MTF (Çok Zaman Dilimi) ─── */
+.mtf-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.mtf-col {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  padding:10px 8px;
+  position:relative;
+  overflow:hidden;
+}
+
+.mtf-col.loading-col::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0%{background-position:200% 0;}
+  100%{background-position:-200% 0;}
+}
+
+.mtf-tf-label {
+  font-family:'Orbitron', monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:3px;
+  text-align:center;
+  margin-bottom:10px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+.mtf-tf-label.tf-1h { color:#ffab00; border-bottom-color:rgba(255,171,0,0.2); }
+.mtf-tf-label.tf-4h { color:#2979ff; border-bottom-color:rgba(41,121,255,0.2); }
+.mtf-tf-label.tf-1w { color:#aa00ff; border-bottom-color:rgba(170,0,255,0.2); }
+
+.mtf-ind {
+  margin-bottom:8px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.mtf-ind:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+
+.mtf-ind-name {
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:1px;
+  color:var(--dim);
+  margin-bottom:3px;
+}
+
+.mtf-ind-val {
+  font-family:'Share Tech Mono', monospace;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:2px;
+}
+
+.mtf-ind-sig {
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:1px;
+  font-weight:700;
+}
+
+.mtf-ind-sig.bull { color:var(--green); }
+.mtf-ind-sig.bear { color:var(--red); }
+.mtf-ind-sig.neut { color:var(--yellow); }
+
+/* Konfirmasyon özet kutusu */
+.mtf-confirm {
+  background:var(--panel);
+  border:1px solid var(--border);
+  padding:12px 14px;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.mtf-confirm-icon {
+  font-size:22px;
+  flex-shrink:0;
+}
+
+.mtf-confirm-text {
+  flex:1;
+}
+
+.mtf-confirm-title {
+  font-family:'Orbitron', monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:2px;
+  margin-bottom:3px;
+}
+
+.mtf-confirm-title.all-bull { color:var(--green); text-shadow:var(--glow-g); }
+.mtf-confirm-title.all-bear { color:var(--red); text-shadow:var(--glow-r); }
+.mtf-confirm-title.mixed   { color:var(--yellow); }
+
+.mtf-confirm-sub {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  color:var(--dim);
+  letter-spacing:1px;
+  line-height:1.6;
+}
+
+.mtf-score-bar {
+  display:flex;
+  gap:3px;
+  margin-top:6px;
+}
+
+.mtf-score-dot {
+  width:14px; height:4px;
+  border-radius:2px;
+  background:var(--border2);
+}
+.mtf-score-dot.bull { background:var(--green); }
+.mtf-score-dot.bear { background:var(--red); }
+.mtf-score-dot.neut { background:var(--yellow); }
+
+/* ─── MODÜL 2: Destek / Direnç ─── */
+.sr-panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  margin-bottom:14px;
+  overflow:hidden;
+  position:relative;
+}
+
+.sr-panel::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg, #ffab00, #ff6d00, transparent);
+  opacity:0.6;
+}
+
+.sr-chart {
+  position:relative;
+  height:100px;
+  background:var(--panel2);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+
+/* yatay seviye çizgileri */
+.sr-level-line {
+  position:absolute;
+  left:0; right:0;
+  height:1px;
+  transition:top 0.6s ease;
+}
+.sr-level-line.res { background:rgba(255,23,68,0.5); }
+.sr-level-line.sup { background:rgba(0,230,118,0.5); }
+.sr-level-line.price-now {
+  background:var(--bright);
+  height:2px;
+  box-shadow:0 0 6px rgba(255,255,255,0.4);
+  z-index:10;
+}
+
+/* glow bölge: fiyat üstü kırmızı, altı yeşil */
+.sr-zone-res {
+  position:absolute;
+  left:0; right:0;
+  top:0;
+  background:rgba(255,23,68,0.04);
+  transition:height 0.6s ease;
+}
+.sr-zone-sup {
+  position:absolute;
+  left:0; right:0;
+  bottom:0;
+  background:rgba(0,230,118,0.04);
+  transition:height 0.6s ease;
+}
+
+/* fiyat etiketi sağda */
+.sr-price-label {
+  position:absolute;
+  right:6px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:0.5px;
+  transform:translateY(-50%);
+  padding:1px 4px;
+  border-radius:1px;
+  white-space:nowrap;
+}
+.sr-price-label.res { color:var(--red); background:rgba(255,23,68,0.12); }
+.sr-price-label.sup { color:var(--green); background:rgba(0,230,118,0.12); }
+.sr-price-label.now { color:var(--bright); background:rgba(255,255,255,0.1); font-weight:700; }
+
+/* seviye listesi */
+.sr-list { padding:10px 14px; }
+
+.sr-item {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 0;
+  border-bottom:1px solid var(--border);
+}
+.sr-item:last-child { border-bottom:none; }
+
+.sr-badge {
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:2px;
+  font-weight:700;
+  padding:2px 6px;
+  border:1px solid;
+  min-width:42px;
+  text-align:center;
+  flex-shrink:0;
+}
+.sr-badge.res { color:var(--red); border-color:rgba(255,23,68,0.3); }
+.sr-badge.sup { color:var(--green); border-color:rgba(0,230,118,0.3); }
+
+.sr-item-price {
+  font-family:'Share Tech Mono', monospace;
+  font-size:12px;
+  font-weight:700;
+  color:var(--bright);
+  flex:1;
+}
+
+.sr-item-dist {
+  font-family:'Share Tech Mono', monospace;
+  font-size:10px;
+  letter-spacing:1px;
+}
+.sr-item-dist.res { color:var(--red); }
+.sr-item-dist.sup { color:var(--green); }
+
+.sr-item-strength {
+  display:flex;
+  gap:2px;
+}
+.sr-dot {
+  width:5px; height:5px;
+  border-radius:50%;
+  background:var(--border2);
+}
+.sr-dot.res.on { background:var(--red); }
+.sr-dot.sup.on { background:var(--green); }
+
+/* fiyat konumu özeti */
+.sr-summary {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-top:1px solid var(--border);
+}
+.sr-summary-icon { font-size:18px; flex-shrink:0; }
+.sr-summary-text { flex:1; }
+.sr-summary-title {
+  font-family:'Orbitron', monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2px;
+  margin-bottom:2px;
+}
+.sr-summary-sub {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  color:var(--dim);
+  letter-spacing:1px;
+}
+
 /* copy section */
 .copy-section { margin-top:14px; }
 
@@ -819,18 +1104,32 @@ body::before {
       <div class="trader-val" id="d-tt-pos">—</div>
     </div>
 
-    <!-- ─── TEKNİK ANALİZ (4H) ─── -->
-    <div class="sec-title" style="margin-top:14px">TEKNİK ANALİZ — 4 SAATLIK</div>
-    <div class="ta-panel" id="taPanel">
-      <div class="ta-header">
-        <div class="ta-title">İNDİKATÖR TARAMASI</div>
-        <div class="ta-tf-badge">4H MUMU</div>
+    <!-- ─── MTF TEKNİK ANALİZ ─── -->
+    <div class="sec-title" style="margin-top:14px">ÇOK ZAMANLI TEKNİK ANALİZ — MTF</div>
+
+    <!-- Konfirmasyon özeti -->
+    <div class="mtf-confirm" id="mtfConfirm">
+      <div class="mtf-confirm-icon" id="mtfIcon">⏳</div>
+      <div class="mtf-confirm-text">
+        <div class="mtf-confirm-title mixed" id="mtfTitle">VERİ ÇEKİLİYOR...</div>
+        <div class="mtf-confirm-sub" id="mtfSub">1H · 4H · 1W kline verisi yükleniyor</div>
+        <div class="mtf-score-bar" id="mtfScoreBar"></div>
       </div>
-      <div id="taContent">
-        <div class="ta-loading">
-          <div class="ta-spinner"></div>
-          4H KLINE VERİSİ ÇEKİLİYOR...
-        </div>
+    </div>
+
+    <!-- 3 kolon: 1H / 4H / 1W -->
+    <div class="mtf-grid">
+      <div class="mtf-col loading-col" id="mtfCol1h">
+        <div class="mtf-tf-label tf-1h">1H</div>
+        <div class="ta-loading"><div class="ta-spinner"></div></div>
+      </div>
+      <div class="mtf-col loading-col" id="mtfCol4h">
+        <div class="mtf-tf-label tf-4h">4H</div>
+        <div class="ta-loading"><div class="ta-spinner"></div></div>
+      </div>
+      <div class="mtf-col loading-col" id="mtfCol1w">
+        <div class="mtf-tf-label tf-1w">1W</div>
+        <div class="ta-loading"><div class="ta-spinner"></div></div>
       </div>
     </div>
 
@@ -1015,106 +1314,173 @@ function calcBollinger(closes, period = 20, multiplier = 2) {
   };
 }
 
-async function fetchTechnicalData(symbol) {
-  // 200 × 4h klines
+// ═══════════════════════════════════════════════
+// MODÜL 1 — ÇOK ZAMANLI TEKNİK ANALİZ (MTF)
+// ═══════════════════════════════════════════════
+
+// Tek bir zaman dilimi için kline çek ve hesapla
+async function fetchTFData(symbol, interval, limit) {
   const res = await fetch(
-    `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=4h&limit=200`
+    `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
   );
   const klines = await res.json();
-
-  const closes = klines.map(k => parseFloat(k[4]));
-  const highs  = klines.map(k => parseFloat(k[2]));
-  const lows   = klines.map(k => parseFloat(k[3]));
+  const closes  = klines.map(k => parseFloat(k[4]));
+  const volumes = klines.map(k => parseFloat(k[5]));
   const currentClose = closes[closes.length - 1];
 
   const rsi  = calcRSI(closes, 14);
   const macd = calcMACD(closes);
   const bb   = calcBollinger(closes, 20, 2);
 
-  return { rsi, macd, bb, currentClose, klineCount: klines.length };
+  return { rsi, macd, bb, currentClose, closes, volumes, klineCount: klines.length, interval };
+}
+
+// Üç zaman dilimini paralel çek
+async function fetchTechnicalData(symbol) {
+  const [r1h, r4h, r1w] = await Promise.allSettled([
+    fetchTFData(symbol, '1h', 200),
+    fetchTFData(symbol, '4h', 200),
+    fetchTFData(symbol, '1w', 100),
+  ]);
+
+  const tf1h = r1h.status === 'fulfilled' ? r1h.value : null;
+  const tf4h = r4h.status === 'fulfilled' ? r4h.value : null;
+  const tf1w = r1w.status === 'fulfilled' ? r1w.value : null;
+
+  // 4H'ı geriye dönük uyumluluk için ana taData olarak dön
+  const base = tf4h || {};
+  return {
+    ...base,
+    mtf: { tf1h, tf4h, tf1w }
+  };
+}
+
+// Bir zaman diliminin sinyal yönünü hesapla (bull/bear/neut) ve skor üret
+function tfSignal(tf) {
+  if (!tf) return { dir: 'neut', score: 0, rsiSig: 'neut', macdSig: 'neut', bbSig: 'neut' };
+  let bullCount = 0, bearCount = 0;
+
+  const rsiSig = tf.rsi > 55 ? 'bull' : tf.rsi < 45 ? 'bear' : 'neut';
+  const macdSig = tf.macd ? (tf.macd.histogram > 0 ? 'bull' : 'bear') : 'neut';
+  let bbSig = 'neut';
+  if (tf.bb && tf.currentClose) {
+    const pos = (tf.currentClose - tf.bb.lower) / (tf.bb.upper - tf.bb.lower);
+    bbSig = tf.currentClose > tf.bb.upper ? 'bear' : tf.currentClose < tf.bb.lower ? 'bull' : pos > 0.6 ? 'bull' : pos < 0.4 ? 'bear' : 'neut';
+  }
+
+  [rsiSig, macdSig, bbSig].forEach(s => {
+    if (s === 'bull') bullCount++;
+    if (s === 'bear') bearCount++;
+  });
+
+  const dir = bullCount > bearCount ? 'bull' : bearCount > bullCount ? 'bear' : 'neut';
+  const score = bullCount - bearCount; // -3 → +3
+  return { dir, score, rsiSig, macdSig, bbSig };
+}
+
+// Tek bir sütun HTML'i oluştur
+function buildTFColHTML(tf, tfLabel, tfClass) {
+  if (!tf) return `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;padding:6px">Veri alınamadı</div>`;
+
+  const sig = tfSignal(tf);
+  const rsiColor = sig.rsiSig === 'bull' ? 'var(--green)' : sig.rsiSig === 'bear' ? 'var(--red)' : 'var(--yellow)';
+  const macdColor = sig.macdSig === 'bull' ? 'var(--green)' : sig.macdSig === 'bear' ? 'var(--red)' : 'var(--yellow)';
+  const bbColor = sig.bbSig === 'bull' ? 'var(--green)' : sig.bbSig === 'bear' ? 'var(--red)' : 'var(--yellow)';
+
+  const rsiLabel = tf.rsi > 70 ? 'AŞIRI ALIM' : tf.rsi < 30 ? 'AŞIRI SATIM' : tf.rsi > 55 ? 'GÜÇLÜ' : tf.rsi < 45 ? 'ZAYIF' : 'NÖTR';
+  const macdLabel = !tf.macd ? '—' : tf.macd.histogram > 0 ? 'POZİTİF' : 'NEGATİF';
+  const macdTrend = tf.macd && tf.macd.prevHisto !== null
+    ? (Math.abs(tf.macd.histogram) > Math.abs(tf.macd.prevHisto) ? '↑' : '↓')
+    : '';
+
+  let bbLabel = '—';
+  if (tf.bb && tf.currentClose) {
+    const pos = (tf.currentClose - tf.bb.lower) / (tf.bb.upper - tf.bb.lower);
+    bbLabel = tf.currentClose > tf.bb.upper ? 'ÜST AŞIM' : tf.currentClose < tf.bb.lower ? 'ALT AŞIM' : pos > 0.65 ? 'ÜST BÖLGE' : pos < 0.35 ? 'ALT BÖLGE' : 'ORTA';
+  }
+
+  return `
+    <div class="mtf-ind">
+      <div class="mtf-ind-name">RSI(14)</div>
+      <div class="mtf-ind-val" style="color:${rsiColor}">${tf.rsi !== null ? tf.rsi.toFixed(1) : '—'}</div>
+      <div class="mtf-ind-sig ${sig.rsiSig}">${rsiLabel}</div>
+    </div>
+    <div class="mtf-ind">
+      <div class="mtf-ind-name">MACD</div>
+      <div class="mtf-ind-val" style="color:${macdColor}">${tf.macd ? tf.macd.histogram.toFixed(4) : '—'} <span style="font-size:10px">${macdTrend}</span></div>
+      <div class="mtf-ind-sig ${sig.macdSig}">${macdLabel}</div>
+    </div>
+    <div class="mtf-ind">
+      <div class="mtf-ind-name">BOLLİNGER</div>
+      <div class="mtf-ind-val" style="color:${bbColor};font-size:10px">${tf.bb ? formatPrice(tf.currentClose) : '—'}</div>
+      <div class="mtf-ind-sig ${sig.bbSig}">${bbLabel}</div>
+    </div>`;
+}
+
+// Genel MTF konfirmasyon özetini güncelle
+function updateMTFSummary(mtf) {
+  const s1h = tfSignal(mtf.tf1h);
+  const s4h = tfSignal(mtf.tf4h);
+  const s1w = tfSignal(mtf.tf1w);
+
+  const totalScore = s1h.score + s4h.score + s1w.score; // -9 → +9
+  const bullTFs = [s1h, s4h, s1w].filter(s => s.dir === 'bull').length;
+  const bearTFs = [s1h, s4h, s1w].filter(s => s.dir === 'bear').length;
+
+  let icon, titleText, titleCls, subText;
+
+  if (bullTFs === 3) {
+    icon = '🟢'; titleText = 'GÜÇLÜ YUKARI TREND'; titleCls = 'all-bull';
+    subText = '3 zaman dilimi de yükseliş sinyali veriyor — yüksek konfirmasyon';
+  } else if (bearTFs === 3) {
+    icon = '🔴'; titleText = 'GÜÇLÜ AŞAĞI TREND'; titleCls = 'all-bear';
+    subText = '3 zaman dilimi de düşüş sinyali veriyor — yüksek konfirmasyon';
+  } else if (bullTFs === 2) {
+    icon = '🟡'; titleText = 'ZAYIF YUKARI EĞİLİM'; titleCls = 'mixed';
+    subText = '2/3 zaman dilimi yükseliş — dikkatli pozisyon';
+  } else if (bearTFs === 2) {
+    icon = '🟡'; titleText = 'ZAYIF AŞAĞI EĞİLİM'; titleCls = 'mixed';
+    subText = '2/3 zaman dilimi düşüş — dikkatli pozisyon';
+  } else {
+    icon = '⚪'; titleText = 'KARIŞIK SİNYAL'; titleCls = 'mixed';
+    subText = 'Zaman dilimleri çelişiyor — net yön yok, bekle';
+  }
+
+  document.getElementById('mtfIcon').textContent = icon;
+  const titleEl = document.getElementById('mtfTitle');
+  titleEl.textContent = titleText;
+  titleEl.className = `mtf-confirm-title ${titleCls}`;
+  document.getElementById('mtfSub').textContent = subText;
+
+  // Skor noktaları — her TF için 3 nokta (RSI, MACD, BB)
+  const dots = [s1h, s4h, s1w].flatMap(s => [
+    { cls: s.rsiSig },
+    { cls: s.macdSig },
+    { cls: s.bbSig },
+  ]);
+  document.getElementById('mtfScoreBar').innerHTML = dots.map(d =>
+    `<div class="mtf-score-dot ${d.cls}"></div>`
+  ).join('');
 }
 
 function renderTAPanel(ta, price) {
-  const { rsi, macd, bb } = ta;
-  let html = '';
+  if (!ta || !ta.mtf) return;
+  const { tf1h, tf4h, tf1w } = ta.mtf;
 
-  // ── RSI ──
-  if (rsi !== null) {
-    const rsiRound = rsi.toFixed(2);
-    const rsiCls = rsi > 70 ? 'bear' : rsi < 30 ? 'bull' : 'neut';
-    const rsiLabel = rsi > 70 ? 'AŞIRI ALIM' : rsi < 30 ? 'AŞIRI SATIM' : rsi > 55 ? 'GÜÇLÜ' : rsi < 45 ? 'ZAYIF' : 'NÖTR';
-    const needleLeft = Math.min(Math.max(rsi, 0), 100);
+  // Sütunları doldur
+  const col1h = document.getElementById('mtfCol1h');
+  const col4h = document.getElementById('mtfCol4h');
+  const col1w = document.getElementById('mtfCol1w');
 
-    html += `
-    <div class="ta-row">
-      <div class="ta-indicator">RSI (14)</div>
-      <div class="ta-values">
-        <div class="ta-main-val ${rsiCls === 'bull' ? 'up' : rsiCls === 'bear' ? 'down' : 'warn'}">${rsiRound}</div>
-        <div class="ta-sub-val">4H periyot</div>
-      </div>
-      <div class="ta-signal ${rsiCls}">${rsiLabel}</div>
-    </div>
-    <div class="rsi-strip">
-      <div class="rsi-needle" style="left:${needleLeft}%"></div>
-    </div>`;
-  }
+  col1h.classList.remove('loading-col');
+  col4h.classList.remove('loading-col');
+  col1w.classList.remove('loading-col');
 
-  // ── MACD ──
-  if (macd) {
-    const macdCls = macd.histogram > 0 ? 'bull' : 'bear';
-    const histChg = macd.prevHisto !== null
-      ? (Math.abs(macd.histogram) > Math.abs(macd.prevHisto) ? '↑ güçleniyor' : '↓ zayıflıyor')
-      : '';
-    const macdLabel = macd.histogram > 0
-      ? (macd.histogram > (macd.prevHisto || 0) ? 'YÜKSELİŞ' : 'ZAYIF YÜK')
-      : (macd.histogram < (macd.prevHisto || 0) ? 'DÜŞÜŞ' : 'ZAYIF DÜŞ');
+  col1h.innerHTML = `<div class="mtf-tf-label tf-1h">1H</div>${buildTFColHTML(tf1h, '1H', 'tf-1h')}`;
+  col4h.innerHTML = `<div class="mtf-tf-label tf-4h">4H</div>${buildTFColHTML(tf4h, '4H', 'tf-4h')}`;
+  col1w.innerHTML = `<div class="mtf-tf-label tf-1w">1W</div>${buildTFColHTML(tf1w, '1W', 'tf-1w')}`;
 
-    html += `
-    <div class="ta-row" style="margin-top:10px">
-      <div class="ta-indicator">MACD (12/26/9)</div>
-      <div class="ta-values">
-        <div class="ta-main-val ${macdCls === 'bull' ? 'up' : 'down'}">${macd.macd.toFixed(4)}</div>
-        <div class="ta-sub-val">SIG: ${macd.signal.toFixed(4)} | HISTO: ${macd.histogram.toFixed(4)}</div>
-        <div class="ta-sub-val">${histChg}</div>
-      </div>
-      <div class="ta-signal ${macdCls}">${macdLabel}</div>
-    </div>`;
-  }
-
-  // ── BOLLINGER ──
-  if (bb && price) {
-    const pos = (price - bb.lower) / (bb.upper - bb.lower); // 0→1
-    const posPct = Math.min(Math.max(pos * 100, 0), 100);
-    const bbCls = price > bb.upper ? 'bear' : price < bb.lower ? 'bull' : 'neut';
-    const bbLabel = price > bb.upper ? 'ÜST BANT ÜZERİ' : price < bb.lower ? 'ALT BANT ALTI' : pos > 0.65 ? 'ÜST BÖLGE' : pos < 0.35 ? 'ALT BÖLGE' : 'ORTA BÖLGE';
-
-    html += `
-    <div class="ta-row" style="margin-top:10px">
-      <div class="ta-indicator">BOLLINGER (20,2)</div>
-      <div class="ta-values">
-        <div class="ta-main-val ${bbCls === 'bull' ? 'up' : bbCls === 'bear' ? 'down' : 'warn'}">${formatPrice(price)}</div>
-        <div class="ta-sub-val">ÜST: ${formatPrice(bb.upper)} | ALT: ${formatPrice(bb.lower)}</div>
-        <div class="ta-sub-val">ORTA: ${formatPrice(bb.middle)} | GENİŞ: %${bb.width.toFixed(2)}</div>
-      </div>
-      <div class="ta-signal ${bbCls}">${bbLabel}</div>
-    </div>
-    <div class="bb-visual" style="margin-top:8px">
-      <div class="bb-band" style="left:5%;right:5%"></div>
-      <div class="bb-mid" style="left:50%"></div>
-      <div class="bb-price-marker" style="left:${posPct.toFixed(1)}%"></div>
-    </div>
-    <div class="bb-labels">
-      <span>${formatPrice(bb.lower)}</span>
-      <span>ORTA ${formatPrice(bb.middle)}</span>
-      <span>${formatPrice(bb.upper)}</span>
-    </div>`;
-  }
-
-  if (!html) {
-    html = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:10px">Teknik veri hesaplanamadı.</div>`;
-  }
-
-  document.getElementById('taContent').innerHTML = html;
+  updateMTFSummary(ta.mtf);
 }
 
 // ═══════════════════════════════════════════════
@@ -1130,7 +1496,15 @@ async function openDetail(symbol) {
   document.getElementById('detailError').style.display = 'none';
   document.getElementById('copyBtn').disabled = true;
   document.getElementById('outputPreview').textContent = 'Veri çekiliyor...';
-  document.getElementById('taContent').innerHTML = `<div class="ta-loading"><div class="ta-spinner"></div>4H KLINE VERİSİ ÇEKİLİYOR...</div>`;
+  document.getElementById('taContent') && (document.getElementById('taContent').innerHTML = '');
+  document.getElementById('mtfCol1h').innerHTML = `<div class="mtf-tf-label tf-1h">1H</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
+  document.getElementById('mtfCol4h').innerHTML = `<div class="mtf-tf-label tf-4h">4H</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
+  document.getElementById('mtfCol1w').innerHTML = `<div class="mtf-tf-label tf-1w">1W</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
+  ['mtfCol1h','mtfCol4h','mtfCol1w'].forEach(id => document.getElementById(id).classList.add('loading-col'));
+  document.getElementById('mtfTitle').textContent = 'VERİ ÇEKİLİYOR...';
+  document.getElementById('mtfSub').textContent = '1H · 4H · 1W kline verisi yükleniyor';
+  document.getElementById('mtfIcon').textContent = '⏳';
+  document.getElementById('mtfScoreBar').innerHTML = '';
   resetDetail();
 
   document.getElementById('listPage').classList.remove('active');
@@ -1153,7 +1527,10 @@ async function refreshDetail() {
   const btn = document.getElementById('refreshBtn');
   btn.disabled = true;
   btn.textContent = '⟳ YENİLENİYOR...';
-  document.getElementById('taContent').innerHTML = `<div class="ta-loading"><div class="ta-spinner"></div>4H KLINE YENİLENİYOR...</div>`;
+  document.getElementById('mtfCol1h').innerHTML = `<div class="mtf-tf-label tf-1h">1H</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
+  document.getElementById('mtfCol4h').innerHTML = `<div class="mtf-tf-label tf-4h">4H</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
+  document.getElementById('mtfCol1w').innerHTML = `<div class="mtf-tf-label tf-1w">1W</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
+  ['mtfCol1h','mtfCol4h','mtfCol1w'].forEach(id => document.getElementById(id).classList.add('loading-col'));
   await Promise.all([
     fetchDetail(currentSymbol),
     fetchAndRenderTA(currentSymbol)
@@ -1171,8 +1548,11 @@ async function fetchAndRenderTA(symbol) {
     // rebuild output with TA included
     if (detailData.price) buildOutput(detailData, symbol);
   } catch(e) {
-    document.getElementById('taContent').innerHTML =
-      `<div style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">⚠ 4H veri alınamadı: ${e.message}</div>`;
+    ['mtfCol1h','mtfCol4h','mtfCol1w'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove('loading-col');
+      el.innerHTML = `<div style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px">⚠ ${e.message}</div>`;
+    });
   }
 }
 
@@ -1289,17 +1669,27 @@ function renderVerdicts(d) {
     const ratio = d.volume / d.oiUSD;
     items.push({ icon:'🔥', text:'Hacim/OI Oranı', status: ratio>3?'AŞIRI AKTİF':ratio>1?'AKTİF':'DÜŞÜK', cls: ratio>1?'bull':'neut' });
   }
-  // Add TA signals
-  if (taData.rsi !== null && taData.rsi !== undefined) {
-    const r = taData.rsi;
+  // MTF sinyalleri — 4H baz alınır, konfirmasyon gösterilir
+  const tf4h = taData.mtf && taData.mtf.tf4h;
+  if (tf4h && tf4h.rsi !== null && tf4h.rsi !== undefined) {
+    const r = tf4h.rsi;
     items.push({ icon:'📊', text:'RSI(14) — 4H', status: r>70?'AŞIRI ALIM':r<30?'AŞIRI SATIM':r>55?'GÜÇLÜ':'NÖTR', cls: r>70?'bear':r<30?'bull':'neut' });
   }
-  if (taData.macd) {
-    items.push({ icon:'⚡', text:'MACD — 4H', status: taData.macd.histogram>0?'POZİTİF':'NEGATİF', cls: taData.macd.histogram>0?'bull':'bear' });
+  if (tf4h && tf4h.macd) {
+    items.push({ icon:'⚡', text:'MACD — 4H', status: tf4h.macd.histogram>0?'POZİTİF':'NEGATİF', cls: tf4h.macd.histogram>0?'bull':'bear' });
   }
-  if (taData.bb && d.price) {
-    const pos = (d.price - taData.bb.lower) / (taData.bb.upper - taData.bb.lower);
-    items.push({ icon:'🎯', text:'Bollinger — 4H', status: d.price>taData.bb.upper?'ÜST AŞIMI':d.price<taData.bb.lower?'ALT AŞIMI':pos>0.65?'ÜST BÖLGE':pos<0.35?'ALT BÖLGE':'ORTA', cls: d.price>taData.bb.upper?'bear':d.price<taData.bb.lower?'bull':'neut' });
+  if (tf4h && tf4h.bb && d.price) {
+    const pos = (d.price - tf4h.bb.lower) / (tf4h.bb.upper - tf4h.bb.lower);
+    items.push({ icon:'🎯', text:'Bollinger — 4H', status: d.price>tf4h.bb.upper?'ÜST AŞIMI':d.price<tf4h.bb.lower?'ALT AŞIMI':pos>0.65?'ÜST BÖLGE':pos<0.35?'ALT BÖLGE':'ORTA', cls: d.price>tf4h.bb.upper?'bear':d.price<tf4h.bb.lower?'bull':'neut' });
+  }
+  // MTF konfirmasyon
+  if (taData.mtf) {
+    const s1h = tfSignal(taData.mtf.tf1h), s4h = tfSignal(taData.mtf.tf4h), s1w = tfSignal(taData.mtf.tf1w);
+    const bullTFs = [s1h, s4h, s1w].filter(s => s.dir === 'bull').length;
+    const bearTFs = [s1h, s4h, s1w].filter(s => s.dir === 'bear').length;
+    const konfSts = bullTFs === 3 ? '3/3 YUKARI' : bearTFs === 3 ? '3/3 AŞAĞI' : bullTFs === 2 ? '2/3 YUKARI' : bearTFs === 2 ? '2/3 AŞAĞI' : 'KARIŞIK';
+    const konfCls = bullTFs >= 2 ? 'bull' : bearTFs >= 2 ? 'bear' : 'neut';
+    items.push({ icon:'🕐', text:'MTF Konfirmasyon', status: konfSts, cls: konfCls });
   }
 
   document.getElementById('verdictItems').innerHTML = items.map(i => `
@@ -1343,43 +1733,45 @@ function buildOutput(d, symbol) {
   if (d.ttAcc) t += `🔝 Top Trader Hesap L/S: ${d.ttAcc.toFixed(4)}  →  ${d.ttAcc > 1 ? 'Long ağırlıklı' : 'Short ağırlıklı'}\n`;
   if (d.ttPos) t += `🔝 Top Trader Pozisyon L/S: ${d.ttPos.toFixed(4)}  →  ${d.ttPos > 1 ? 'Long ağırlıklı' : 'Short ağırlıklı'}\n`;
 
-  // ── TEKNİK ANALİZ BÖLÜMÜ ──
-  if (taData && (taData.rsi !== null || taData.macd || taData.bb)) {
+  // ── MTF TEKNİK ANALİZ BÖLÜMÜ ──
+  if (taData && taData.mtf) {
+    const { tf1h, tf4h, tf1w } = taData.mtf;
     t += '\n' + '─'.repeat(42) + '\n';
-    t += `📐 TEKNİK ANALİZ — 4 SAATLIK (${taData.klineCount || 200} mum)\n`;
+    t += `📐 ÇOK ZAMANLI TEKNİK ANALİZ (MTF)\n`;
     t += '─'.repeat(42) + '\n\n';
 
-    if (taData.rsi !== null && taData.rsi !== undefined) {
-      const r = taData.rsi;
-      const rsiLabel = r > 70 ? '⚠ AŞIRI ALIM' : r < 30 ? '⚠ AŞIRI SATIM' : r > 55 ? 'Güçlü' : r < 45 ? 'Zayıf' : 'Nötr';
-      t += `📊 RSI(14):  ${r.toFixed(2)}  →  ${rsiLabel}\n`;
-    }
+    // Konfirmasyon özeti
+    const s1h = tfSignal(tf1h), s4h = tfSignal(tf4h), s1w = tfSignal(tf1w);
+    const bullTFs = [s1h, s4h, s1w].filter(s => s.dir === 'bull').length;
+    const bearTFs = [s1h, s4h, s1w].filter(s => s.dir === 'bear').length;
+    const konfirm = bullTFs === 3 ? '🟢 GÜÇLÜ YUKARI — 3/3 zaman dilimi yükseliş'
+      : bearTFs === 3 ? '🔴 GÜÇLÜ AŞAĞI — 3/3 zaman dilimi düşüş'
+      : bullTFs === 2 ? '🟡 ZAYIF YUKARI — 2/3 zaman dilimi yükseliş'
+      : bearTFs === 2 ? '🟡 ZAYIF AŞAĞI — 2/3 zaman dilimi düşüş'
+      : '⚪ KARIŞIK — Zaman dilimleri çelişiyor';
+    t += `📡 MTF Konfirmasyon: ${konfirm}\n\n`;
 
-    if (taData.macd) {
-      const m = taData.macd;
-      const macdDir = m.histogram > 0 ? 'Pozitif (Yükseliş eğilimi)' : 'Negatif (Düşüş eğilimi)';
-      const histTrend = m.prevHisto !== null
-        ? (Math.abs(m.histogram) > Math.abs(m.prevHisto) ? 'Güçleniyor ↑' : 'Zayıflıyor ↓')
-        : '';
-      t += `⚡ MACD(12,26,9):\n`;
-      t += `   MACD Çizgisi: ${m.macd.toFixed(6)}\n`;
-      t += `   Sinyal Çizgisi: ${m.signal.toFixed(6)}\n`;
-      t += `   Histogram: ${m.histogram.toFixed(6)}  →  ${macdDir}\n`;
-      if (histTrend) t += `   Histogram Trendi: ${histTrend}\n`;
-    }
-
-    if (taData.bb && d.price) {
-      const bb = taData.bb;
-      const pos = (d.price - bb.lower) / (bb.upper - bb.lower);
-      const posPct = (pos * 100).toFixed(1);
-      const bbPos = d.price > bb.upper ? 'Üst Bant ÜZERİ ⚠' : d.price < bb.lower ? 'Alt Bant ALTI ⚠' : pos > 0.65 ? 'Üst bölge' : pos < 0.35 ? 'Alt bölge' : 'Orta bölge';
-      t += `🎯 Bollinger Bantları(20,2):\n`;
-      t += `   Üst Bant: ${formatPrice(bb.upper)}\n`;
-      t += `   Orta (SMA20): ${formatPrice(bb.middle)}\n`;
-      t += `   Alt Bant: ${formatPrice(bb.lower)}\n`;
-      t += `   Bant Genişliği: %${bb.width.toFixed(2)}\n`;
-      t += `   Fiyat Konumu: %${posPct} (${bbPos})\n`;
-    }
+    const tfs = [{ label:'1H', tf: tf1h }, { label:'4H', tf: tf4h }, { label:'1W', tf: tf1w }];
+    tfs.forEach(({ label, tf }) => {
+      if (!tf) { t += `[${label}] Veri alınamadı\n\n`; return; }
+      const s = tfSignal(tf);
+      t += `[${label}] Genel Yön: ${s.dir === 'bull' ? '▲ YUKARI' : s.dir === 'bear' ? '▼ AŞAĞI' : '◆ NÖTR'}\n`;
+      if (tf.rsi !== null) {
+        const rl = tf.rsi > 70 ? 'AŞIRI ALIM ⚠' : tf.rsi < 30 ? 'AŞIRI SATIM ⚠' : tf.rsi > 55 ? 'Güçlü' : tf.rsi < 45 ? 'Zayıf' : 'Nötr';
+        t += `   RSI(14): ${tf.rsi.toFixed(2)} → ${rl}\n`;
+      }
+      if (tf.macd) {
+        const md = tf.macd.histogram > 0 ? 'Pozitif' : 'Negatif';
+        const mt = tf.macd.prevHisto !== null ? (Math.abs(tf.macd.histogram) > Math.abs(tf.macd.prevHisto) ? '↑ güçleniyor' : '↓ zayıflıyor') : '';
+        t += `   MACD histo: ${tf.macd.histogram.toFixed(6)} → ${md} ${mt}\n`;
+      }
+      if (tf.bb && tf.currentClose) {
+        const pos = (tf.currentClose - tf.bb.lower) / (tf.bb.upper - tf.bb.lower);
+        const bl = tf.currentClose > tf.bb.upper ? 'Üst Bant ÜZERİ ⚠' : tf.currentClose < tf.bb.lower ? 'Alt Bant ALTI ⚠' : pos > 0.65 ? 'Üst bölge' : pos < 0.35 ? 'Alt bölge' : 'Orta bölge';
+        t += `   Bollinger: ${bl} (pos: %${(pos*100).toFixed(1)})\n`;
+      }
+      t += '\n';
+    });
   }
 
   t += '\n' + '─'.repeat(42);
