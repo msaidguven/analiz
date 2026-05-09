@@ -989,6 +989,148 @@ body::before {
 .vol-alert.bear { border-color:var(--red);   color:var(--red);   background:rgba(255,23,68,0.05); }
 .vol-alert.neut { border-color:var(--yellow);color:var(--yellow);background:rgba(255,171,0,0.05); }
 
+/* ─── MODÜL 4: BTC Korelasyonu ─── */
+.btc-panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  margin-bottom:14px;
+  position:relative;
+  overflow:hidden;
+}
+
+.btc-panel::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg, #f7931a, #ffab00, transparent);
+  opacity:0.8;
+}
+
+/* BTC vs coin 2-sütun özet */
+.btc-compare-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  background:var(--border);
+  margin-bottom:0;
+}
+
+.btc-compare-col {
+  background:var(--panel2);
+  padding:12px 14px;
+}
+
+.btc-compare-label {
+  font-family:'Orbitron', monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:3px;
+  margin-bottom:10px;
+}
+.btc-compare-label.btc-color { color:#f7931a; }
+.btc-compare-label.coin-color { color:var(--green); }
+
+.btc-stat {
+  margin-bottom:8px;
+}
+.btc-stat-name {
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:1px;
+  color:var(--dim);
+  margin-bottom:2px;
+}
+.btc-stat-val {
+  font-family:'Share Tech Mono', monospace;
+  font-size:12px;
+  font-weight:700;
+}
+
+/* Korelasyon skoru */
+.btc-corr-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+
+.btc-corr-label {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1px;
+  color:var(--dim);
+  flex-shrink:0;
+}
+
+.btc-corr-bar-wrap {
+  flex:1;
+  height:6px;
+  background:var(--border2);
+  border-radius:3px;
+  position:relative;
+  overflow:hidden;
+}
+
+.btc-corr-fill {
+  position:absolute;
+  top:0; bottom:0; left:0;
+  border-radius:3px;
+  transition:width 0.8s ease;
+}
+.btc-corr-fill.high  { background:linear-gradient(90deg, #f7931a, #ffab00); }
+.btc-corr-fill.med   { background:linear-gradient(90deg, var(--yellow), #ffcc02); }
+.btc-corr-fill.low   { background:linear-gradient(90deg, var(--dim), var(--border2)); }
+
+.btc-corr-val {
+  font-family:'Share Tech Mono', monospace;
+  font-size:11px;
+  font-weight:700;
+  color:#f7931a;
+  flex-shrink:0;
+  min-width:36px;
+  text-align:right;
+}
+
+/* Uyarı satırları */
+.btc-alerts { padding:10px 14px; display:flex; flex-direction:column; gap:6px; }
+
+.btc-alert-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  background:var(--panel2);
+}
+
+.btc-alert-icon { font-size:13px; flex-shrink:0; }
+
+.btc-alert-text {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1px;
+  color:var(--text);
+  flex:1;
+  line-height:1.5;
+}
+
+.btc-alert-sig {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:2px 6px;
+  border:1px solid;
+  flex-shrink:0;
+}
+.btc-alert-sig.bull { color:var(--green); border-color:rgba(0,230,118,0.3); background:rgba(0,230,118,0.06); }
+.btc-alert-sig.bear { color:var(--red);   border-color:rgba(255,23,68,0.3);  background:rgba(255,23,68,0.06); }
+.btc-alert-sig.neut { color:var(--yellow);border-color:rgba(255,171,0,0.3);  background:rgba(255,171,0,0.06); }
+.btc-alert-sig.warn { color:#f7931a;      border-color:rgba(247,147,26,0.3); background:rgba(247,147,26,0.06); }
+
 /* copy section */
 .copy-section { margin-top:14px; }
 
@@ -1280,6 +1422,30 @@ body::before {
       </div>
     </div>
 
+    <div class="sec-title" style="margin-top:14px">BTC KORELASYONU</div>
+    <div class="btc-panel" id="btcPanel">
+      <div class="btc-compare-grid" id="btcCompareGrid">
+        <div class="btc-compare-col">
+          <div class="btc-compare-label btc-color">BTC</div>
+          <div class="ta-loading"><div class="ta-spinner"></div></div>
+        </div>
+        <div class="btc-compare-col">
+          <div class="btc-compare-label coin-color" id="btcCoinLabel">COIN</div>
+          <div class="ta-loading"><div class="ta-spinner"></div></div>
+        </div>
+      </div>
+      <div class="btc-corr-row" id="btcCorrRow" style="display:none">
+        <div class="btc-corr-label">KORELASYON</div>
+        <div class="btc-corr-bar-wrap">
+          <div class="btc-corr-fill" id="btcCorrFill" style="width:0%"></div>
+        </div>
+        <div class="btc-corr-val" id="btcCorrVal">—</div>
+      </div>
+      <div class="btc-alerts" id="btcAlerts">
+        <div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">BTC verisi yükleniyor...</div>
+      </div>
+    </div>
+
     <div class="sec-title">SİNYAL ANALİZİ</div>
     <div class="verdict" id="verdictBox">
       <div class="verdict-title">OTOMATİK DEĞERLENDİRME</div>
@@ -1309,6 +1475,7 @@ let detailData = {};
 let taData = {};
 let srData = {};
 let volData = {};
+let btcData = {};
 
 // ═══════════════════════════════════════════════
 // LIST PAGE
@@ -1460,6 +1627,187 @@ function calcBollinger(closes, period = 20, multiplier = 2) {
     width: ((mean + multiplier * stddev) - (mean - multiplier * stddev)) / mean * 100,
     stddev
   };
+}
+
+// ═══════════════════════════════════════════════
+// MODÜL 4 — BTC KORELASYONU
+// ═══════════════════════════════════════════════
+
+// Pearson korelasyon katsayısı (son N kapanış için BTC vs coin)
+function pearsonCorr(a, b) {
+  const n = Math.min(a.length, b.length);
+  if (n < 2) return 0;
+  const ax = a.slice(-n), bx = b.slice(-n);
+  const ma = ax.reduce((s,v) => s+v,0)/n;
+  const mb = bx.reduce((s,v) => s+v,0)/n;
+  let num=0, da=0, db=0;
+  for(let i=0;i<n;i++){
+    const ca=ax[i]-ma, cb=bx[i]-mb;
+    num+=ca*cb; da+=ca*ca; db+=cb*cb;
+  }
+  return da&&db ? num/Math.sqrt(da*db) : 0;
+}
+
+// Yüzde değişim dizisi (fiyat→fiyat)
+function pctChanges(closes) {
+  const out = [];
+  for(let i=1;i<closes.length;i++)
+    out.push((closes[i]-closes[i-1])/closes[i-1]*100);
+  return out;
+}
+
+async function fetchAndRenderBTC(coinSymbol, coinPrice) {
+  try {
+    // BTC zaten izleniyor olabilir; eğer coin kendisi BTC ise karşılaştırma yapmaya gerek yok
+    const isBTC = coinSymbol === 'BTCUSDT';
+
+    const [btcTickerRes, btcKlineRes, coinKlineRes] = await Promise.allSettled([
+      fetch('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT').then(r=>r.json()),
+      fetch('https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=4h&limit=60').then(r=>r.json()),
+      isBTC ? Promise.resolve(null) :
+        fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${coinSymbol}&interval=4h&limit=60`).then(r=>r.json()),
+    ]);
+
+    const btcTicker = btcTickerRes.status==='fulfilled' ? btcTickerRes.value : null;
+    const btcKlines = btcKlineRes.status==='fulfilled'  ? btcKlineRes.value : null;
+    const coinKlines= coinKlineRes.status==='fulfilled' ? coinKlineRes.value : null;
+
+    // BTC metrikleri
+    const btcClose  = btcKlines ? btcKlines.map(k=>parseFloat(k[4])) : [];
+    const btcRSI    = btcClose.length ? calcRSI(btcClose, 14) : null;
+    const btcMACD   = btcClose.length ? calcMACD(btcClose) : null;
+    const btcChange = btcTicker ? parseFloat(btcTicker.priceChangePercent) : null;
+    const btcPrice  = btcTicker ? parseFloat(btcTicker.lastPrice) : null;
+
+    // Korelasyon
+    let corrVal = null;
+    if (!isBTC && coinKlines && btcKlines) {
+      const coinClose = coinKlines.map(k=>parseFloat(k[4]));
+      const btcPct    = pctChanges(btcClose);
+      const coinPct   = pctChanges(coinClose);
+      corrVal = pearsonCorr(btcPct, coinPct);
+    }
+
+    // BTC sinyal yönü
+    const btcRSISig  = btcRSI  ? (btcRSI>55?'bull':btcRSI<45?'bear':'neut') : 'neut';
+    const btcMACDSig = btcMACD ? (btcMACD.histogram>0?'bull':'bear') : 'neut';
+    const btcDir     = [btcRSISig,btcMACDSig].filter(s=>s==='bull').length > 1 ? 'bull'
+                     : [btcRSISig,btcMACDSig].filter(s=>s==='bear').length > 1 ? 'bear' : 'neut';
+
+    btcData = { btcPrice, btcChange, btcRSI, btcMACD, btcDir, corrVal, isBTC };
+    renderBTCPanel(btcData, coinSymbol, coinPrice);
+    if (detailData._text) buildOutput(detailData, coinSymbol);
+
+  } catch(e) {
+    document.getElementById('btcAlerts').innerHTML =
+      `<div style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px">⚠ BTC verisi alınamadı: ${e.message}</div>`;
+  }
+}
+
+function renderBTCPanel(btc, coinSymbol, coinPrice) {
+  const coinName = coinSymbol.replace('USDT','');
+  document.getElementById('btcCoinLabel').textContent = coinName;
+
+  // ── Karşılaştırma sütunları ──
+  const btcRSIColor  = btc.btcRSI  ? (btc.btcRSI>70?'var(--red)':btc.btcRSI<30?'var(--green)':btc.btcRSI>55?'var(--green)':'var(--yellow)') : 'var(--dim)';
+  const btcChgColor  = btc.btcChange!==null ? (btc.btcChange>=0?'var(--green)':'var(--red)') : 'var(--dim)';
+  const btcMACDColor = btc.btcMACD  ? (btc.btcMACD.histogram>0?'var(--green)':'var(--red)') : 'var(--dim)';
+  const btcDirLabel  = btc.btcDir==='bull'?'▲ YUKARI':btc.btcDir==='bear'?'▼ AŞAĞI':'◆ NÖTR';
+  const btcDirColor  = btc.btcDir==='bull'?'var(--green)':btc.btcDir==='bear'?'var(--red)':'var(--yellow)';
+
+  const coinChgColor = detailData.change!==undefined ? (detailData.change>=0?'var(--green)':'var(--red)') : 'var(--dim)';
+
+  const btcCol = `
+    <div class="btc-stat"><div class="btc-stat-name">FİYAT</div>
+      <div class="btc-stat-val" style="color:var(--bright)">${btc.btcPrice?formatPrice(btc.btcPrice):'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">24S DEĞİŞİM</div>
+      <div class="btc-stat-val" style="color:${btcChgColor}">${btc.btcChange!==null?(btc.btcChange>=0?'+':'')+btc.btcChange.toFixed(2)+'%':'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">RSI(14) · 4H</div>
+      <div class="btc-stat-val" style="color:${btcRSIColor}">${btc.btcRSI?btc.btcRSI.toFixed(1):'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">MACD · 4H</div>
+      <div class="btc-stat-val" style="color:${btcMACDColor}">${btc.btcMACD?btc.btcMACD.histogram.toFixed(4):'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">GENEL YÖN</div>
+      <div class="btc-stat-val" style="color:${btcDirColor}">${btcDirLabel}</div></div>`;
+
+  const tf4h = taData.mtf && taData.mtf.tf4h;
+  const coinRSI  = tf4h ? tf4h.rsi  : null;
+  const coinMACD = tf4h ? tf4h.macd : null;
+  const coinRSIColor  = coinRSI  ? (coinRSI>70?'var(--red)':coinRSI<30?'var(--green)':coinRSI>55?'var(--green)':'var(--yellow)') : 'var(--dim)';
+  const coinMACDColor = coinMACD ? (coinMACD.histogram>0?'var(--green)':'var(--red)') : 'var(--dim)';
+  const coinSig = tf4h ? tfSignal(tf4h) : null;
+  const coinDirLabel = coinSig ? (coinSig.dir==='bull'?'▲ YUKARI':coinSig.dir==='bear'?'▼ AŞAĞI':'◆ NÖTR') : '—';
+  const coinDirColor = coinSig ? (coinSig.dir==='bull'?'var(--green)':coinSig.dir==='bear'?'var(--red)':'var(--yellow)') : 'var(--dim)';
+
+  const coinCol = `
+    <div class="btc-stat"><div class="btc-stat-name">FİYAT</div>
+      <div class="btc-stat-val" style="color:var(--bright)">${coinPrice?formatPrice(coinPrice):'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">24S DEĞİŞİM</div>
+      <div class="btc-stat-val" style="color:${coinChgColor}">${detailData.change!==undefined?(detailData.change>=0?'+':'')+detailData.change.toFixed(2)+'%':'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">RSI(14) · 4H</div>
+      <div class="btc-stat-val" style="color:${coinRSIColor}">${coinRSI?coinRSI.toFixed(1):'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">MACD · 4H</div>
+      <div class="btc-stat-val" style="color:${coinMACDColor}">${coinMACD?coinMACD.histogram.toFixed(4):'—'}</div></div>
+    <div class="btc-stat"><div class="btc-stat-name">GENEL YÖN</div>
+      <div class="btc-stat-val" style="color:${coinDirColor}">${coinDirLabel}</div></div>`;
+
+  document.getElementById('btcCompareGrid').innerHTML = `
+    <div class="btc-compare-col"><div class="btc-compare-label btc-color">BTC</div>${btcCol}</div>
+    <div class="btc-compare-col"><div class="btc-compare-label coin-color">${coinName}</div>${coinCol}</div>`;
+
+  // ── Korelasyon barı ──
+  if (!btc.isBTC && btc.corrVal !== null) {
+    const corrPct  = Math.abs(btc.corrVal) * 100;
+    const corrCls  = corrPct > 70 ? 'high' : corrPct > 40 ? 'med' : 'low';
+    document.getElementById('btcCorrFill').className = `btc-corr-fill ${corrCls}`;
+    document.getElementById('btcCorrFill').style.width = corrPct.toFixed(1) + '%';
+    document.getElementById('btcCorrVal').textContent = (btc.corrVal >= 0 ? '+' : '') + btc.corrVal.toFixed(2);
+    document.getElementById('btcCorrRow').style.display = 'flex';
+  }
+
+  // ── Uyarı satırları ──
+  const alerts = [];
+
+  // BTC yön uyumu
+  const tf4hCoinDir = coinSig ? coinSig.dir : 'neut';
+  if (!btc.isBTC) {
+    if (btc.btcDir === 'bear' && tf4hCoinDir === 'bull') {
+      alerts.push({ icon:'⚠️', text:'BTC düşüş trendinde, ancak coin yükseliş sinyali veriyor. BTC baskısına dikkat.', sig:'ÇATIŞMA', cls:'warn' });
+    } else if (btc.btcDir === 'bull' && tf4hCoinDir === 'bear') {
+      alerts.push({ icon:'⚠️', text:'BTC yükseliş trendinde, ancak coin düşüş sinyali veriyor. Coin zayıflığına dikkat.', sig:'ÇATIŞMA', cls:'warn' });
+    } else if (btc.btcDir === tf4hCoinDir && btc.btcDir !== 'neut') {
+      alerts.push({ icon:'✅', text:`BTC ve ${coinName} aynı yönde (${btc.btcDir==='bull'?'yükseliş':'düşüş'}). Konfirmasyon güçlü.`, sig:'UYUMLU', cls: btc.btcDir==='bull'?'bull':'bear' });
+    } else {
+      alerts.push({ icon:'◆', text:'BTC ve coin yönleri nötr veya belirsiz. Net bir sinyal yok.', sig:'NÖTR', cls:'neut' });
+    }
+
+    // Korelasyon yorumu
+    if (btc.corrVal !== null) {
+      const c = btc.corrVal;
+      if (c > 0.8) {
+        alerts.push({ icon:'🔗', text:`${coinName} güçlü pozitif korelasyon (${c.toFixed(2)}). BTC hareket edince ${coinName} takip eder.`, sig:'YÜKSEK', cls:'warn' });
+      } else if (c > 0.5) {
+        alerts.push({ icon:'🔗', text:`Orta korelasyon (${c.toFixed(2)}). ${coinName} kısmen BTC'den bağımsız hareket edebilir.`, sig:'ORTA', cls:'neut' });
+      } else {
+        alerts.push({ icon:'🔗', text:`Düşük korelasyon (${c.toFixed(2)}). ${coinName} coin-spesifik dinamiklerle hareket ediyor.`, sig:'DÜŞÜK', cls:'bull' });
+      }
+    }
+
+    // BTC RSI aşırı bölge uyarısı
+    if (btc.btcRSI && btc.btcRSI > 70) {
+      alerts.push({ icon:'🔴', text:'BTC RSI aşırı alım bölgesinde (>' + btc.btcRSI.toFixed(0) + '). Piyasa geneli düzeltme riski var.', sig:'RİSKLİ', cls:'bear' });
+    } else if (btc.btcRSI && btc.btcRSI < 30) {
+      alerts.push({ icon:'🟢', text:'BTC RSI aşırı satım bölgesinde (<' + btc.btcRSI.toFixed(0) + '). Piyasa geneli toparlanma olabilir.', sig:'FIRSAT', cls:'bull' });
+    }
+  } else {
+    alerts.push({ icon:'₿', text:'Seçilen coin zaten BTC. Korelasyon analizi uygulanamaz.', sig:'BTC', cls:'warn' });
+  }
+
+  document.getElementById('btcAlerts').innerHTML = alerts.map(a => `
+    <div class="btc-alert-row">
+      <div class="btc-alert-icon">${a.icon}</div>
+      <div class="btc-alert-text">${a.text}</div>
+      <div class="btc-alert-sig ${a.cls}">${a.sig}</div>
+    </div>`).join('');
 }
 
 // ═══════════════════════════════════════════════
@@ -1984,6 +2332,7 @@ async function openDetail(symbol) {
   taData = {};
   srData = {};
   volData = {};
+  btcData = {};
   document.getElementById('detailSymbol').textContent = symbol.replace('USDT','/USDT');
   document.getElementById('detailPriceVal').textContent = '...';
   document.getElementById('detailStatus').textContent = 'YÜKLENİYOR';
@@ -2008,6 +2357,12 @@ async function openDetail(symbol) {
   document.getElementById('obvChart').innerHTML = `<div class="ta-loading" style="align-items:center;width:100%"><div class="ta-spinner"></div></div>`;
   document.getElementById('volMetrics').innerHTML = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">Hesaplanıyor...</div>`;
   document.getElementById('obvTrendText').textContent = 'Yükleniyor...';
+  // BTC reset
+  document.getElementById('btcAlerts').innerHTML = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">BTC verisi yükleniyor...</div>`;
+  document.getElementById('btcCorrRow').style.display = 'none';
+  document.getElementById('btcCompareGrid').innerHTML = `
+    <div class="btc-compare-col"><div class="btc-compare-label btc-color">BTC</div><div class="ta-loading"><div class="ta-spinner"></div></div></div>
+    <div class="btc-compare-col"><div class="btc-compare-label coin-color" id="btcCoinLabel">COIN</div><div class="ta-loading"><div class="ta-spinner"></div></div></div>`;
   resetDetail();
 
   document.getElementById('listPage').classList.remove('active');
@@ -2040,6 +2395,8 @@ async function refreshDetail() {
   document.getElementById('obvChart').innerHTML = `<div class="ta-loading" style="align-items:center;width:100%"><div class="ta-spinner"></div></div>`;
   document.getElementById('volMetrics').innerHTML = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">Yenileniyor...</div>`;
   document.getElementById('obvTrendText').textContent = 'Yükleniyor...';
+  document.getElementById('btcAlerts').innerHTML = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">BTC verisi yükleniyor...</div>`;
+  document.getElementById('btcCorrRow').style.display = 'none';
   await Promise.all([
     fetchDetail(currentSymbol),
     fetchAndRenderTA(currentSymbol)
@@ -2153,10 +2510,11 @@ function renderDetail(d, symbol) {
   renderVerdicts(d);
   buildOutput(d, symbol);
 
-  // SR ve Vol — fiyat hazır olunca tetikle
+  // SR, Vol ve BTC — fiyat hazır olunca paralel tetikle
   if (d.price) {
     fetchAndRenderSR(symbol, d.price);
     fetchAndRenderVol(symbol);
+    fetchAndRenderBTC(symbol, d.price);
   }
 
   document.getElementById('detailStatus').textContent = 'CANLI';
@@ -2227,6 +2585,27 @@ function renderVerdicts(d) {
   }
   if (volData.divergence && volData.divergence !== 'none') {
     items.push({ icon:'⚠️', text:'OBV Uyuşmazlığı', status: volData.divergence === 'bearish' ? 'AYI UYUŞMAZLIĞI' : 'BOĞA UYUŞMAZLIĞI', cls: volData.divergence === 'bearish' ? 'bear' : 'bull' });
+  }
+  // BTC Korelasyon sinyali
+  if (btcData.btcDir && !btcData.isBTC) {
+    const tf4hCoinDir = (taData.mtf && taData.mtf.tf4h) ? tfSignal(taData.mtf.tf4h).dir : 'neut';
+    const uyum = btcData.btcDir === tf4hCoinDir && btcData.btcDir !== 'neut';
+    const catisma = btcData.btcDir !== 'neut' && tf4hCoinDir !== 'neut' && btcData.btcDir !== tf4hCoinDir;
+    items.push({
+      icon: '₿',
+      text: 'BTC Yön Uyumu',
+      status: catisma ? 'ÇATIŞMA' : uyum ? (btcData.btcDir==='bull'?'UYUMLU ▲':'UYUMLU ▼') : 'NÖTR',
+      cls:   catisma ? 'bear' : uyum ? (btcData.btcDir==='bull'?'bull':'bear') : 'neut'
+    });
+    if (btcData.corrVal !== null) {
+      const c = Math.abs(btcData.corrVal);
+      items.push({
+        icon: '🔗',
+        text: 'BTC Korelasyonu (4H)',
+        status: c > 0.7 ? `YÜKSEK ${btcData.corrVal.toFixed(2)}` : c > 0.4 ? `ORTA ${btcData.corrVal.toFixed(2)}` : `DÜŞÜK ${btcData.corrVal.toFixed(2)}`,
+        cls:   c > 0.7 ? 'warn' : c > 0.4 ? 'neut' : 'bull'
+      });
+    }
   }
 
   document.getElementById('verdictItems').innerHTML = items.map(i => `
@@ -2367,6 +2746,37 @@ function buildOutput(d, symbol) {
       }
     } else {
       t += `✓ Fiyat/OBV uyumu: Fiyat ${volData.priceChange10 >= 0 ? '+' : ''}${volData.priceChange10.toFixed(1)}% — hacimle destekleniyor.\n`;
+    }
+  }
+
+  // ── BTC KORELASYON BÖLÜMÜ ──
+  if (btcData.btcDir !== undefined && !btcData.isBTC) {
+    t += '\n' + '─'.repeat(42) + '\n';
+    t += `₿  BTC KORELASYON ANALİZİ\n`;
+    t += '─'.repeat(42) + '\n\n';
+    if (btcData.btcPrice)  t += `BTC Fiyatı:    ${formatPrice(btcData.btcPrice)}\n`;
+    if (btcData.btcChange !== null) t += `BTC 24s Değ.: ${btcData.btcChange >= 0 ? '+' : ''}${btcData.btcChange.toFixed(2)}%\n`;
+    if (btcData.btcRSI)   t += `BTC RSI(14):   ${btcData.btcRSI.toFixed(2)}${btcData.btcRSI>70?' ⚠ AŞIRI ALIM':btcData.btcRSI<30?' ⚠ AŞIRI SATIM':''}\n`;
+    if (btcData.btcMACD)  t += `BTC MACD hist: ${btcData.btcMACD.histogram.toFixed(6)} → ${btcData.btcMACD.histogram>0?'Pozitif':'Negatif'}\n`;
+    const btcDirTxt = btcData.btcDir==='bull'?'▲ YUKARI':btcData.btcDir==='bear'?'▼ AŞAĞI':'◆ NÖTR';
+    t += `BTC Genel Yön: ${btcDirTxt}\n\n`;
+
+    if (btcData.corrVal !== null) {
+      const c = btcData.corrVal, ca = Math.abs(c);
+      const corrLabel = ca > 0.7 ? 'Yüksek' : ca > 0.4 ? 'Orta' : 'Düşük';
+      t += `Korelasyon (Pearson, 4H): ${c >= 0 ? '+' : ''}${c.toFixed(3)}  →  ${corrLabel}\n`;
+    }
+
+    const coinSig = (taData.mtf && taData.mtf.tf4h) ? tfSignal(taData.mtf.tf4h) : null;
+    const coinDir = coinSig ? coinSig.dir : 'neut';
+    if (btcData.btcDir === 'bear' && coinDir === 'bull') {
+      t += `\n⚠ ÇATIŞMA: BTC düşüş trendinde, coin yükseliş sinyali veriyor.\n`;
+      t += `   BTC baskısı altında kırılım güçlü olmayabilir.\n`;
+    } else if (btcData.btcDir === 'bull' && coinDir === 'bear') {
+      t += `\n⚠ ÇATIŞMA: BTC yükseliş trendinde, coin düşüş sinyali veriyor.\n`;
+      t += `   Coin'e özgü bir zayıflık olabilir.\n`;
+    } else if (btcData.btcDir === coinDir && btcData.btcDir !== 'neut') {
+      t += `\n✓ UYUM: BTC ve coin aynı yönde (${btcData.btcDir==='bull'?'yükseliş':'düşüş'}). Sinyal daha güvenilir.\n`;
     }
   }
 
