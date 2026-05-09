@@ -884,6 +884,111 @@ body::before {
   letter-spacing:1px;
 }
 
+/* ─── MODÜL 3: Hacim Analizi ─── */
+.vol-panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  margin-bottom:14px;
+  position:relative;
+  overflow:hidden;
+}
+
+.vol-panel::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg, #2979ff, #00e5ff, transparent);
+  opacity:0.6;
+}
+
+/* OBV mini bar chart */
+.obv-chart {
+  display:flex;
+  align-items:flex-end;
+  gap:2px;
+  height:52px;
+  padding:8px 14px 0;
+  overflow:hidden;
+}
+
+.obv-bar {
+  flex:1;
+  min-width:3px;
+  border-radius:1px 1px 0 0;
+  transition:height 0.4s ease;
+}
+.obv-bar.up   { background:rgba(0,230,118,0.6); }
+.obv-bar.down { background:rgba(255,23,68,0.5); }
+.obv-bar.flat { background:rgba(255,171,0,0.4); }
+
+/* OBV trend çizgisi overlay */
+.obv-trend-label {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:4px 14px 8px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  color:var(--dim);
+  letter-spacing:1px;
+}
+
+/* metric satırları */
+.vol-metrics { padding:10px 14px; }
+
+.vol-metric-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+}
+.vol-metric-row:last-child { border-bottom:none; }
+
+.vol-metric-label {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1px;
+  color:var(--dim);
+  flex:1;
+}
+
+.vol-metric-val {
+  font-family:'Share Tech Mono', monospace;
+  font-size:13px;
+  font-weight:700;
+  margin-right:10px;
+}
+
+.vol-metric-sig {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:2px 7px;
+  border:1px solid;
+  min-width:64px;
+  text-align:center;
+}
+.vol-metric-sig.bull { color:var(--green); border-color:rgba(0,230,118,0.3); background:rgba(0,230,118,0.06); }
+.vol-metric-sig.bear { color:var(--red);   border-color:rgba(255,23,68,0.3);  background:rgba(255,23,68,0.06); }
+.vol-metric-sig.neut { color:var(--yellow);border-color:rgba(255,171,0,0.3);  background:rgba(255,171,0,0.06); }
+
+/* hacim uyarı kutusu */
+.vol-alert {
+  margin:0 14px 10px;
+  padding:8px 10px;
+  border-left:2px solid;
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  letter-spacing:1px;
+  line-height:1.7;
+}
+.vol-alert.bull { border-color:var(--green); color:var(--green); background:rgba(0,230,118,0.05); }
+.vol-alert.bear { border-color:var(--red);   color:var(--red);   background:rgba(255,23,68,0.05); }
+.vol-alert.neut { border-color:var(--yellow);color:var(--yellow);background:rgba(255,171,0,0.05); }
+
 /* copy section */
 .copy-section { margin-top:14px; }
 
@@ -1133,7 +1238,48 @@ body::before {
       </div>
     </div>
 
-    <!-- VERDICT -->
+    <!-- ─── MODÜL 2: Destek / Direnç ─── -->
+    <div class="sec-title" style="margin-top:14px">DESTEK / DİRENÇ SEVİYELERİ — 4H</div>
+    <div class="sr-panel" id="srPanel">
+      <!-- Görsel grafik -->
+      <div class="sr-chart" id="srChart">
+        <div class="ta-loading" style="height:100%;justify-content:center">
+          <div class="ta-spinner"></div>
+        </div>
+      </div>
+      <!-- Seviye listesi -->
+      <div class="sr-list" id="srList">
+        <div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">
+          Seviyeler hesaplanıyor...
+        </div>
+      </div>
+      <!-- Özet -->
+      <div class="sr-summary" id="srSummary" style="display:none">
+        <div class="sr-summary-icon" id="srIcon">📍</div>
+        <div class="sr-summary-text">
+          <div class="sr-summary-title" id="srTitle">—</div>
+          <div class="sr-summary-sub" id="srSub">—</div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ─── MODÜL 3: Hacim Analizi ─── -->
+    <div class="sec-title" style="margin-top:14px">HACİM ANALİZİ — OBV & DELTA</div>
+    <div class="vol-panel" id="volPanel">
+      <div class="obv-chart" id="obvChart">
+        <div class="ta-loading" style="align-items:center;width:100%">
+          <div class="ta-spinner"></div>
+        </div>
+      </div>
+      <div class="obv-trend-label" id="obvTrendLabel">
+        <span>← 20 mum</span><span id="obvTrendText">Yükleniyor...</span><span>son →</span>
+      </div>
+      <div class="vol-metrics" id="volMetrics">
+        <div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">Hesaplanıyor...</div>
+      </div>
+    </div>
+
     <div class="sec-title">SİNYAL ANALİZİ</div>
     <div class="verdict" id="verdictBox">
       <div class="verdict-title">OTOMATİK DEĞERLENDİRME</div>
@@ -1161,6 +1307,8 @@ let activeFilter = 'all';
 let currentSymbol = '';
 let detailData = {};
 let taData = {};
+let srData = {};
+let volData = {};
 
 // ═══════════════════════════════════════════════
 // LIST PAGE
@@ -1312,6 +1460,192 @@ function calcBollinger(closes, period = 20, multiplier = 2) {
     width: ((mean + multiplier * stddev) - (mean - multiplier * stddev)) / mean * 100,
     stddev
   };
+}
+
+// ═══════════════════════════════════════════════
+// MODÜL 2 — DESTEK / DİRENÇ SEVİYELERİ
+// ═══════════════════════════════════════════════
+
+// Swing high/low tespiti: her iki yanda `wing` mum daha düşük/yüksek ise pivot
+function findPivots(highs, lows, wing = 5) {
+  const pivotHighs = [], pivotLows = [];
+  for (let i = wing; i < highs.length - wing; i++) {
+    let isHigh = true, isLow = true;
+    for (let j = i - wing; j <= i + wing; j++) {
+      if (j === i) continue;
+      if (highs[j] >= highs[i]) isHigh = false;
+      if (lows[j]  <= lows[i])  isLow  = false;
+    }
+    if (isHigh) pivotHighs.push({ idx: i, price: highs[i] });
+    if (isLow)  pivotLows.push({ idx: i, price: lows[i] });
+  }
+  return { pivotHighs, pivotLows };
+}
+
+// Yakın seviyeleri birleştir (fiyatın %0.5'i içinde olanlar aynı seviye)
+function clusterLevels(pivots, currentPrice, threshold = 0.005) {
+  const sorted = [...pivots].sort((a, b) => a.price - b.price);
+  const clusters = [];
+  for (const p of sorted) {
+    const last = clusters[clusters.length - 1];
+    if (last && Math.abs(p.price - last.price) / last.price < threshold) {
+      last.touches++;
+      last.price = (last.price * last.touches + p.price) / (last.touches + 1); // ağırlıklı ortalama
+    } else {
+      clusters.push({ price: p.price, touches: 1 });
+    }
+  }
+  return clusters;
+}
+
+function calcSupportResistance(klines, currentPrice) {
+  const highs  = klines.map(k => parseFloat(k[2]));
+  const lows   = klines.map(k => parseFloat(k[3]));
+  const closes = klines.map(k => parseFloat(k[4]));
+
+  const { pivotHighs, pivotLows } = findPivots(highs, lows, 5);
+
+  const resClusters = clusterLevels(pivotHighs, currentPrice)
+    .filter(c => c.price > currentPrice)
+    .sort((a, b) => a.price - b.price)   // fiyata en yakın önce
+    .slice(0, 3);
+
+  const supClusters = clusterLevels(pivotLows, currentPrice)
+    .filter(c => c.price < currentPrice)
+    .sort((a, b) => b.price - a.price)   // fiyata en yakın önce
+    .slice(0, 3);
+
+  return { resistances: resClusters, supports: supClusters };
+}
+
+async function fetchAndRenderSR(symbol, price) {
+  try {
+    document.getElementById('srChart').innerHTML =
+      `<div class="ta-loading" style="height:100%;justify-content:center"><div class="ta-spinner"></div></div>`;
+    document.getElementById('srList').innerHTML =
+      `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">Hesaplanıyor...</div>`;
+
+    // 4H kline — zaten MTF'den çekiliyor ama kanalın ham kline'ına ihtiyacımız var
+    const res = await fetch(
+      `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=4h&limit=200`
+    );
+    const klines = await res.json();
+    const sr = calcSupportResistance(klines, price);
+    srData = sr;
+
+    renderSRPanel(sr, price);
+    // Çıktıyı güncelle
+    if (detailData._text) buildOutput(detailData, symbol);
+  } catch(e) {
+    document.getElementById('srChart').innerHTML =
+      `<div style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px;padding:8px">⚠ ${e.message}</div>`;
+  }
+}
+
+function renderSRPanel(sr, price) {
+  const { resistances, supports } = sr;
+
+  // Tüm seviyeleri bir araya getir, chart için aralık hesapla
+  const allPrices = [price, ...resistances.map(r => r.price), ...supports.map(s => s.price)];
+  const minP = Math.min(...allPrices) * 0.998;
+  const maxP = Math.max(...allPrices) * 1.002;
+  const range = maxP - minP;
+
+  function toY(p) { // 0 (üst) → 100 (alt)
+    return ((maxP - p) / range * 100).toFixed(1) + '%';
+  }
+
+  // ── CHART ──
+  let chartHTML = '';
+  const priceY = ((maxP - price) / range * 100);
+  chartHTML += `<div class="sr-zone-res" style="height:${priceY.toFixed(1)}%"></div>`;
+  chartHTML += `<div class="sr-zone-sup" style="height:${(100 - priceY).toFixed(1)}%"></div>`;
+
+  resistances.forEach(r => {
+    chartHTML += `<div class="sr-level-line res" style="top:${toY(r.price)}"></div>`;
+    chartHTML += `<div class="sr-price-label res" style="top:${toY(r.price)}">${formatPrice(r.price)}</div>`;
+  });
+  supports.forEach(s => {
+    chartHTML += `<div class="sr-level-line sup" style="top:${toY(s.price)}"></div>`;
+    chartHTML += `<div class="sr-price-label sup" style="top:${toY(s.price)}">${formatPrice(s.price)}</div>`;
+  });
+  chartHTML += `<div class="sr-level-line price-now" style="top:${toY(price)}"></div>`;
+  chartHTML += `<div class="sr-price-label now" style="top:${toY(price)}">▶ ${formatPrice(price)}</div>`;
+
+  document.getElementById('srChart').innerHTML = chartHTML;
+
+  // ── LİSTE ──
+  let listHTML = '';
+
+  resistances.forEach(r => {
+    const distPct = ((r.price - price) / price * 100).toFixed(2);
+    const strength = Math.min(r.touches, 4);
+    listHTML += `
+    <div class="sr-item">
+      <div class="sr-badge res">DİRENÇ</div>
+      <div class="sr-item-price">${formatPrice(r.price)}</div>
+      <div class="sr-item-dist res">+%${distPct}</div>
+      <div class="sr-item-strength">
+        ${[1,2,3,4].map(i => `<div class="sr-dot res ${i<=strength?'on':''}"></div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  // Mevcut fiyat ayırıcı
+  listHTML += `
+  <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+    <div style="flex:1;height:1px;background:var(--bright);opacity:0.2"></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--bright);letter-spacing:1px">
+      ▶ ${formatPrice(price)}
+    </div>
+    <div style="flex:1;height:1px;background:var(--bright);opacity:0.2"></div>
+  </div>`;
+
+  supports.forEach(s => {
+    const distPct = ((price - s.price) / price * 100).toFixed(2);
+    const strength = Math.min(s.touches, 4);
+    listHTML += `
+    <div class="sr-item">
+      <div class="sr-badge sup">DESTEK</div>
+      <div class="sr-item-price">${formatPrice(s.price)}</div>
+      <div class="sr-item-dist sup">-%${distPct}</div>
+      <div class="sr-item-strength">
+        ${[1,2,3,4].map(i => `<div class="sr-dot sup ${i<=strength?'on':''}"></div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('srList').innerHTML = listHTML;
+
+  // ── ÖZET ──
+  const nearestRes = resistances[0];
+  const nearestSup = supports[0];
+  let icon, title, sub;
+
+  if (nearestRes && nearestSup) {
+    const rDist = (nearestRes.price - price) / price * 100;
+    const sDist = (price - nearestSup.price) / price * 100;
+    if (rDist < 1.5) {
+      icon = '⚠️'; title = 'GÜÇLÜ DİRENÇ YAKIN';
+      sub = `Üst direnç yalnızca %${rDist.toFixed(2)} uzakta — kırılım önemli`;
+    } else if (sDist < 1.5) {
+      icon = '🛡️'; title = 'DESTEK YAKIN';
+      sub = `Alt destek %${sDist.toFixed(2)} uzakta — bu seviye kritik`;
+    } else if (rDist < sDist) {
+      icon = '📍'; title = 'DİRENÇ BÖLGESINE YAKIN';
+      sub = `Direnç %${rDist.toFixed(2)} · Destek %${sDist.toFixed(2)} uzakta`;
+    } else {
+      icon = '📍'; title = 'DESTEK / DİRENÇ ARASI';
+      sub = `Destek %${sDist.toFixed(2)} · Direnç %${rDist.toFixed(2)} uzakta`;
+    }
+  } else {
+    icon = '📍'; title = 'SEVİYE TESPİT EDİLDİ'; sub = 'Grafik üzerindeki seviyelere bakın';
+  }
+
+  document.getElementById('srIcon').textContent = icon;
+  document.getElementById('srTitle').textContent = title;
+  document.getElementById('srSub').textContent = sub;
+  document.getElementById('srSummary').style.display = 'flex';
 }
 
 // ═══════════════════════════════════════════════
@@ -1489,6 +1823,7 @@ function renderTAPanel(ta, price) {
 async function openDetail(symbol) {
   currentSymbol = symbol;
   taData = {};
+  srData = {};
   document.getElementById('detailSymbol').textContent = symbol.replace('USDT','/USDT');
   document.getElementById('detailPriceVal').textContent = '...';
   document.getElementById('detailStatus').textContent = 'YÜKLENİYOR';
@@ -1505,6 +1840,10 @@ async function openDetail(symbol) {
   document.getElementById('mtfSub').textContent = '1H · 4H · 1W kline verisi yükleniyor';
   document.getElementById('mtfIcon').textContent = '⏳';
   document.getElementById('mtfScoreBar').innerHTML = '';
+  // SR reset
+  document.getElementById('srChart').innerHTML = `<div class="ta-loading" style="height:100%;justify-content:center"><div class="ta-spinner"></div></div>`;
+  document.getElementById('srList').innerHTML = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">Seviyeler hesaplanıyor...</div>`;
+  document.getElementById('srSummary').style.display = 'none';
   resetDetail();
 
   document.getElementById('listPage').classList.remove('active');
@@ -1531,6 +1870,9 @@ async function refreshDetail() {
   document.getElementById('mtfCol4h').innerHTML = `<div class="mtf-tf-label tf-4h">4H</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
   document.getElementById('mtfCol1w').innerHTML = `<div class="mtf-tf-label tf-1w">1W</div><div class="ta-loading"><div class="ta-spinner"></div></div>`;
   ['mtfCol1h','mtfCol4h','mtfCol1w'].forEach(id => document.getElementById(id).classList.add('loading-col'));
+  document.getElementById('srChart').innerHTML = `<div class="ta-loading" style="height:100%;justify-content:center"><div class="ta-spinner"></div></div>`;
+  document.getElementById('srList').innerHTML = `<div style="color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">Yenileniyor...</div>`;
+  document.getElementById('srSummary').style.display = 'none';
   await Promise.all([
     fetchDetail(currentSymbol),
     fetchAndRenderTA(currentSymbol)
@@ -1644,6 +1986,9 @@ function renderDetail(d, symbol) {
   renderVerdicts(d);
   buildOutput(d, symbol);
 
+  // SR — fiyat hazır olunca tetikle (MTF ile paralel değil, fiyata ihtiyacı var)
+  if (d.price) fetchAndRenderSR(symbol, d.price);
+
   document.getElementById('detailStatus').textContent = 'CANLI';
   document.getElementById('detailDot').style.background = 'var(--green)';
   document.getElementById('copyBtn').disabled = false;
@@ -1690,6 +2035,18 @@ function renderVerdicts(d) {
     const konfSts = bullTFs === 3 ? '3/3 YUKARI' : bearTFs === 3 ? '3/3 AŞAĞI' : bullTFs === 2 ? '2/3 YUKARI' : bearTFs === 2 ? '2/3 AŞAĞI' : 'KARIŞIK';
     const konfCls = bullTFs >= 2 ? 'bull' : bearTFs >= 2 ? 'bear' : 'neut';
     items.push({ icon:'🕐', text:'MTF Konfirmasyon', status: konfSts, cls: konfCls });
+  }
+  // Destek / Direnç sinyali
+  if (srData.resistances && srData.supports && d.price) {
+    const nearRes = srData.resistances[0];
+    const nearSup = srData.supports[0];
+    if (nearRes && nearSup) {
+      const rDist = (nearRes.price - d.price) / d.price * 100;
+      const sDist = (d.price - nearSup.price) / d.price * 100;
+      const srSts = rDist < 1.5 ? `DİRENÇ YAKIN %${rDist.toFixed(1)}` : sDist < 1.5 ? `DESTEK YAKIN %${sDist.toFixed(1)}` : `D:%${rDist.toFixed(1)} S:%${sDist.toFixed(1)}`;
+      const srCls = rDist < 1.5 ? 'bear' : sDist < 1.5 ? 'bull' : 'neut';
+      items.push({ icon:'📏', text:'Destek/Direnç', status: srSts, cls: srCls });
+    }
   }
 
   document.getElementById('verdictItems').innerHTML = items.map(i => `
@@ -1772,6 +2129,33 @@ function buildOutput(d, symbol) {
       }
       t += '\n';
     });
+  }
+
+  // ── DESTEK / DİRENÇ BÖLÜMÜ ──
+  if (srData.resistances && srData.supports && d.price) {
+    t += '\n' + '─'.repeat(42) + '\n';
+    t += `📏 DESTEK / DİRENÇ SEVİYELERİ (4H Swing)\n`;
+    t += '─'.repeat(42) + '\n\n';
+    t += `💰 Mevcut Fiyat: ${formatPrice(d.price)}\n\n`;
+    srData.resistances.forEach((r, i) => {
+      const dist = ((r.price - d.price) / d.price * 100).toFixed(2);
+      const stars = '★'.repeat(Math.min(r.touches, 4)) + '☆'.repeat(Math.max(0, 4 - Math.min(r.touches, 4)));
+      t += `🔴 DİRENÇ ${i+1}: ${formatPrice(r.price)}  (+%${dist})  Güç: ${stars}\n`;
+    });
+    t += '\n';
+    srData.supports.forEach((s, i) => {
+      const dist = ((d.price - s.price) / d.price * 100).toFixed(2);
+      const stars = '★'.repeat(Math.min(s.touches, 4)) + '☆'.repeat(Math.max(0, 4 - Math.min(s.touches, 4)));
+      t += `🟢 DESTEK ${i+1}:  ${formatPrice(s.price)}  (-%${dist})  Güç: ${stars}\n`;
+    });
+    // Konum özeti
+    if (srData.resistances[0] && srData.supports[0]) {
+      const rD = ((srData.resistances[0].price - d.price) / d.price * 100).toFixed(2);
+      const sD = ((d.price - srData.supports[0].price) / d.price * 100).toFixed(2);
+      t += `\n📍 Konum: En yakın direnç %${rD} yukarda · En yakın destek %${sD} aşağıda\n`;
+      if (parseFloat(rD) < 1.5) t += `   ⚠ DİRENÇ ÇOK YAKIN — kırılım veya geri dönüş kritik\n`;
+      if (parseFloat(sD) < 1.5) t += `   ⚠ DESTEK ÇOK YAKIN — bu seviyenin tutulması önemli\n`;
+    }
   }
 
   t += '\n' + '─'.repeat(42);
