@@ -1131,6 +1131,150 @@ body::before {
 .btc-alert-sig.neut { color:var(--yellow);border-color:rgba(255,171,0,0.3);  background:rgba(255,171,0,0.06); }
 .btc-alert-sig.warn { color:#f7931a;      border-color:rgba(247,147,26,0.3); background:rgba(247,147,26,0.06); }
 
+/* ─── ATH / ATL GÖSTERGE ─── */
+.ath-panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  margin-bottom:14px;
+  position:relative;
+  overflow:hidden;
+}
+
+.ath-panel::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg, #e040fb, #7c4dff, transparent);
+  opacity:0.7;
+}
+
+/* Fiyat pozisyon bandı */
+.ath-track {
+  position:relative;
+  height:28px;
+  margin:12px 14px 4px;
+  background:var(--border);
+  border-radius:3px;
+  overflow:hidden;
+}
+
+.ath-track-fill {
+  position:absolute;
+  top:0; bottom:0; left:0;
+  border-radius:3px;
+  transition:width 0.8s ease;
+}
+
+/* gradient: kırmızı (ATL) → sarı (orta) → yeşil (ATH) */
+.ath-track-gradient {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,
+    rgba(255,23,68,0.25) 0%,
+    rgba(255,171,0,0.2) 50%,
+    rgba(0,230,118,0.25) 100%);
+}
+
+.ath-price-marker {
+  position:absolute;
+  top:0; bottom:0;
+  width:3px;
+  background:var(--bright);
+  border-radius:1px;
+  box-shadow:0 0 8px rgba(255,255,255,0.5);
+  transition:left 0.8s ease;
+  transform:translateX(-50%);
+}
+
+.ath-track-labels {
+  display:flex;
+  justify-content:space-between;
+  padding:2px 14px 10px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  color:var(--dim);
+  letter-spacing:1px;
+}
+
+/* metrik satırları */
+.ath-metrics {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  background:var(--border);
+  border-top:1px solid var(--border);
+}
+
+.ath-metric {
+  background:var(--panel2);
+  padding:10px 14px;
+}
+
+.ath-metric-label {
+  font-family:'Share Tech Mono', monospace;
+  font-size:8px;
+  letter-spacing:1px;
+  color:var(--dim);
+  margin-bottom:4px;
+}
+
+.ath-metric-val {
+  font-family:'Share Tech Mono', monospace;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:2px;
+}
+
+.ath-metric-dist {
+  font-family:'Share Tech Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+.ath-metric-dist.near-ath { color:#e040fb; }
+.ath-metric-dist.mid-ath  { color:var(--yellow); }
+.ath-metric-dist.far-ath  { color:var(--dim); }
+.ath-metric-dist.near-atl { color:var(--green); }
+.ath-metric-dist.mid-atl  { color:var(--yellow); }
+.ath-metric-dist.far-atl  { color:var(--dim); }
+
+/* özet satır */
+.ath-summary-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-top:1px solid var(--border);
+}
+
+.ath-summary-icon { font-size:16px; flex-shrink:0; }
+
+.ath-summary-text {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  color:var(--text);
+  letter-spacing:1px;
+  line-height:1.6;
+  flex:1;
+}
+
+.ath-summary-sig {
+  font-family:'Share Tech Mono', monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:3px 8px;
+  border:1px solid;
+  flex-shrink:0;
+}
+.ath-summary-sig.ath-zone  { color:#e040fb; border-color:rgba(224,64,251,0.3); background:rgba(224,64,251,0.06); }
+.ath-summary-sig.high-zone { color:var(--green); border-color:rgba(0,230,118,0.3); background:rgba(0,230,118,0.06); }
+.ath-summary-sig.mid-zone  { color:var(--yellow); border-color:rgba(255,171,0,0.3); background:rgba(255,171,0,0.06); }
+.ath-summary-sig.low-zone  { color:var(--red); border-color:rgba(255,23,68,0.3); background:rgba(255,23,68,0.06); }
+.ath-summary-sig.atl-zone  { color:var(--dim); border-color:var(--border2); background:transparent; }
+
 /* copy section */
 .copy-section { margin-top:14px; }
 
@@ -1327,6 +1471,42 @@ body::before {
       </div>
     </div>
 
+    </div>
+
+    <!-- ATH / ATL GÖSTERGE -->
+    <div class="ath-panel" id="athPanel">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--dim)">ATH / ATL MESAFESİ</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:#7c4dff" id="athDataSource">—</div>
+      </div>
+      <div class="ath-track" id="athTrack">
+        <div class="ath-track-gradient"></div>
+        <div class="ath-price-marker" id="athMarker" style="left:50%"></div>
+      </div>
+      <div class="ath-track-labels">
+        <span id="athAtlLabel">ATL: —</span>
+        <span id="athCurrentLabel" style="color:var(--bright)">— ŞİMDİ</span>
+        <span id="athAthLabel">ATH: —</span>
+      </div>
+      <div class="ath-metrics" id="athMetrics">
+        <div class="ath-metric">
+          <div class="ath-metric-label">ATH'YA UZAKLIK</div>
+          <div class="ath-metric-val" id="athPrice">—</div>
+          <div class="ath-metric-dist" id="athDist">—</div>
+        </div>
+        <div class="ath-metric">
+          <div class="ath-metric-label">ATL'YE UZAKLIK</div>
+          <div class="ath-metric-val" id="atlPrice">—</div>
+          <div class="ath-metric-dist" id="atlDist">—</div>
+        </div>
+      </div>
+      <div class="ath-summary-row" id="athSummaryRow" style="display:none">
+        <div class="ath-summary-icon" id="athSummaryIcon">📍</div>
+        <div class="ath-summary-text" id="athSummaryText">—</div>
+        <div class="ath-summary-sig" id="athSummarySig">—</div>
+      </div>
+    </div>
+
     <!-- L/S BAR -->
     <div class="signal-wrap">
       <div class="signal-title">LONG / SHORT DAĞILIMI</div>
@@ -1476,6 +1656,7 @@ let taData = {};
 let srData = {};
 let volData = {};
 let btcData = {};
+let athData = {};
 
 // ═══════════════════════════════════════════════
 // LIST PAGE
@@ -1630,6 +1811,125 @@ function calcBollinger(closes, period = 20, multiplier = 2) {
 }
 
 // ═══════════════════════════════════════════════
+// MODÜL 4b — ATH / ATL MESAFESİ
+// ═══════════════════════════════════════════════
+
+async function fetchAndRenderATH(symbol, price) {
+  try {
+    // Haftalık kline ile geniş tarihsel veri — Binance max 1000 mum
+    // 1W × 1000 = ~19 yıl, yeterli
+    const [weeklyRes, monthlyRes] = await Promise.allSettled([
+      fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=1w&limit=1000`).then(r=>r.json()),
+      fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=1M&limit=200`).then(r=>r.json()),
+    ]);
+
+    // En geniş veriyi kullan
+    let klines = null;
+    let source  = '';
+    if (weeklyRes.status === 'fulfilled' && weeklyRes.value.length > 0) {
+      klines = weeklyRes.value; source = `1H × ${weeklyRes.value.length} hafta`;
+    }
+    if (monthlyRes.status === 'fulfilled' && monthlyRes.value.length > 0) {
+      // Aylıktan daha fazla veri varsa tercih et
+      if (!klines || monthlyRes.value.length * 4 > klines.length) {
+        klines = monthlyRes.value; source = `1M × ${monthlyRes.value.length} ay`;
+      }
+    }
+
+    if (!klines || klines.length === 0) throw new Error('Kline verisi boş');
+
+    const highs  = klines.map(k => parseFloat(k[2]));
+    const lows   = klines.map(k => parseFloat(k[3]));
+
+    const ath    = Math.max(...highs);
+    const atl    = Math.min(...lows);
+
+    // ATH ve ATL'nin hangi mumda olduğu
+    const athIdx = highs.indexOf(ath);
+    const atlIdx = lows.indexOf(atl);
+
+    // Tarih bilgisi (mum açılış zamanı)
+    const athDate = new Date(klines[athIdx][0]).toLocaleDateString('tr-TR', { year:'numeric', month:'short' });
+    const atlDate = new Date(klines[atlIdx][0]).toLocaleDateString('tr-TR', { year:'numeric', month:'short' });
+
+    // Uzaklık yüzdeleri
+    const athDist = ((ath - price) / price * 100);   // ATH yukarıda → pozitif
+    const atlDist = ((price - atl) / price * 100);   // ATL aşağıda → pozitif
+
+    // Fiyatın ATL-ATH aralığındaki konumu (0-1)
+    const range   = ath - atl;
+    const pos     = range > 0 ? (price - atl) / range : 0.5; // 0=ATL, 1=ATH
+
+    athData = { ath, atl, athDist, atlDist, pos, athDate, atlDate, source, klineCount: klines.length };
+    renderATHPanel(athData, price);
+    if (detailData._text) buildOutput(detailData, symbol);
+
+  } catch(e) {
+    document.getElementById('athMetrics').innerHTML =
+      `<div style="grid-column:1/-1;padding:10px 14px;color:var(--red);font-family:'Share Tech Mono',monospace;font-size:9px">⚠ ATH/ATL verisi alınamadı: ${e.message}</div>`;
+  }
+}
+
+function renderATHPanel(d, price) {
+  const { ath, atl, athDist, atlDist, pos, athDate, atlDate, source } = d;
+
+  // Veri kaynağı etiketi
+  document.getElementById('athDataSource').textContent = source;
+
+  // Band işaretçisi
+  const markerLeft = Math.min(Math.max(pos * 100, 1), 99).toFixed(1);
+  document.getElementById('athMarker').style.left = markerLeft + '%';
+
+  // Etiketler
+  document.getElementById('athAtlLabel').textContent   = `ATL: ${formatPrice(atl)} (${atlDate})`;
+  document.getElementById('athAthLabel').textContent   = `ATH: ${formatPrice(ath)} (${athDate})`;
+  document.getElementById('athCurrentLabel').textContent = `${formatPrice(price)} ŞİMDİ`;
+
+  // ATH metriği
+  document.getElementById('athPrice').textContent = formatPrice(ath);
+  const athDistEl = document.getElementById('athDist');
+  athDistEl.textContent = `+%${athDist.toFixed(2)} uzakta`;
+  athDistEl.className = 'ath-metric-dist ' +
+    (athDist < 5 ? 'near-ath' : athDist < 20 ? 'mid-ath' : 'far-ath');
+
+  // ATL metriği
+  document.getElementById('atlPrice').textContent = formatPrice(atl);
+  const atlDistEl = document.getElementById('atlDist');
+  atlDistEl.textContent = `+%${atlDist.toFixed(2)} uzakta`;
+  atlDistEl.className = 'ath-metric-dist ' +
+    (atlDist < 10 ? 'near-atl' : atlDist < 40 ? 'mid-atl' : 'far-atl');
+
+  // Özet
+  let icon, text, sigCls, sigText;
+  if (athDist < 3) {
+    icon = '🏔️'; sigCls = 'ath-zone'; sigText = 'ATH BÖLGE';
+    text = `Fiyat tüm zamanlar en yüksek seviyesine yalnızca %${athDist.toFixed(2)} uzakta. Tarihsel direnç bölgesi — kırılım çok kritik.`;
+  } else if (athDist < 15) {
+    icon = '🚀'; sigCls = 'high-zone'; sigText = 'YUKARI BÖLGE';
+    text = `ATH'nın %${athDist.toFixed(2)} altında. Güçlü bir bölgede. ATH kırılımı gerçekleşirse yeni fiyat keşfi başlayabilir.`;
+  } else if (pos > 0.5) {
+    icon = '📍'; sigCls = 'mid-zone'; sigText = 'ORTA-ÜST';
+    text = `ATL-ATH aralığının üst yarısında (%${(pos*100).toFixed(0)}). ATH %${athDist.toFixed(2)}, ATL %${atlDist.toFixed(2)} uzakta.`;
+  } else if (pos > 0.25) {
+    icon = '📍'; sigCls = 'mid-zone'; sigText = 'ORTA-ALT';
+    text = `ATL-ATH aralığının alt yarısında (%${(pos*100).toFixed(0)}). ATL %${atlDist.toFixed(2)}, ATH %${athDist.toFixed(2)} uzakta.`;
+  } else if (atlDist < 10) {
+    icon = '⚠️'; sigCls = 'low-zone'; sigText = 'ATL YAKIN';
+    text = `Fiyat tarihsel dip bölgesine yakın — ATL'den yalnızca %${atlDist.toFixed(2)} uzakta. Kritik destek seviyesi.`;
+  } else {
+    icon = '🔻'; sigCls = 'atl-zone'; sigText = 'DİP BÖLGE';
+    text = `ATL-ATH aralığının en alt çeyreğinde (%${(pos*100).toFixed(0)}). Uzun vadeli alıcılar için dikkat edilmesi gereken bölge.`;
+  }
+
+  document.getElementById('athSummaryIcon').textContent = icon;
+  document.getElementById('athSummaryText').textContent = text;
+  const sigEl = document.getElementById('athSummarySig');
+  sigEl.textContent = sigText;
+  sigEl.className = `ath-summary-sig ${sigCls}`;
+  document.getElementById('athSummaryRow').style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════
 // MODÜL 4 — BTC KORELASYONU
 // ═══════════════════════════════════════════════
 
@@ -1766,38 +2066,103 @@ function renderBTCPanel(btc, coinSymbol, coinPrice) {
 
   // ── Uyarı satırları ──
   const alerts = [];
-
-  // BTC yön uyumu
   const tf4hCoinDir = coinSig ? coinSig.dir : 'neut';
+  const corrAbs     = btc.corrVal !== null ? Math.abs(btc.corrVal) : null;
+
   if (!btc.isBTC) {
-    if (btc.btcDir === 'bear' && tf4hCoinDir === 'bull') {
-      alerts.push({ icon:'⚠️', text:'BTC düşüş trendinde, ancak coin yükseliş sinyali veriyor. BTC baskısına dikkat.', sig:'ÇATIŞMA', cls:'warn' });
+
+    // ── SENARYO A: Yüksek korelasyon + BTC nötr/bear ama coin yükseliyor ──
+    if (corrAbs !== null && corrAbs > 0.7 && btc.btcDir !== 'bull' && tf4hCoinDir === 'bull') {
+      alerts.push({
+        icon:'⚠️',
+        text:`Yüksek korelasyon (${btc.corrVal.toFixed(2)}) olmasına rağmen BTC durgun/düşerken ${coinName} yükseliş veriyor. Bu ayrışma genellikle sürdürülemez — BTC yön kırarsa ${coinName} sert etkilenebilir.`,
+        sig:'RİSKLİ', cls:'warn'
+      });
+
+    // ── SENARYO B: Düşük korelasyon + coin güçlü yükseliş ──
+    } else if (corrAbs !== null && corrAbs < 0.4 && tf4hCoinDir === 'bull') {
+      alerts.push({
+        icon:'🚀',
+        text:`Düşük korelasyon (${btc.corrVal.toFixed(2)}) — ${coinName} BTC'den bağımsız hareket ediyor. Bu yükseliş coin-spesifik bir katalizöre işaret eder ve daha güvenilir olabilir.`,
+        sig:'BAĞIMSIZ', cls:'bull'
+      });
+
+    // ── SENARYO C: Orta korelasyon + BTC nötr ──
+    } else if (corrAbs !== null && corrAbs >= 0.4 && corrAbs <= 0.7 && btc.btcDir === 'neut') {
+      alerts.push({
+        icon:'🔗',
+        text:`Orta korelasyon (${btc.corrVal.toFixed(2)}) ve BTC nötr. ${coinName} kendi dinamikleriyle hareket ediyor ancak BTC yön kırarsa bu coin de etkilenebilir. Piyasa geneli gelişmeleri takip et.`,
+        sig:'NÖTR', cls:'neut'
+      });
+
+    // ── SENARYO D: Yüksek korelasyon + BTC bull → coin sürüklenme ──
+    } else if (corrAbs !== null && corrAbs > 0.7 && btc.btcDir === 'bull' && tf4hCoinDir === 'bull') {
+      alerts.push({
+        icon:'🔗',
+        text:`Güçlü korelasyon (${btc.corrVal.toFixed(2)}) ve BTC yükselişi ${coinName}'i sürüklüyor. BTC yavaşladığında bu coin de ivme kaybedebilir — coin-spesifik bir katalizör yoksa dikkatli ol.`,
+        sig:'BTC BAĞLI', cls:'warn'
+      });
+
+    // ── Yön çatışmaları ──
+    } else if (btc.btcDir === 'bear' && tf4hCoinDir === 'bull') {
+      alerts.push({
+        icon:'⚠️',
+        text:`BTC düşüş trendinde, ancak ${coinName} yükseliş sinyali veriyor. BTC baskısı altında kırılım güçlü olmayabilir.`,
+        sig:'ÇATIŞMA', cls:'warn'
+      });
     } else if (btc.btcDir === 'bull' && tf4hCoinDir === 'bear') {
-      alerts.push({ icon:'⚠️', text:'BTC yükseliş trendinde, ancak coin düşüş sinyali veriyor. Coin zayıflığına dikkat.', sig:'ÇATIŞMA', cls:'warn' });
+      alerts.push({
+        icon:'⚠️',
+        text:`BTC yükseliş trendinde, ancak ${coinName} düşüş sinyali veriyor. Coin'e özgü bir zayıflık olabilir.`,
+        sig:'ÇATIŞMA', cls:'warn'
+      });
     } else if (btc.btcDir === tf4hCoinDir && btc.btcDir !== 'neut') {
-      alerts.push({ icon:'✅', text:`BTC ve ${coinName} aynı yönde (${btc.btcDir==='bull'?'yükseliş':'düşüş'}). Konfirmasyon güçlü.`, sig:'UYUMLU', cls: btc.btcDir==='bull'?'bull':'bear' });
+      alerts.push({
+        icon:'✅',
+        text:`BTC ve ${coinName} aynı yönde (${btc.btcDir==='bull'?'yükseliş':'düşüş'}). Konfirmasyon güçlü.`,
+        sig:'UYUMLU', cls: btc.btcDir==='bull'?'bull':'bear'
+      });
     } else {
-      alerts.push({ icon:'◆', text:'BTC ve coin yönleri nötr veya belirsiz. Net bir sinyal yok.', sig:'NÖTR', cls:'neut' });
+      alerts.push({
+        icon:'◆',
+        text:`BTC ve ${coinName} yönleri nötr veya belirsiz. Net bir sinyal yok, piyasayı izlemeye devam et.`,
+        sig:'NÖTR', cls:'neut'
+      });
     }
 
-    // Korelasyon yorumu
-    if (btc.corrVal !== null) {
-      const c = btc.corrVal;
-      if (c > 0.8) {
-        alerts.push({ icon:'🔗', text:`${coinName} güçlü pozitif korelasyon (${c.toFixed(2)}). BTC hareket edince ${coinName} takip eder.`, sig:'YÜKSEK', cls:'warn' });
-      } else if (c > 0.5) {
-        alerts.push({ icon:'🔗', text:`Orta korelasyon (${c.toFixed(2)}). ${coinName} kısmen BTC'den bağımsız hareket edebilir.`, sig:'ORTA', cls:'neut' });
-      } else {
-        alerts.push({ icon:'🔗', text:`Düşük korelasyon (${c.toFixed(2)}). ${coinName} coin-spesifik dinamiklerle hareket ediyor.`, sig:'DÜŞÜK', cls:'bull' });
+    // ── BTC RSI aşırı bölge uyarısı (her senaryoya ek olarak) ──
+    if (btc.btcRSI && btc.btcRSI > 70) {
+      alerts.push({
+        icon:'🔴',
+        text:`BTC RSI aşırı alım bölgesinde (${btc.btcRSI.toFixed(1)}). Piyasa geneli düzeltme riski yüksek — açık pozisyonlarda stop seviyelerine dikkat.`,
+        sig:'RİSKLİ', cls:'bear'
+      });
+    } else if (btc.btcRSI && btc.btcRSI < 30) {
+      alerts.push({
+        icon:'🟢',
+        text:`BTC RSI aşırı satım bölgesinde (${btc.btcRSI.toFixed(1)}). Piyasa geneli toparlanma olabilir — altcoinler için fırsat penceresi açılabilir.`,
+        sig:'FIRSAT', cls:'bull'
+      });
+    }
+
+    // ── BTC MACD + coin uyumsuzluğu ──
+    if (btc.btcMACD && tf4hCoinDir !== 'neut') {
+      const btcMACDDir = btc.btcMACD.histogram > 0 ? 'bull' : 'bear';
+      if (btcMACDDir === 'bear' && tf4hCoinDir === 'bull') {
+        alerts.push({
+          icon:'📉',
+          text:`BTC MACD negatif (momentum düşüyor) iken ${coinName} yükseliş sinyali veriyor. Piyasa geneli momentum zayıf — pozisyon boyutunu küçük tut.`,
+          sig:'DİKKAT', cls:'warn'
+        });
+      } else if (btcMACDDir === 'bull' && tf4hCoinDir === 'bull') {
+        alerts.push({
+          icon:'📈',
+          text:`BTC MACD pozitif ve ${coinName} de yükseliş sinyali veriyor. İki gösterge aynı yönde — momentum uyumlu.`,
+          sig:'UYUMLU', cls:'bull'
+        });
       }
     }
 
-    // BTC RSI aşırı bölge uyarısı
-    if (btc.btcRSI && btc.btcRSI > 70) {
-      alerts.push({ icon:'🔴', text:'BTC RSI aşırı alım bölgesinde (>' + btc.btcRSI.toFixed(0) + '). Piyasa geneli düzeltme riski var.', sig:'RİSKLİ', cls:'bear' });
-    } else if (btc.btcRSI && btc.btcRSI < 30) {
-      alerts.push({ icon:'🟢', text:'BTC RSI aşırı satım bölgesinde (<' + btc.btcRSI.toFixed(0) + '). Piyasa geneli toparlanma olabilir.', sig:'FIRSAT', cls:'bull' });
-    }
   } else {
     alerts.push({ icon:'₿', text:'Seçilen coin zaten BTC. Korelasyon analizi uygulanamaz.', sig:'BTC', cls:'warn' });
   }
@@ -1883,6 +2248,28 @@ function analyzeVolume(klines) {
     dir:  i === 0 ? 'flat' : c > last20closes[i-1] ? 'up' : c < last20closes[i-1] ? 'down' : 'flat'
   }));
 
+  // Son mumun fiyat değişimi (tek mum, 4H)
+  const lastClose = closes[closes.length - 1];
+  const prevClose = closes[closes.length - 2];
+  const lastPriceChange = prevClose ? (lastClose - prevClose) / prevClose * 100 : 0;
+
+  // Son 3 mumun fiyat değişimi (kısa vadeli momentum)
+  const close3ago = closes[closes.length - 4];
+  const priceChange3 = close3ago ? (lastClose - close3ago) / close3ago * 100 : 0;
+
+  // ZAYIF KIRILIM tespiti:
+  // Fiyat son 3×4H içinde +%2 veya üzeri çıktıysa
+  // VE son mumun hacmi 20 mum ortalamasının %50'sinin altındaysa
+  const weakBreakout = priceChange3 > 2 && volRatio !== null && volRatio < 0.5;
+
+  // GÜÇLENDİRİLMEMİŞ DÜŞÜŞ tespiti:
+  // Fiyat son 3×4H içinde -%2 veya daha fazla düştüyse
+  // VE son mumun hacmi düşükse (sahte düşüş olabilir)
+  const weakDrop = priceChange3 < -2 && volRatio !== null && volRatio < 0.5;
+
+  // HACİM PATLAMASI tespiti: fiyat hareketiyle birlikte hacim 2x+ üstünde
+  const volumeSpike = volRatio !== null && volRatio > 2 && Math.abs(priceChange3) > 1;
+
   return {
     obvSlope, obvTrend: obvSlope > 0 ? 'bull' : obvSlope < 0 ? 'bear' : 'neut',
     deltaAvg, deltaDir: deltaAvg > 0 ? 'bull' : deltaAvg < 0 ? 'bear' : 'neut',
@@ -1890,8 +2277,11 @@ function analyzeVolume(klines) {
     divergence,
     bars,
     priceChange10,
+    priceChange3,
+    lastPriceChange,
     obvChange10,
     lastVol, avgVol,
+    weakBreakout, weakDrop, volumeSpike,
   };
 }
 
@@ -1966,6 +2356,23 @@ function renderVolPanel(vol) {
       ${vol.divergence === 'bearish'
         ? '⚠ AYI UYUŞMAZLIĞI: Fiyat yükselirken OBV düşüyor. Kırılım sahte olabilir.'
         : '✓ BOĞA UYUŞMAZLIĞI: Fiyat düşerken OBV çıkıyor. Dip güçlenebilir.'}
+    </div>` : ''}
+    ${vol.weakBreakout ? `
+    <div class="vol-alert neut">
+      ⚠ ZAYIF KIRILIM: Fiyat son 3×4H'de +%${vol.priceChange3.toFixed(1)} yükseldi,
+      ancak hacim ortalamanın yalnızca ${(vol.volRatio * 100).toFixed(0)}%'i.
+      Bu hareketi destekleyen güçlü alıcı yok — kırılım sahte veya kısa ömürlü olabilir.
+    </div>` : ''}
+    ${vol.weakDrop ? `
+    <div class="vol-alert bull">
+      ℹ ZAYIF DÜŞÜŞ: Fiyat son 3×4H'de -%${Math.abs(vol.priceChange3).toFixed(1)} geriledi,
+      ancak hacim ortalamanın yalnızca ${(vol.volRatio * 100).toFixed(0)}%'i.
+      Satış baskısı zayıf — düşüş sürdürülemeyebilir.
+    </div>` : ''}
+    ${vol.volumeSpike ? `
+    <div class="vol-alert bull">
+      🔥 HACİM PATLAMASI: Son mum hacmi ortalamanın ${vol.volRatio.toFixed(1)}x'i.
+      Fiyat hareketi (${vol.priceChange3 >= 0 ? '+' : ''}%${vol.priceChange3.toFixed(1)}) güçlü hacimle destekleniyor.
     </div>` : ''}`;
 }
 
@@ -2010,19 +2417,70 @@ function calcSupportResistance(klines, currentPrice) {
   const lows   = klines.map(k => parseFloat(k[3]));
   const closes = klines.map(k => parseFloat(k[4]));
 
-  const { pivotHighs, pivotLows } = findPivots(highs, lows, 5);
+  // ── 1. Adım: Dinamik wing ile pivot tespiti ──
+  // wing=5 → wing=3 → wing=2 sırasıyla dene, yeterli direnç bulunana kadar
+  let pivotHighs = [], pivotLows = [];
+  for (const wing of [5, 3, 2]) {
+    const result = findPivots(highs, lows, wing);
+    pivotHighs = result.pivotHighs;
+    pivotLows  = result.pivotLows;
+    const resCount = clusterLevels(pivotHighs, currentPrice)
+      .filter(c => c.price > currentPrice).length;
+    if (resCount >= 2) break; // yeterli direnç bulundu
+  }
 
-  const resClusters = clusterLevels(pivotHighs, currentPrice)
+  let resClusters = clusterLevels(pivotHighs, currentPrice)
     .filter(c => c.price > currentPrice)
-    .sort((a, b) => a.price - b.price)   // fiyata en yakın önce
+    .sort((a, b) => a.price - b.price)
     .slice(0, 3);
 
-  const supClusters = clusterLevels(pivotLows, currentPrice)
+  let supClusters = clusterLevels(pivotLows, currentPrice)
     .filter(c => c.price < currentPrice)
-    .sort((a, b) => b.price - a.price)   // fiyata en yakın önce
+    .sort((a, b) => b.price - a.price)
     .slice(0, 3);
 
-  return { resistances: resClusters, supports: supClusters };
+  // ── 2. Adım: Yedek — hâlâ direnç bulunamazsa ──
+  // Fiyat son zirvedeyse swing high pivot bulunamaz.
+  // Yedek olarak: son 200 mumun en yüksek %10'luk kısmındaki
+  // bar kapanışlarından küme oluştur.
+  if (resClusters.length === 0) {
+    const sortedHighs = [...highs].sort((a, b) => b - a);
+    const top10pct    = sortedHighs.slice(0, Math.ceil(highs.length * 0.1));
+    // Bu yükseklerin ortalamasını bir "bölge" olarak işaretle
+    const topAvg      = top10pct.reduce((a, b) => a + b, 0) / top10pct.length;
+    const topMax      = sortedHighs[0];
+    // Fiyatın üstündeyse ekle
+    if (topAvg > currentPrice)
+      resClusters.push({ price: topAvg, touches: 2, isFallback: true });
+    if (topMax > currentPrice && Math.abs(topMax - topAvg) / topAvg > 0.005)
+      resClusters.push({ price: topMax, touches: 1, isFallback: true });
+    resClusters = resClusters.sort((a, b) => a.price - b.price).slice(0, 3);
+  }
+
+  // ── 3. Adım: Psikolojik yuvarlak sayılar yedek olarak ekle ──
+  // Hâlâ yeterli direnç yoksa fiyatın hemen üstündeki
+  // yuvarlak seviyeleri (×0.5, ×1.0 artışlar) ekle
+  if (resClusters.length < 2) {
+    const magnitude = Math.pow(10, Math.floor(Math.log10(currentPrice)) - 1);
+    const step      = magnitude * 5; // örn. $1 coin için 0.05, $100 coin için 5
+    let candidate   = Math.ceil(currentPrice / step) * step;
+    let added       = 0;
+    while (added < 3 - resClusters.length && candidate < currentPrice * 1.3) {
+      const alreadyExists = resClusters.some(r => Math.abs(r.price - candidate) / candidate < 0.005);
+      if (!alreadyExists && candidate > currentPrice * 1.001) {
+        resClusters.push({ price: candidate, touches: 1, isPsychological: true });
+        added++;
+      }
+      candidate = Math.round((candidate + step) * 1e8) / 1e8;
+    }
+    resClusters = resClusters.sort((a, b) => a.price - b.price).slice(0, 3);
+  }
+
+  // Fiyatın zirve bölgesinde olup olmadığını işaretle
+  const allTimeHigh  = Math.max(...highs);
+  const nearATH      = (allTimeHigh - currentPrice) / currentPrice < 0.03; // %3 içinde
+
+  return { resistances: resClusters, supports: supClusters, nearATH, allTimeHigh };
 }
 
 async function fetchAndRenderSR(symbol, price) {
@@ -2050,15 +2508,15 @@ async function fetchAndRenderSR(symbol, price) {
 }
 
 function renderSRPanel(sr, price) {
-  const { resistances, supports } = sr;
+  const { resistances, supports, nearATH, allTimeHigh } = sr;
 
   // Tüm seviyeleri bir araya getir, chart için aralık hesapla
   const allPrices = [price, ...resistances.map(r => r.price), ...supports.map(s => s.price)];
   const minP = Math.min(...allPrices) * 0.998;
   const maxP = Math.max(...allPrices) * 1.002;
-  const range = maxP - minP;
+  const range = maxP - minP || price * 0.01; // sıfır bölme koruması
 
-  function toY(p) { // 0 (üst) → 100 (alt)
+  function toY(p) {
     return ((maxP - p) / range * 100).toFixed(1) + '%';
   }
 
@@ -2069,8 +2527,9 @@ function renderSRPanel(sr, price) {
   chartHTML += `<div class="sr-zone-sup" style="height:${(100 - priceY).toFixed(1)}%"></div>`;
 
   resistances.forEach(r => {
-    chartHTML += `<div class="sr-level-line res" style="top:${toY(r.price)}"></div>`;
-    chartHTML += `<div class="sr-price-label res" style="top:${toY(r.price)}">${formatPrice(r.price)}</div>`;
+    const lineStyle = r.isPsychological ? 'border-top:1px dashed rgba(255,23,68,0.4)' : '';
+    chartHTML += `<div class="sr-level-line res" style="top:${toY(r.price)};${r.isPsychological?'opacity:0.5':''}"></div>`;
+    chartHTML += `<div class="sr-price-label res" style="top:${toY(r.price)}">${formatPrice(r.price)}${r.isPsychological?' ~':''}</div>`;
   });
   supports.forEach(s => {
     chartHTML += `<div class="sr-level-line sup" style="top:${toY(s.price)}"></div>`;
@@ -2084,19 +2543,43 @@ function renderSRPanel(sr, price) {
   // ── LİSTE ──
   let listHTML = '';
 
+  // Zirve bölgesi uyarısı
+  if (nearATH) {
+    listHTML += `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:4px;
+      background:rgba(255,171,0,0.06);border:1px solid rgba(255,171,0,0.2)">
+      <span style="font-size:13px">⚠️</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--yellow);letter-spacing:1px;line-height:1.5">
+        FİYAT ZİRVE BÖLGESİNDE — Swing pivot bulunamıyor.<br>
+        Dirençler tahmini seviyeler olabilir.
+      </span>
+    </div>`;
+  }
+
   resistances.forEach(r => {
-    const distPct = ((r.price - price) / price * 100).toFixed(2);
+    const distPct  = ((r.price - price) / price * 100).toFixed(2);
     const strength = Math.min(r.touches, 4);
+    const tag      = r.isPsychological ? ' <span style="font-size:8px;color:var(--dim)">(PSİKOLOJİK)</span>'
+                   : r.isFallback      ? ' <span style="font-size:8px;color:var(--dim)">(TAHMİNİ)</span>'
+                   : '';
     listHTML += `
     <div class="sr-item">
       <div class="sr-badge res">DİRENÇ</div>
-      <div class="sr-item-price">${formatPrice(r.price)}</div>
+      <div class="sr-item-price">${formatPrice(r.price)}${tag}</div>
       <div class="sr-item-dist res">+%${distPct}</div>
       <div class="sr-item-strength">
         ${[1,2,3,4].map(i => `<div class="sr-dot res ${i<=strength?'on':''}"></div>`).join('')}
       </div>
     </div>`;
   });
+
+  // Direnç bulunamadıysa açıklama
+  if (resistances.length === 0) {
+    listHTML += `
+    <div style="padding:8px 0;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:1px">
+      Üst direnç seviyesi tespit edilemedi.
+    </div>`;
+  }
 
   // Mevcut fiyat ayırıcı
   listHTML += `
@@ -2132,21 +2615,33 @@ function renderSRPanel(sr, price) {
   if (nearestRes && nearestSup) {
     const rDist = (nearestRes.price - price) / price * 100;
     const sDist = (price - nearestSup.price) / price * 100;
-    if (rDist < 1.5) {
+    if (nearATH) {
+      icon = '🏔️'; title = 'FİYAT ZİRVE BÖLGESİNDE';
+      sub  = `200 mumluk en yüksek: ${formatPrice(allTimeHigh)} · Tahmini dirençler gösteriliyor`;
+    } else if (rDist < 1.5) {
       icon = '⚠️'; title = 'GÜÇLÜ DİRENÇ YAKIN';
-      sub = `Üst direnç yalnızca %${rDist.toFixed(2)} uzakta — kırılım önemli`;
+      sub  = `Üst direnç yalnızca %${rDist.toFixed(2)} uzakta — kırılım önemli`;
     } else if (sDist < 1.5) {
       icon = '🛡️'; title = 'DESTEK YAKIN';
-      sub = `Alt destek %${sDist.toFixed(2)} uzakta — bu seviye kritik`;
+      sub  = `Alt destek %${sDist.toFixed(2)} uzakta — bu seviye kritik`;
     } else if (rDist < sDist) {
-      icon = '📍'; title = 'DİRENÇ BÖLGESINE YAKIN';
-      sub = `Direnç %${rDist.toFixed(2)} · Destek %${sDist.toFixed(2)} uzakta`;
+      icon = '📍'; title = 'DİRENÇ BÖLGESİNE YAKIN';
+      sub  = `Direnç %${rDist.toFixed(2)} · Destek %${sDist.toFixed(2)} uzakta`;
     } else {
       icon = '📍'; title = 'DESTEK / DİRENÇ ARASI';
-      sub = `Destek %${sDist.toFixed(2)} · Direnç %${rDist.toFixed(2)} uzakta`;
+      sub  = `Destek %${sDist.toFixed(2)} · Direnç %${rDist.toFixed(2)} uzakta`;
     }
+  } else if (nearestRes) {
+    const rDist = (nearestRes.price - price) / price * 100;
+    icon = '🔴'; title = 'YALNIZCA DİRENÇ TESPİT EDİLDİ';
+    sub  = `En yakın direnç %${rDist.toFixed(2)} uzakta`;
+  } else if (nearestSup) {
+    const sDist = (price - nearestSup.price) / price * 100;
+    icon = '🟢'; title = 'YALNIZCA DESTEK TESPİT EDİLDİ';
+    sub  = `En yakın destek %${sDist.toFixed(2)} uzakta`;
   } else {
-    icon = '📍'; title = 'SEVİYE TESPİT EDİLDİ'; sub = 'Grafik üzerindeki seviyelere bakın';
+    icon = '📍'; title = 'SEVİYE TESPİT EDİLEMEDİ';
+    sub  = 'Yetersiz fiyat verisi';
   }
 
   document.getElementById('srIcon').textContent = icon;
@@ -2333,6 +2828,7 @@ async function openDetail(symbol) {
   srData = {};
   volData = {};
   btcData = {};
+  athData = {};
   document.getElementById('detailSymbol').textContent = symbol.replace('USDT','/USDT');
   document.getElementById('detailPriceVal').textContent = '...';
   document.getElementById('detailStatus').textContent = 'YÜKLENİYOR';
@@ -2363,6 +2859,17 @@ async function openDetail(symbol) {
   document.getElementById('btcCompareGrid').innerHTML = `
     <div class="btc-compare-col"><div class="btc-compare-label btc-color">BTC</div><div class="ta-loading"><div class="ta-spinner"></div></div></div>
     <div class="btc-compare-col"><div class="btc-compare-label coin-color" id="btcCoinLabel">COIN</div><div class="ta-loading"><div class="ta-spinner"></div></div></div>`;
+  // ATH reset
+  document.getElementById('athMarker').style.left = '50%';
+  document.getElementById('athDataSource').textContent = '—';
+  document.getElementById('athAtlLabel').textContent = 'ATL: —';
+  document.getElementById('athAthLabel').textContent = 'ATH: —';
+  document.getElementById('athCurrentLabel').textContent = '— ŞİMDİ';
+  document.getElementById('athPrice').textContent = '—';
+  document.getElementById('atlPrice').textContent = '—';
+  document.getElementById('athDist').textContent = '—';
+  document.getElementById('atlDist').textContent = '—';
+  document.getElementById('athSummaryRow').style.display = 'none';
   resetDetail();
 
   document.getElementById('listPage').classList.remove('active');
@@ -2695,19 +3202,24 @@ function buildOutput(d, symbol) {
     t += '\n' + '─'.repeat(42) + '\n';
     t += `📏 DESTEK / DİRENÇ SEVİYELERİ (4H Swing)\n`;
     t += '─'.repeat(42) + '\n\n';
-    t += `💰 Mevcut Fiyat: ${formatPrice(d.price)}\n\n`;
+    t += `💰 Mevcut Fiyat: ${formatPrice(d.price)}\n`;
+    if (srData.nearATH) {
+      t += `⚠ NOT: Fiyat son 200 mumun zirve bölgesinde.\n`;
+      t += `   Swing pivot bulunamadı — dirençler tahmini/psikolojik seviyelerdir.\n`;
+    }
+    t += '\n';
     srData.resistances.forEach((r, i) => {
-      const dist = ((r.price - d.price) / d.price * 100).toFixed(2);
+      const dist  = ((r.price - d.price) / d.price * 100).toFixed(2);
       const stars = '★'.repeat(Math.min(r.touches, 4)) + '☆'.repeat(Math.max(0, 4 - Math.min(r.touches, 4)));
-      t += `🔴 DİRENÇ ${i+1}: ${formatPrice(r.price)}  (+%${dist})  Güç: ${stars}\n`;
+      const tip   = r.isPsychological ? ' (Psikolojik)' : r.isFallback ? ' (Tahmini)' : '';
+      t += `🔴 DİRENÇ ${i+1}: ${formatPrice(r.price)}  (+%${dist})  Güç: ${stars}${tip}\n`;
     });
     t += '\n';
     srData.supports.forEach((s, i) => {
-      const dist = ((d.price - s.price) / d.price * 100).toFixed(2);
+      const dist  = ((d.price - s.price) / d.price * 100).toFixed(2);
       const stars = '★'.repeat(Math.min(s.touches, 4)) + '☆'.repeat(Math.max(0, 4 - Math.min(s.touches, 4)));
       t += `🟢 DESTEK ${i+1}:  ${formatPrice(s.price)}  (-%${dist})  Güç: ${stars}\n`;
     });
-    // Konum özeti
     if (srData.resistances[0] && srData.supports[0]) {
       const rD = ((srData.resistances[0].price - d.price) / d.price * 100).toFixed(2);
       const sD = ((d.price - srData.supports[0].price) / d.price * 100).toFixed(2);
@@ -2735,6 +3247,31 @@ function buildOutput(d, symbol) {
     const dLabel = volData.deltaDir === 'bull' ? 'Alış Baskısı' : volData.deltaDir === 'bear' ? 'Satış Baskısı' : 'Nötr';
     t += `⚡ Taker Delta (son 5×4H): ${dSign}${fmtNum(volData.deltaAvg)}  →  ${dLabel}\n`;
 
+    if (volData.priceChange3 !== undefined) {
+      t += `📉 Son 3×4H Fiyat Değişimi: ${volData.priceChange3 >= 0 ? '+' : ''}${volData.priceChange3.toFixed(2)}%\n`;
+    }
+
+    // Uyarı satırları
+    if (volData.weakBreakout) {
+      t += `\n⚠ ZAYIF KIRILIM TESPİT EDİLDİ:\n`;
+      t += `   Fiyat +%${volData.priceChange3.toFixed(1)} yükseldi ama hacim ortalamanın yalnızca ${(volData.volRatio * 100).toFixed(0)}%'i.\n`;
+      t += `   Bu hareketi destekleyen güçlü alıcı yok.\n`;
+      t += `   → Kırılım sahte veya kısa ömürlü olabilir. Long pozisyona dikkat.\n`;
+    }
+
+    if (volData.weakDrop) {
+      t += `\n ℹ ZAYIF DÜŞÜŞ TESPİT EDİLDİ:\n`;
+      t += `   Fiyat -%${Math.abs(volData.priceChange3).toFixed(1)} geriledi ama hacim ortalamanın yalnızca ${(volData.volRatio * 100).toFixed(0)}%'i.\n`;
+      t += `   Satış baskısı zayıf — düşüş sürdürülemeyebilir.\n`;
+      t += `   → Short pozisyona dikkat, dip olabilir.\n`;
+    }
+
+    if (volData.volumeSpike) {
+      t += `\n🔥 HACİM PATLAMASI:\n`;
+      t += `   Son mum hacmi ortalamanın ${volData.volRatio.toFixed(1)}x'i.\n`;
+      t += `   Fiyat hareketi (${volData.priceChange3 >= 0 ? '+' : ''}%${volData.priceChange3.toFixed(1)}) güçlü hacimle destekleniyor.\n`;
+    }
+
     if (volData.divergence !== 'none') {
       t += `\n⚠ OBV UYUŞMAZLIĞI TESPİT EDİLDİ:\n`;
       if (volData.divergence === 'bearish') {
@@ -2754,29 +3291,76 @@ function buildOutput(d, symbol) {
     t += '\n' + '─'.repeat(42) + '\n';
     t += `₿  BTC KORELASYON ANALİZİ\n`;
     t += '─'.repeat(42) + '\n\n';
-    if (btcData.btcPrice)  t += `BTC Fiyatı:    ${formatPrice(btcData.btcPrice)}\n`;
+
+    // Ham veriler
+    if (btcData.btcPrice)        t += `BTC Fiyatı:    ${formatPrice(btcData.btcPrice)}\n`;
     if (btcData.btcChange !== null) t += `BTC 24s Değ.: ${btcData.btcChange >= 0 ? '+' : ''}${btcData.btcChange.toFixed(2)}%\n`;
-    if (btcData.btcRSI)   t += `BTC RSI(14):   ${btcData.btcRSI.toFixed(2)}${btcData.btcRSI>70?' ⚠ AŞIRI ALIM':btcData.btcRSI<30?' ⚠ AŞIRI SATIM':''}\n`;
-    if (btcData.btcMACD)  t += `BTC MACD hist: ${btcData.btcMACD.histogram.toFixed(6)} → ${btcData.btcMACD.histogram>0?'Pozitif':'Negatif'}\n`;
-    const btcDirTxt = btcData.btcDir==='bull'?'▲ YUKARI':btcData.btcDir==='bear'?'▼ AŞAĞI':'◆ NÖTR';
-    t += `BTC Genel Yön: ${btcDirTxt}\n\n`;
+    if (btcData.btcRSI)          t += `BTC RSI(14):   ${btcData.btcRSI.toFixed(2)}${btcData.btcRSI > 70 ? ' ⚠ AŞIRI ALIM' : btcData.btcRSI < 30 ? ' ⚠ AŞIRI SATIM' : ''}\n`;
+    if (btcData.btcMACD)         t += `BTC MACD hist: ${btcData.btcMACD.histogram.toFixed(6)} → ${btcData.btcMACD.histogram > 0 ? 'Pozitif' : 'Negatif'}\n`;
+    const btcDirTxt = btcData.btcDir === 'bull' ? '▲ YUKARI' : btcData.btcDir === 'bear' ? '▼ AŞAĞI' : '◆ NÖTR';
+    t += `BTC Genel Yön: ${btcDirTxt}\n`;
 
     if (btcData.corrVal !== null) {
       const c = btcData.corrVal, ca = Math.abs(c);
       const corrLabel = ca > 0.7 ? 'Yüksek' : ca > 0.4 ? 'Orta' : 'Düşük';
-      t += `Korelasyon (Pearson, 4H): ${c >= 0 ? '+' : ''}${c.toFixed(3)}  →  ${corrLabel}\n`;
+      t += `Korelasyon (Pearson, 4H, 60 mum): ${c >= 0 ? '+' : ''}${c.toFixed(3)}  →  ${corrLabel}\n`;
     }
 
-    const coinSig = (taData.mtf && taData.mtf.tf4h) ? tfSignal(taData.mtf.tf4h) : null;
-    const coinDir = coinSig ? coinSig.dir : 'neut';
-    if (btcData.btcDir === 'bear' && coinDir === 'bull') {
-      t += `\n⚠ ÇATIŞMA: BTC düşüş trendinde, coin yükseliş sinyali veriyor.\n`;
+    // Senaryo yorumları
+    const coinSig  = (taData.mtf && taData.mtf.tf4h) ? tfSignal(taData.mtf.tf4h) : null;
+    const coinDir  = coinSig ? coinSig.dir : 'neut';
+    const corrAbs  = btcData.corrVal !== null ? Math.abs(btcData.corrVal) : null;
+    const coinName = currentSymbol.replace('USDT', '');
+
+    t += '\n';
+
+    if (corrAbs !== null && corrAbs > 0.7 && btcData.btcDir !== 'bull' && coinDir === 'bull') {
+      t += `⚠ SENARYO A — YÜKSEK KORELASYON + AYRIŞMA:\n`;
+      t += `   ${coinName} güçlü korelasyona (${btcData.corrVal.toFixed(2)}) rağmen BTC'den ayrışıyor.\n`;
+      t += `   BTC durgun/düşerken bu yükseliş genellikle sürdürülemez.\n`;
+      t += `   → BTC yön kırarsa ${coinName} sert etkilenebilir. Stop'a dikkat.\n`;
+    } else if (corrAbs !== null && corrAbs < 0.4 && coinDir === 'bull') {
+      t += `✓ SENARYO B — DÜŞÜK KORELASYON + BAĞIMSIZ YÜKSELİŞ:\n`;
+      t += `   ${coinName} BTC'den bağımsız hareket ediyor (korelasyon: ${btcData.corrVal.toFixed(2)}).\n`;
+      t += `   Bu yükseliş coin-spesifik bir katalizöre işaret eder.\n`;
+      t += `   → Daha güvenilir hareket — ancak coin haberleri takip edilmeli.\n`;
+    } else if (corrAbs !== null && corrAbs >= 0.4 && corrAbs <= 0.7 && btcData.btcDir === 'neut') {
+      t += `◆ SENARYO C — ORTA KORELASYON + BTC NÖTR:\n`;
+      t += `   BTC belirsiz, ${coinName} kendi dinamikleriyle hareket ediyor.\n`;
+      t += `   Korelasyon: ${btcData.corrVal.toFixed(2)} — BTC yön kırarsa bu coin de etkilenebilir.\n`;
+      t += `   → Piyasa geneli gelişmeleri yakından takip et.\n`;
+    } else if (corrAbs !== null && corrAbs > 0.7 && btcData.btcDir === 'bull' && coinDir === 'bull') {
+      t += `🔗 SENARYO D — YÜKSEK KORELASYON + BTC SÜRÜKLÜYOR:\n`;
+      t += `   BTC yükselişi ${coinName}'i sürüklüyor (korelasyon: ${btcData.corrVal.toFixed(2)}).\n`;
+      t += `   Coin-spesifik katalizör yoksa BTC durduğunda momentum kaybolabilir.\n`;
+      t += `   → BTC hareketini birincil referans al.\n`;
+    } else if (btcData.btcDir === 'bear' && coinDir === 'bull') {
+      t += `⚠ ÇATIŞMA: BTC düşüş trendinde, ${coinName} yükseliş sinyali veriyor.\n`;
       t += `   BTC baskısı altında kırılım güçlü olmayabilir.\n`;
     } else if (btcData.btcDir === 'bull' && coinDir === 'bear') {
-      t += `\n⚠ ÇATIŞMA: BTC yükseliş trendinde, coin düşüş sinyali veriyor.\n`;
+      t += `⚠ ÇATIŞMA: BTC yükseliş trendinde, ${coinName} düşüş sinyali veriyor.\n`;
       t += `   Coin'e özgü bir zayıflık olabilir.\n`;
     } else if (btcData.btcDir === coinDir && btcData.btcDir !== 'neut') {
-      t += `\n✓ UYUM: BTC ve coin aynı yönde (${btcData.btcDir==='bull'?'yükseliş':'düşüş'}). Sinyal daha güvenilir.\n`;
+      t += `✓ UYUM: BTC ve ${coinName} aynı yönde (${btcData.btcDir === 'bull' ? 'yükseliş' : 'düşüş'}). Sinyal daha güvenilir.\n`;
+    } else {
+      t += `◆ Yön belirsiz. BTC ve ${coinName} için net sinyal yok.\n`;
+    }
+
+    // BTC RSI ek uyarı
+    if (btcData.btcRSI && btcData.btcRSI > 70) {
+      t += `\n⚠ BTC RSI ${btcData.btcRSI.toFixed(1)} — Aşırı alım bölgesi. Piyasa geneli düzeltme riski.\n`;
+    } else if (btcData.btcRSI && btcData.btcRSI < 30) {
+      t += `\n✓ BTC RSI ${btcData.btcRSI.toFixed(1)} — Aşırı satım bölgesi. Piyasa geneli toparlanma olabilir.\n`;
+    }
+
+    // BTC MACD ek yorum
+    if (btcData.btcMACD && coinDir !== 'neut') {
+      const btcMACDDir = btcData.btcMACD.histogram > 0 ? 'bull' : 'bear';
+      if (btcMACDDir === 'bear' && coinDir === 'bull') {
+        t += `\n📉 BTC MACD negatif iken ${coinName} yükseliş sinyali veriyor. Piyasa momentumu zayıf.\n`;
+      } else if (btcMACDDir === 'bull' && coinDir === 'bull') {
+        t += `\n📈 BTC MACD pozitif ve ${coinName} de yükseliş — momentum uyumlu.\n`;
+      }
     }
   }
 
