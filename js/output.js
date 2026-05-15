@@ -17,6 +17,15 @@ export function buildOutput(d, symbol) {
   if (d.oiUSD !== undefined) t += `open_interest_usd=${d.oiUSD}\n`;
   if (d.oiContracts !== undefined) t += `open_interest_contracts=${d.oiContracts}\n`;
   if (d.funding !== undefined) t += `funding_rate_pct=${d.funding}\n`;
+  if (state.oiData && Array.isArray(state.oiData.windows)) {
+    const byWindow = Object.fromEntries(state.oiData.windows.map(w => [w.window, w]));
+    const w5m = byWindow['5m'];
+    const w15m = byWindow['15m'];
+    const w1h = byWindow['1h'];
+    if (w5m && w5m.pct !== null && w5m.pct !== undefined) t += `oi_change_5m_pct=${w5m.pct}\n`;
+    if (w15m && w15m.pct !== null && w15m.pct !== undefined) t += `oi_change_15m_pct=${w15m.pct}\n`;
+    if (w1h && w1h.pct !== null && w1h.pct !== undefined) t += `oi_change_1h_pct=${w1h.pct}\n`;
+  }
 
   t += '\n[LONG_SHORT]\n';
   if (d.longPct !== undefined) t += `long_pct=${d.longPct}\n`;

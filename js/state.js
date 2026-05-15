@@ -4,6 +4,7 @@ export const state = {
   activeFilter: 'all',
   currentSymbol: '',
   detailData: {},
+  oiData: {},
   taData: {},
   srData: {},
   volData: {},

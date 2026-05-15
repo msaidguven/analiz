@@ -5,11 +5,13 @@ import { fetchAndRenderSR } from './modules/sr.js';
 import { fetchAndRenderVol } from './modules/volume.js';
 import { fetchAndRenderBTC } from './modules/btc.js';
 import { fetchAndRenderATH } from './modules/ath.js';
+import { startOI, stopOI } from './modules/oi.js';
 import { buildOutput } from './output.js';
 
 export async function openDetail(symbol) {
   state.currentSymbol = symbol;
   state.taData = {};
+  state.oiData = {};
   state.srData = {};
   state.volData = {};
   state.btcData = {};
@@ -56,6 +58,7 @@ export async function openDetail(symbol) {
   document.getElementById('atlDist').textContent = '—';
   document.getElementById('athSummaryRow').style.display = 'none';
   resetDetail();
+  stopOI();
 
   document.getElementById('listPage').classList.remove('active');
   document.getElementById('detailPage').classList.add('active');
@@ -68,6 +71,7 @@ export async function openDetail(symbol) {
 }
 
 export function goBack() {
+  stopOI();
   document.getElementById('detailPage').classList.remove('active');
   document.getElementById('listPage').classList.add('active');
 }
@@ -184,6 +188,7 @@ function renderDetail(d, symbol) {
 
   renderVerdicts(d);
   buildOutput(d, symbol);
+  startOI(symbol, onOIUpdate);
 
   // SR, Vol ve BTC — fiyat hazır olunca paralel tetikle
   if (d.price) {
@@ -195,6 +200,35 @@ function renderDetail(d, symbol) {
   document.getElementById('detailStatus').textContent = 'CANLI';
   document.getElementById('detailDot').style.background = 'var(--green)';
   document.getElementById('copyBtn').disabled = false;
+}
+
+function onOIUpdate(oiPayload) {
+  if (!oiPayload || oiPayload.error) return;
+  if (!state.currentSymbol || oiPayload.symbol !== state.currentSymbol) return;
+
+  state.oiData = oiPayload;
+  updateOIDeltaUI(oiPayload);
+  if (state.detailData && state.currentSymbol) {
+    buildOutput(state.detailData, state.currentSymbol);
+  }
+}
+
+function updateOIDeltaUI(oiPayload) {
+  if (!oiPayload || !Array.isArray(oiPayload.windows)) return;
+  const subEl = document.getElementById('d-oi-sub');
+  if (!subEl) return;
+
+  const byWindow = Object.fromEntries(
+    oiPayload.windows.map(w => [w.window, w])
+  );
+  const labels = ['5m', '15m', '1h'].map(label => {
+    const w = byWindow[label];
+    if (!w || w.pct === null || Number.isNaN(w.pct)) return `${label}: n/a`;
+    const sign = w.pct >= 0 ? '+' : '';
+    return `${label}: ${sign}${w.pct.toFixed(2)}%`;
+  });
+
+  subEl.textContent = `USD değeri | OI Δ ${labels.join(' | ')}`;
 }
 
 function renderVerdicts(d) {
@@ -305,4 +339,3 @@ export function resetDetail() {
   document.getElementById('lsShortBar').style.width = '50%';
   document.getElementById('verdictItems').innerHTML = '<div style="color:var(--dim);font-family:\'Share Tech Mono\',monospace;font-size:10px">Yükleniyor...</div>';
 }
-
