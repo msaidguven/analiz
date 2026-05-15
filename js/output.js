@@ -2,7 +2,8 @@ import { state } from './state.js';
 
 export function buildOutput(d, symbol) {
   const now = new Date().toLocaleString('tr-TR');
-  let t = `RAW_DATA\n`;
+  let t = `NOT: Lutfen bu ham veriyi Turkce olarak acikla. Yorumlarini Turkce yaz.\n`;
+  t += `RAW_DATA\n`;
   t += `SYMBOL: ${symbol}\n`;
   t += `TIME: ${now}\n`;
   t += '\n[MARKET]\n';
