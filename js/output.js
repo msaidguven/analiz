@@ -17,20 +17,33 @@ export function buildOutput(d, symbol) {
   if (d.oiUSD !== undefined) t += `open_interest_usd=${d.oiUSD}\n`;
   if (d.oiContracts !== undefined) t += `open_interest_contracts=${d.oiContracts}\n`;
   if (d.funding !== undefined) t += `funding_rate_pct=${d.funding}\n`;
+
+  t += '\n[OI_ANALYSIS]\n';
   if (state.oiData && Array.isArray(state.oiData.windows)) {
     const byWindow = Object.fromEntries(state.oiData.windows.map(w => [w.window, w]));
     const w5m = byWindow['5m'];
     const w15m = byWindow['15m'];
     const w1h = byWindow['1h'];
-    if (w5m && w5m.pct !== null && w5m.pct !== undefined) t += `oi_change_5m_pct=${w5m.pct}\n`;
-    if (w15m && w15m.pct !== null && w15m.pct !== undefined) t += `oi_change_15m_pct=${w15m.pct}\n`;
-    if (w1h && w1h.pct !== null && w1h.pct !== undefined) t += `oi_change_1h_pct=${w1h.pct}\n`;
-    if (w5m && w5m.oi_usd_delta !== null && w5m.oi_usd_delta !== undefined) t += `oi_change_5m_usd=${w5m.oi_usd_delta}\n`;
-    if (w15m && w15m.oi_usd_delta !== null && w15m.oi_usd_delta !== undefined) t += `oi_change_15m_usd=${w15m.oi_usd_delta}\n`;
-    if (w1h && w1h.oi_usd_delta !== null && w1h.oi_usd_delta !== undefined) t += `oi_change_1h_usd=${w1h.oi_usd_delta}\n`;
-    if (w5m && w5m.signal !== null && w5m.signal !== undefined) t += `oi_signal_5m=${w5m.signal}\n`;
-    if (w15m && w15m.signal !== null && w15m.signal !== undefined) t += `oi_signal_15m=${w15m.signal}\n`;
-    if (w1h && w1h.signal !== null && w1h.signal !== undefined) t += `oi_signal_1h=${w1h.signal}\n`;
+
+    t += `oi_change_5m_pct=${w5m && w5m.pct !== null && w5m.pct !== undefined ? w5m.pct : ''}\n`;
+    t += `oi_change_15m_pct=${w15m && w15m.pct !== null && w15m.pct !== undefined ? w15m.pct : ''}\n`;
+    t += `oi_change_1h_pct=${w1h && w1h.pct !== null && w1h.pct !== undefined ? w1h.pct : ''}\n`;
+    t += `oi_change_5m_usd=${w5m && w5m.oi_usd_delta !== null && w5m.oi_usd_delta !== undefined ? w5m.oi_usd_delta : ''}\n`;
+    t += `oi_change_15m_usd=${w15m && w15m.oi_usd_delta !== null && w15m.oi_usd_delta !== undefined ? w15m.oi_usd_delta : ''}\n`;
+    t += `oi_change_1h_usd=${w1h && w1h.oi_usd_delta !== null && w1h.oi_usd_delta !== undefined ? w1h.oi_usd_delta : ''}\n`;
+    t += `oi_signal_5m=${w5m && w5m.signal ? w5m.signal : 'neutral'}\n`;
+    t += `oi_signal_15m=${w15m && w15m.signal ? w15m.signal : 'neutral'}\n`;
+    t += `oi_signal_1h=${w1h && w1h.signal ? w1h.signal : 'neutral'}\n`;
+  } else {
+    t += 'oi_change_5m_pct=\n';
+    t += 'oi_change_15m_pct=\n';
+    t += 'oi_change_1h_pct=\n';
+    t += 'oi_change_5m_usd=\n';
+    t += 'oi_change_15m_usd=\n';
+    t += 'oi_change_1h_usd=\n';
+    t += 'oi_signal_5m=neutral\n';
+    t += 'oi_signal_15m=neutral\n';
+    t += 'oi_signal_1h=neutral\n';
   }
 
   t += '\n[LONG_SHORT]\n';
