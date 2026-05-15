@@ -1,204 +1,188 @@
 // js/modules/oi.js
-// ─────────────────────────────────────────────────────────────────────────────
-// OI Change Tracker — Binance Futures
-// Kullanım:
-//   import { startOI, stopOI, getOIData } from './modules/oi.js';
-//   startOI('BTCUSDT', (data) => renderOI(data));
-// ─────────────────────────────────────────────────────────────────────────────
+// Binance Futures — OI Change Tracker
 
-const POLL_MS = 15_000;           // fetch aralığı (ms)
-const MAX_AGE = 2 * 3600 * 1000; // 2 saatlik snapshot saklama süresi
+const BASE = 'https://fapi.binance.com';
 
 const WINDOWS = [
-    { label: '5m', seconds: 300 },
-    { label: '15m', seconds: 900 },
-    { label: '1h', seconds: 3600 },
+  { label: '5m', interval: '5m', barsBack: 1 },
+  { label: '15m', interval: '5m', barsBack: 3 },
+  { label: '1h', interval: '5m', barsBack: 12 }
 ];
 
-// ─── İç state ─────────────────────────────────────────────────────────────────
-let _snapshots = []; // [{ ts: Number, oi: Number }]
-let _intervalId = null;
-let _symbol = '';
-let _callback = null; // her güncellemede dışarıya data döner
-
-// ─── Binance Futures OI fetch ─────────────────────────────────────────────────
-async function _fetchOI(symbol) {
-    const url = `https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol.toUpperCase()}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`OI fetch failed: HTTP ${res.status}`);
-    const data = await res.json();
-    return parseFloat(data.openInterest);
+async function _fetchOIHist(symbol, interval = '5m', limit = 20) {
+  const url = `${BASE}/futures/data/openInterestHist?symbol=${symbol.toUpperCase()}&period=${interval}&limit=${limit}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`OI hist fetch failed: HTTP ${res.status}`);
+  return await res.json();
 }
 
-// ─── Snapshot yönetimi ────────────────────────────────────────────────────────
-function _addSnapshot(ts, oi) {
-    _snapshots.push({ ts, oi });
-    const cutoff = ts - MAX_AGE;
-    while (_snapshots.length > 1 && _snapshots[0].ts < cutoff) {
-        _snapshots.shift();
-    }
+async function _fetchPrice(symbol) {
+  const url = `${BASE}/fapi/v1/ticker/price?symbol=${symbol.toUpperCase()}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Price fetch failed: HTTP ${res.status}`);
+  const d = await res.json();
+  return parseFloat(d.price);
 }
 
-// ─── OI değişim hesabı ────────────────────────────────────────────────────────
-// Dönen obje:
-// {
-//   window: '5m',
-//   pct: Number,          // yüzde değişim
-//   abs: Number,          // mutlak değişim (coin)
-//   oiNow: Number,
-//   oiPast: Number,
-//   pastTs: Number,       // epoch ms
-//   signal: String,       // 'long_increase' | 'short_squeeze' | 'capitulation' | 'short_cover' | 'neutral' | 'insufficient'
-//   note: String          // okunabilir açıklama
-// }
-function _calcWindow(windowSeconds, oiNow, nowTs) {
-    const targetTs = nowTs - windowSeconds * 1000;
+function _signal(oiPct, pricePct) {
+  if (oiPct === null || pricePct === null) return 'insufficient';
+  const oiUp = oiPct > 1;
+  const oiDown = oiPct < -1;
+  const prUp = pricePct > 0.3;
+  const prDown = pricePct < -0.3;
 
-    let best = null;
-    for (const s of _snapshots) {
-        if (s.ts <= targetTs) best = s;
+  if (oiUp && prUp) return 'long_increase';
+  if (oiUp && prDown) return 'short_squeeze';
+  if (oiDown && prDown) return 'capitulation';
+  if (oiDown && prUp) return 'short_cover';
+  return 'neutral';
+}
+
+export async function fetchOIChange(symbol) {
+  const result = {
+    symbol: symbol.toUpperCase(),
+    ts: Date.now(),
+    error: null
+  };
+
+  try {
+    const maxBars = 14;
+    const [hist, priceNow] = await Promise.all([
+      _fetchOIHist(symbol, '5m', maxBars),
+      _fetchPrice(symbol)
+    ]);
+
+    if (!hist || hist.length < 2) {
+      throw new Error('Yetersiz OI history verisi');
     }
 
-    if (!best) {
-        return {
-            window: `${windowSeconds / 60}m`,
-            pct: null,
-            abs: null,
-            oiNow,
-            oiPast: null,
-            pastTs: null,
-            signal: 'insufficient',
-            note: 'Yetersiz geçmiş veri',
-        };
-    }
+    const latestBar = hist[hist.length - 1];
+    const oiContractsNow = parseFloat(latestBar.sumOpenInterest);
+    const oiUsdNow = parseFloat(latestBar.sumOpenInterestValue);
 
-    const pct = ((oiNow - best.oi) / best.oi) * 100;
-    const abs = oiNow - best.oi;
+    result.price_now = priceNow;
+    result.oi_contracts_now = oiContractsNow;
+    result.oi_usd_now = oiUsdNow;
 
-    // Sinyal — kesin ayırım için fiyat yönünü dışarıdan besle (price parametresiyle teyit)
-    // Tek başına OI ile:
-    //   pct > +2  → OI artışı  (new long VEYA short squeeze — fiyata bak)
-    //   pct < -2  → OI düşüşü  (capitulation VEYA short cover — fiyata bak)
-    //   arada     → nötr
-    let signal, note;
-    if (pct > 2) {
-        signal = 'oi_rising';
-        note = 'OI artıyor → new longs veya short squeeze (fiyat ↑ ise new long, ↓ ise squeeze)';
-    } else if (pct < -2) {
-        signal = 'oi_falling';
-        note = 'OI azalıyor → capitulation veya short cover (fiyat ↓ ise capitulation, ↑ ise cover)';
-    } else {
-        signal = 'neutral';
-        note = 'OI stabil → belirgin yön yok';
-    }
+    const windows = [];
 
-    return {
-        window: windowSeconds < 3600
-            ? `${windowSeconds / 60}m`
-            : `${windowSeconds / 3600}h`,
-        pct,
-        abs,
-        oiNow,
-        oiPast: best.oi,
-        pastTs: best.ts,
+    for (const w of WINDOWS) {
+      const pastIdx = hist.length - 1 - w.barsBack;
+
+      if (pastIdx < 0) {
+        windows.push({
+          label: w.label,
+          window: w.label,
+          signal: 'insufficient',
+          note: 'Yetersiz geçmiş veri',
+          oi_contracts_pct: null,
+          oi_usd_pct: null,
+          pct: null
+        });
+        continue;
+      }
+
+      const pastBar = hist[pastIdx];
+      const oiCPast = parseFloat(pastBar.sumOpenInterest);
+      const oiUPast = parseFloat(pastBar.sumOpenInterestValue);
+
+      const cDelta = oiContractsNow - oiCPast;
+      const cPct = (cDelta / oiCPast) * 100;
+      const uDelta = oiUsdNow - oiUPast;
+      const uPct = (uDelta / oiUPast) * 100;
+
+      const klinesUrl = `${BASE}/fapi/v1/klines?symbol=${symbol.toUpperCase()}&interval=${w.interval}&limit=${w.barsBack + 1}`;
+      let pricePast = null;
+      let pricePct = null;
+
+      try {
+        const kr = await fetch(klinesUrl);
+        if (kr.ok) {
+          const kd = await kr.json();
+          if (kd && kd.length > 0) {
+            pricePast = parseFloat(kd[0][1]);
+            pricePct = ((priceNow - pricePast) / pricePast) * 100;
+          }
+        }
+      } catch (_) {
+        // price past unavailable
+      }
+
+      const signal = _signal(cPct, pricePct);
+
+      windows.push({
+        label: w.label,
+        window: w.label,
+        oi_contracts_now: oiContractsNow,
+        oi_contracts_past: oiCPast,
+        oi_contracts_delta: cDelta,
+        oi_contracts_pct: cPct,
+        oi_usd_now: oiUsdNow,
+        oi_usd_past: oiUPast,
+        oi_usd_delta: uDelta,
+        oi_usd_pct: uPct,
+        price_now: priceNow,
+        price_past: pricePast,
+        price_pct: pricePct,
         signal,
-        note,
-    };
-}
-
-// ─── Tam sinyal (fiyat yönüyle) ───────────────────────────────────────────────
-// Eğer anasayfada fiyat değişimini de biliyorsan bunu kullan.
-// pricePct: fiyatın aynı penceredeki % değişimi
-export function resolveSignal(oiPct, pricePct) {
-    if (oiPct === null || pricePct === null) return 'insufficient';
-    const oiUp = oiPct > 1;
-    const oiDown = oiPct < -1;
-    const priceUp = pricePct > 0.5;
-    const priceDown = pricePct < -0.5;
-
-    if (oiUp && priceUp) return 'long_increase';   // 🟢 Yeni long açılıyor
-    if (oiUp && priceDown) return 'short_squeeze';   // 🟡 Short squeeze
-    if (oiDown && priceDown) return 'capitulation';    // 🔴 Long kapatma/panik
-    if (oiDown && priceUp) return 'short_cover';     // ⚪ Short kapanıyor
-    return 'neutral';
-}
-
-// ─── Ana poll döngüsü ─────────────────────────────────────────────────────────
-async function _poll() {
-    let oi;
-    try {
-        oi = await _fetchOI(_symbol);
-    } catch (e) {
-        if (_callback) _callback({ error: e.message, symbol: _symbol });
-        return;
+        pct: uPct
+      });
     }
 
-    const nowTs = Date.now();
-    _addSnapshot(nowTs, oi);
+    result.windows = windows;
 
-    const windows = WINDOWS.map(w => _calcWindow(w.seconds, oi, nowTs));
-
-    const result = {
-        symbol: _symbol,
-        ts: nowTs,
-        oiNow: oi,
-        snapshotCount: _snapshots.length,
-        oldestTs: _snapshots[0].ts,
-        windows,    // array of window result objects (5m, 15m, 1h)
-        error: null,
+    const get = (label, key) => {
+      const row = windows.find(x => x.label === label);
+      return row ? (row[key] ?? null) : null;
     };
 
-    if (_callback) _callback(result);
+    result.oi_change_5m_pct = get('5m', 'oi_usd_pct');
+    result.oi_change_15m_pct = get('15m', 'oi_usd_pct');
+    result.oi_change_1h_pct = get('1h', 'oi_usd_pct');
+
+    result.oi_change_5m_usd = get('5m', 'oi_usd_delta');
+    result.oi_change_15m_usd = get('15m', 'oi_usd_delta');
+    result.oi_change_1h_usd = get('1h', 'oi_usd_delta');
+  } catch (e) {
+    result.error = e.message;
+    result.windows = [];
+  }
+
+  return result;
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+let _pollId = null;
 
-/**
- * OI takibini başlatır.
- * @param {string}   symbol   - Örn: 'BTCUSDT'
- * @param {Function} callback - Her poll sonrası çağrılır, argüman: OIData objesi
- */
-export function startOI(symbol, callback) {
-    stopOI();
-    _symbol = symbol.toUpperCase();
-    _callback = callback;
-    _snapshots = [];
-    _poll();
-    _intervalId = setInterval(_poll, POLL_MS);
+export function startOIPoller(symbol, callback, intervalMs = 60_000) {
+  stopOIPoller();
+  const run = async () => {
+    const data = await fetchOIChange(symbol);
+    callback(data);
+  };
+  run();
+  _pollId = setInterval(run, intervalMs);
 }
 
-/**
- * OI takibini durdurur.
- */
+export function stopOIPoller() {
+  if (_pollId) {
+    clearInterval(_pollId);
+    _pollId = null;
+  }
+}
+
+// Backward compatibility for existing detail.js imports
+export function startOI(symbol, callback, intervalMs = 60_000) {
+  startOIPoller(symbol, callback, intervalMs);
+}
+
 export function stopOI() {
-    if (_intervalId) {
-        clearInterval(_intervalId);
-        _intervalId = null;
-    }
+  stopOIPoller();
 }
 
-/**
- * Mevcut snapshot listesini döner (readonly kopya).
- */
-export function getSnapshots() {
-    return [..._snapshots];
-}
-
-/**
- * Anlık OI değişim verisini döner (son snapshot üzerinden).
- * Poll döngüsü dışında manuel çağırmak istersen.
- */
 export function getOIData() {
-    if (_snapshots.length === 0) return null;
-    const last = _snapshots[_snapshots.length - 1];
-    const nowTs = last.ts;
-    return {
-        symbol: _symbol,
-        ts: nowTs,
-        oiNow: last.oi,
-        snapshotCount: _snapshots.length,
-        oldestTs: _snapshots[0].ts,
-        windows: WINDOWS.map(w => _calcWindow(w.seconds, last.oi, nowTs)),
-        error: null,
-    };
+  return null;
+}
+
+export function resolveSignal(oiPct, pricePct) {
+  return _signal(oiPct, pricePct);
 }
