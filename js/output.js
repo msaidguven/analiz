@@ -25,6 +25,12 @@ export function buildOutput(d, symbol) {
     if (w5m && w5m.pct !== null && w5m.pct !== undefined) t += `oi_change_5m_pct=${w5m.pct}\n`;
     if (w15m && w15m.pct !== null && w15m.pct !== undefined) t += `oi_change_15m_pct=${w15m.pct}\n`;
     if (w1h && w1h.pct !== null && w1h.pct !== undefined) t += `oi_change_1h_pct=${w1h.pct}\n`;
+    if (w5m && w5m.oi_usd_delta !== null && w5m.oi_usd_delta !== undefined) t += `oi_change_5m_usd=${w5m.oi_usd_delta}\n`;
+    if (w15m && w15m.oi_usd_delta !== null && w15m.oi_usd_delta !== undefined) t += `oi_change_15m_usd=${w15m.oi_usd_delta}\n`;
+    if (w1h && w1h.oi_usd_delta !== null && w1h.oi_usd_delta !== undefined) t += `oi_change_1h_usd=${w1h.oi_usd_delta}\n`;
+    if (w5m && w5m.signal !== null && w5m.signal !== undefined) t += `oi_signal_5m=${w5m.signal}\n`;
+    if (w15m && w15m.signal !== null && w15m.signal !== undefined) t += `oi_signal_15m=${w15m.signal}\n`;
+    if (w1h && w1h.signal !== null && w1h.signal !== undefined) t += `oi_signal_1h=${w1h.signal}\n`;
   }
 
   t += '\n[LONG_SHORT]\n';
