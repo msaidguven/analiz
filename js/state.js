@@ -5,6 +5,7 @@ export const state = {
   currentSymbol: '',
   detailData: {},
   oiData: {},
+  cvdData: {},
   taData: {},
   srData: {},
   volData: {},

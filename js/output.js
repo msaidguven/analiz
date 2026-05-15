@@ -110,6 +110,34 @@ export function buildOutput(d, symbol) {
     if (state.volData.divergence !== undefined) t += `obv_divergence=${state.volData.divergence}\n`;
   }
 
+  t += '\n[CVD_ANALYSIS]\n';
+  if (state.cvdData && !state.cvdData.error) {
+    const c = state.cvdData;
+    t += `cvd_5m=${c.cvd_5m ?? ''}\n`;
+    t += `cvd_15m=${c.cvd_15m ?? ''}\n`;
+    t += `cvd_1h=${c.cvd_1h ?? ''}\n`;
+    t += `cvd_delta_5m=${c.cvd_delta_5m ?? ''}\n`;
+    t += `cvd_delta_15m=${c.cvd_delta_15m ?? ''}\n`;
+    t += `cvd_delta_1h=${c.cvd_delta_1h ?? ''}\n`;
+    t += `cvd_trend_5m=${c.cvd_trend_5m ?? 'neutral'}\n`;
+    t += `cvd_trend_15m=${c.cvd_trend_15m ?? 'neutral'}\n`;
+    t += `cvd_trend_1h=${c.cvd_trend_1h ?? 'neutral'}\n`;
+    t += `cvd_price_divergence=${c.cvd_price_divergence ?? 'none'}\n`;
+    t += `cvd_signal=${c.cvd_signal ?? 'neutral'}\n`;
+  } else {
+    t += 'cvd_5m=\n';
+    t += 'cvd_15m=\n';
+    t += 'cvd_1h=\n';
+    t += 'cvd_delta_5m=\n';
+    t += 'cvd_delta_15m=\n';
+    t += 'cvd_delta_1h=\n';
+    t += 'cvd_trend_5m=neutral\n';
+    t += 'cvd_trend_15m=neutral\n';
+    t += 'cvd_trend_1h=neutral\n';
+    t += 'cvd_price_divergence=none\n';
+    t += 'cvd_signal=neutral\n';
+  }
+
   if (state.btcData && !state.btcData.isBTC) {
     t += '\n[BTC_CONTEXT]\n';
     if (state.btcData.btcPrice !== undefined) t += `btc_price=${state.btcData.btcPrice}\n`;

@@ -6,12 +6,14 @@ import { fetchAndRenderVol } from './modules/volume.js';
 import { fetchAndRenderBTC } from './modules/btc.js';
 import { fetchAndRenderATH } from './modules/ath.js';
 import { startOI, stopOI } from './modules/oi.js';
+import { fetchCVDAnalysis } from './modules/cvd.js';
 import { buildOutput } from './output.js';
 
 export async function openDetail(symbol) {
   state.currentSymbol = symbol;
   state.taData = {};
   state.oiData = {};
+  state.cvdData = {};
   state.srData = {};
   state.volData = {};
   state.btcData = {};
@@ -189,6 +191,7 @@ function renderDetail(d, symbol) {
   renderVerdicts(d);
   buildOutput(d, symbol);
   startOI(symbol, onOIUpdate);
+  fetchAndApplyCVD(symbol);
 
   // SR, Vol ve BTC — fiyat hazır olunca paralel tetikle
   if (d.price) {
@@ -200,6 +203,21 @@ function renderDetail(d, symbol) {
   document.getElementById('detailStatus').textContent = 'CANLI';
   document.getElementById('detailDot').style.background = 'var(--green)';
   document.getElementById('copyBtn').disabled = false;
+}
+
+async function fetchAndApplyCVD(symbol) {
+  try {
+    const cvd = await fetchCVDAnalysis(symbol);
+    if (!state.currentSymbol || state.currentSymbol !== symbol) return;
+    if (cvd && !cvd.error) {
+      state.cvdData = cvd;
+      if (state.detailData && state.currentSymbol) {
+        buildOutput(state.detailData, state.currentSymbol);
+      }
+    }
+  } catch (_) {
+    // CVD verisi opsiyonel, akışı bozma
+  }
 }
 
 function onOIUpdate(oiPayload) {
