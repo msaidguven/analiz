@@ -31,9 +31,6 @@ export function buildOutput(d, symbol) {
     t += `oi_change_5m_usd=${w5m && w5m.oi_usd_delta !== null && w5m.oi_usd_delta !== undefined ? w5m.oi_usd_delta : ''}\n`;
     t += `oi_change_15m_usd=${w15m && w15m.oi_usd_delta !== null && w15m.oi_usd_delta !== undefined ? w15m.oi_usd_delta : ''}\n`;
     t += `oi_change_1h_usd=${w1h && w1h.oi_usd_delta !== null && w1h.oi_usd_delta !== undefined ? w1h.oi_usd_delta : ''}\n`;
-    t += `oi_signal_5m=${w5m && w5m.signal ? w5m.signal : 'neutral'}\n`;
-    t += `oi_signal_15m=${w15m && w15m.signal ? w15m.signal : 'neutral'}\n`;
-    t += `oi_signal_1h=${w1h && w1h.signal ? w1h.signal : 'neutral'}\n`;
   } else {
     t += 'oi_change_5m_pct=\n';
     t += 'oi_change_15m_pct=\n';
@@ -41,9 +38,6 @@ export function buildOutput(d, symbol) {
     t += 'oi_change_5m_usd=\n';
     t += 'oi_change_15m_usd=\n';
     t += 'oi_change_1h_usd=\n';
-    t += 'oi_signal_5m=neutral\n';
-    t += 'oi_signal_15m=neutral\n';
-    t += 'oi_signal_1h=neutral\n';
   }
 
   t += '\n[LONG_SHORT]\n';
@@ -119,11 +113,6 @@ export function buildOutput(d, symbol) {
     t += `cvd_delta_5m=${c.cvd_delta_5m ?? ''}\n`;
     t += `cvd_delta_15m=${c.cvd_delta_15m ?? ''}\n`;
     t += `cvd_delta_1h=${c.cvd_delta_1h ?? ''}\n`;
-    t += `cvd_trend_5m=${c.cvd_trend_5m ?? 'neutral'}\n`;
-    t += `cvd_trend_15m=${c.cvd_trend_15m ?? 'neutral'}\n`;
-    t += `cvd_trend_1h=${c.cvd_trend_1h ?? 'neutral'}\n`;
-    t += `cvd_price_divergence=${c.cvd_price_divergence ?? 'none'}\n`;
-    t += `cvd_signal=${c.cvd_signal ?? 'neutral'}\n`;
   } else {
     t += 'cvd_5m=\n';
     t += 'cvd_15m=\n';
@@ -131,11 +120,6 @@ export function buildOutput(d, symbol) {
     t += 'cvd_delta_5m=\n';
     t += 'cvd_delta_15m=\n';
     t += 'cvd_delta_1h=\n';
-    t += 'cvd_trend_5m=neutral\n';
-    t += 'cvd_trend_15m=neutral\n';
-    t += 'cvd_trend_1h=neutral\n';
-    t += 'cvd_price_divergence=none\n';
-    t += 'cvd_signal=neutral\n';
   }
 
   if (state.btcData && !state.btcData.isBTC) {
