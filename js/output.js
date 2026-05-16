@@ -32,6 +32,16 @@ function appendFlatObjectLines(text, obj, prefix = '') {
   return text;
 }
 
+function formatFundingHistoryRows(history) {
+  if (!Array.isArray(history) || history.length === 0) return [];
+  return history.map((h, idx) => {
+    const rate = Number.parseFloat(h?.fundingRate);
+    const ratePct = Number.isFinite(rate) ? (rate * 100) : null;
+    const iso = h?.fundingTime ? new Date(h.fundingTime).toISOString() : '';
+    return `funding_history_${idx + 1}=${iso}|${ratePct !== null ? ratePct : ''}`;
+  });
+}
+
 export function buildOutput(d, symbol) {
   const now = new Date().toLocaleString('tr-TR');
   let t = `NOT: Lutfen bu ham veriyi Turkce olarak acikla. Yorumlarini Turkce yaz.\n`;
@@ -59,6 +69,16 @@ export function buildOutput(d, symbol) {
   if (fundingPageData && typeof fundingPageData === 'object' && Object.keys(fundingPageData).length > 0) {
     t += '\n[FUNDING_PAGE]\n';
     t = appendFlatObjectLines(t, fundingPageData, 'funding_page');
+
+    if (Array.isArray(fundingPageData.history) && fundingPageData.history.length > 0) {
+      t += '\n[FUNDING_HISTORY]\n';
+      if (fundingPageData.intervalHours !== undefined) t += `funding_history_interval_hours=${fundingPageData.intervalHours}\n`;
+      if (fundingPageData.periodsLoaded !== undefined) t += `funding_history_periods_loaded=${fundingPageData.periodsLoaded}\n`;
+      const historyRows = formatFundingHistoryRows(fundingPageData.history);
+      historyRows.forEach((row) => {
+        t += `${row}\n`;
+      });
+    }
   }
 
   t += '\n[OI_ANALYSIS]\n';
