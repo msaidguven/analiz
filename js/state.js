@@ -5,6 +5,7 @@ export const state = {
   currentSymbol: '',
   detailData: {},
   fundingData: {},
+  orderbookData: {},
   oiData: {},
   cvdData: {},
   taData: {},

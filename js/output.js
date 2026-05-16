@@ -42,6 +42,15 @@ function formatFundingHistoryRows(history) {
   });
 }
 
+function formatOrderbookRows(rows, side) {
+  if (!Array.isArray(rows) || rows.length === 0) return [];
+  return rows.map((row, idx) => {
+    const price = row?.price ?? '';
+    const qty = row?.qty ?? '';
+    return `orderbook_${side}_${idx + 1}=price:${price}|qty:${qty}`;
+  });
+}
+
 export function buildOutput(d, symbol) {
   const now = new Date().toLocaleString('tr-TR');
   let t = `NOT: Lutfen bu ham veriyi Turkce olarak acikla. Yorumlarini Turkce yaz.\n`;
@@ -78,6 +87,24 @@ export function buildOutput(d, symbol) {
       historyRows.forEach((row) => {
         t += `${row}\n`;
       });
+    }
+  }
+
+  const orderbookPageData =
+    d.orderbookData ||
+    state.orderbookData ||
+    state.detailData?.orderbookData ||
+    null;
+  if (orderbookPageData && typeof orderbookPageData === 'object' && Object.keys(orderbookPageData).length > 0) {
+    t += '\n[ORDERBOOK]\n';
+    t = appendFlatObjectLines(t, orderbookPageData, 'orderbook');
+
+    if (Array.isArray(orderbookPageData.bids) || Array.isArray(orderbookPageData.asks)) {
+      t += '\n[ORDERBOOK_LEVELS]\n';
+      const askRows = formatOrderbookRows(orderbookPageData.asks, 'ask');
+      const bidRows = formatOrderbookRows(orderbookPageData.bids, 'bid');
+      askRows.forEach((row) => { t += `${row}\n`; });
+      bidRows.forEach((row) => { t += `${row}\n`; });
     }
   }
 
