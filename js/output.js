@@ -1,5 +1,37 @@
 import { state } from './state.js';
 
+function appendFlatObjectLines(text, obj, prefix = '') {
+  if (!obj || typeof obj !== 'object') return text;
+  const entries = Object.entries(obj);
+  entries.forEach(([key, value]) => {
+    const normalizedKey = prefix ? `${prefix}_${key}` : key;
+    if (value === null || value === undefined) {
+      text += `${normalizedKey}=\n`;
+      return;
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        text += `${normalizedKey}=[]\n`;
+        return;
+      }
+      value.forEach((item, idx) => {
+        if (item && typeof item === 'object') {
+          text = appendFlatObjectLines(text, item, `${normalizedKey}_${idx}`);
+        } else {
+          text += `${normalizedKey}_${idx}=${item}\n`;
+        }
+      });
+      return;
+    }
+    if (typeof value === 'object') {
+      text = appendFlatObjectLines(text, value, normalizedKey);
+      return;
+    }
+    text += `${normalizedKey}=${value}\n`;
+  });
+  return text;
+}
+
 export function buildOutput(d, symbol) {
   const now = new Date().toLocaleString('tr-TR');
   let t = `NOT: Lutfen bu ham veriyi Turkce olarak acikla. Yorumlarini Turkce yaz.\n`;
@@ -18,6 +50,16 @@ export function buildOutput(d, symbol) {
   if (d.oiUSD !== undefined) t += `open_interest_usd=${d.oiUSD}\n`;
   if (d.oiContracts !== undefined) t += `open_interest_contracts=${d.oiContracts}\n`;
   if (d.funding !== undefined) t += `funding_rate_pct=${d.funding}\n`;
+
+  const fundingPageData =
+    d.fundingData ||
+    state.fundingData ||
+    state.detailData?.fundingData ||
+    null;
+  if (fundingPageData && typeof fundingPageData === 'object' && Object.keys(fundingPageData).length > 0) {
+    t += '\n[FUNDING_PAGE]\n';
+    t = appendFlatObjectLines(t, fundingPageData, 'funding_page');
+  }
 
   t += '\n[OI_ANALYSIS]\n';
   if (state.oiData && Array.isArray(state.oiData.windows)) {
