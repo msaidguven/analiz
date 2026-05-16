@@ -7,6 +7,7 @@ import { fetchAndRenderBTC } from './modules/btc.js';
 import { fetchAndRenderATH } from './modules/ath.js';
 import { startOI, stopOI } from './modules/oi.js';
 import { fetchCVDAnalysis } from './modules/cvd.js';
+import { renderFunding } from './modules/funding.js';
 import { buildOutput } from './output.js';
 
 export async function openDetail(symbol) {
@@ -18,6 +19,7 @@ export async function openDetail(symbol) {
   state.volData = {};
   state.btcData = {};
   state.athData = {};
+  state.fundingData = {};
   document.getElementById('detailSymbol').textContent = symbol.replace('USDT','/USDT');
   document.getElementById('detailPriceVal').textContent = '...';
   document.getElementById('detailStatus').textContent = 'YÜKLENİYOR';
@@ -190,6 +192,8 @@ function renderDetail(d, symbol) {
 
   renderVerdicts(d);
   buildOutput(d, symbol);
+  // Funding geçmişini arka planda çekip output metnine entegre et.
+  renderFunding(symbol, document.createElement('div')).catch(() => {});
   startOI(symbol, onOIUpdate);
   fetchAndApplyCVD(symbol);
 
