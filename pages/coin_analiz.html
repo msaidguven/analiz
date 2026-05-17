@@ -66,13 +66,29 @@
     <a class="btn" href="./futures_analiz.html">← Listeye Dön</a>
   </div>
   <div id="app" class="loading">Veri yükleniyor...</div>
+  <div id="loadStatus" class="sub" style="margin-top:8px;">Modüller: yükleniyor...</div>
   <div class="section-label">Claude'a Kopyala</div>
   <div class="output-preview" id="outputPreview">Veri yükleniyor...</div>
   <button class="big-copy-btn" id="copyBtn" onclick="copyData()" disabled>📋 KOPYALA</button>
+  <div id="analysisGhost" style="display:none;">
+    <div id="mtfIcon"></div><div id="mtfTitle"></div><div id="mtfSub"></div><div id="mtfScoreBar"></div>
+    <div id="mtfCol1h"></div><div id="mtfCol4h"></div><div id="mtfCol1w"></div>
+    <div id="srChart"></div><div id="srList"></div><div id="srIcon"></div><div id="srTitle"></div><div id="srSub"></div><div id="srSummary"></div>
+    <div id="obvChart"></div><div id="obvTrendText"></div><div id="volMetrics"></div>
+    <div id="btcCoinLabel"></div><div id="btcCompareGrid"></div><div id="btcCorrFill"></div><div id="btcCorrVal"></div><div id="btcCorrRow"></div><div id="btcAlerts"></div>
+  </div>
 
   <script type="module">
     import { buildOutput, copyData } from '../js/output.js';
     import { state } from '../js/state.js';
+    import { fetchAndRenderTA } from '../js/modules/mtf.js';
+    import { fetchAndRenderSR } from '../js/modules/sr.js';
+    import { fetchAndRenderVol } from '../js/modules/volume.js';
+    import { fetchAndRenderBTC } from '../js/modules/btc.js';
+    import { fetchCVDAnalysis } from '../js/modules/cvd.js';
+    import { fetchOIChange } from '../js/modules/oi.js';
+    import { renderFunding } from '../js/modules/funding.js';
+    import { renderOrderBook } from '../js/modules/orderbook.js';
     window.copyData = copyData;
 
     const p = new URLSearchParams(location.search);
@@ -134,6 +150,8 @@
         state.volData = {};
         state.btcData = {};
         state.taData = {};
+        state.fundingData = {};
+        state.orderbookData = {};
         state.detailData = d;
 
         const app = document.getElementById('app');
@@ -191,10 +209,39 @@
         state.detailData = d;
         buildOutput(d, symbol);
         document.getElementById('copyBtn').disabled = false;
+
+        // output.js icin eksik kalan tum veri bloklarini doldur
+        const tasks = await Promise.allSettled([
+          fetchAndRenderTA(symbol),
+          fetchAndRenderSR(symbol, d.price),
+          fetchAndRenderVol(symbol),
+          fetchAndRenderBTC(symbol, d.price),
+          fetchCVDAnalysis(symbol).then((cvd) => { if (cvd && !cvd.error) state.cvdData = cvd; }),
+          fetchOIChange(symbol).then((oiPayload) => { if (oiPayload && !oiPayload.error) state.oiData = oiPayload; }),
+          renderFunding(symbol, document.createElement('div')),
+          renderOrderBook(symbol, document.createElement('div'))
+        ]);
+
+        const labels = ['TA', 'SR', 'VOL', 'BTC', 'CVD', 'OI', 'FUNDING', 'ORDERBOOK'];
+        const ok = [];
+        const fail = [];
+        tasks.forEach((r, i) => {
+          if (r.status === 'fulfilled') ok.push(labels[i]);
+          else fail.push(labels[i]);
+        });
+
+        buildOutput(state.detailData, symbol);
+        const raw = state.detailData?._text || document.getElementById('outputPreview').textContent || '';
+        const statusLine = `[LOAD_STATUS]\nloaded=${ok.join(',') || '-'}\nfailed=${fail.join(',') || '-'}\n`;
+        state.detailData._text = `${statusLine}\n${raw}`;
+        document.getElementById('outputPreview').textContent = state.detailData._text;
+        document.getElementById('loadStatus').innerHTML =
+          `Modüller: <span class="up">${ok.length}</span> yüklendi · <span class="${fail.length ? 'down' : 'up'}">${fail.length}</span> hata`;
       } catch (err) {
         document.getElementById('app').innerHTML = `<div class='alert-box'><b>Veri alınamadı:</b> ${err.message}</div>`;
         document.getElementById('outputPreview').textContent = `Hata: ${err.message}`;
         document.getElementById('copyBtn').disabled = true;
+        document.getElementById('loadStatus').innerHTML = `Modüller: <span class="down">yükleme hatası</span>`;
       }
     }
 
