@@ -141,8 +141,12 @@
         const r1 = highs.length ? Math.max(...highs) : null;
         const s1 = lows.length ? Math.min(...lows) : null;
 
-        const bids = (ob.bids || []).slice(0, 3).map(([price, qty]) => ({ price: Number(price), qty: Number(qty) }));
-        const asks = (ob.asks || []).slice(0, 3).map(([price, qty]) => ({ price: Number(price), qty: Number(qty) }));
+        const bidsAll = (ob.bids || []).map(([price, qty]) => ({ price: Number(price), qty: Number(qty) }));
+        const asksAll = (ob.asks || []).map(([price, qty]) => ({ price: Number(price), qty: Number(qty) }));
+        const bidsTop = bidsAll.slice(0, 3);
+        const asksTop = asksAll.slice(0, 3);
+        const avgBidQty = bidsAll.length ? bidsAll.reduce((s, x) => s + x.qty, 0) / bidsAll.length : 0;
+        const avgAskQty = asksAll.length ? asksAll.reduce((s, x) => s + x.qty, 0) / asksAll.length : 0;
 
         state.oiData = {};
         state.cvdData = {};
@@ -179,8 +183,11 @@
           <div class="section-label">Order Book Derinliği — Anlık Görüntü</div>
           <div class="signal-card">
             <div class="grid2">
-              <div><div class="lbl up">BID</div>${bids.map(b=>`<div class='sr-row'><span class='up'>${fmtMoney(b.price)}</span><span>${b.qty.toLocaleString('tr-TR')}</span></div>`).join('')}</div>
-              <div><div class="lbl down">ASK</div>${asks.map(a=>`<div class='sr-row'><span class='down'>${fmtMoney(a.price)}</span><span>${a.qty.toLocaleString('tr-TR')}</span></div>`).join('')}</div>
+              <div><div class="lbl up">BID</div>${bidsTop.map(b=>`<div class='sr-row'><span class='up'>${fmtMoney(b.price)}</span><span>${b.qty.toLocaleString('tr-TR')}</span></div>`).join('')}</div>
+              <div><div class="lbl down">ASK</div>${asksTop.map(a=>`<div class='sr-row'><span class='down'>${fmtMoney(a.price)}</span><span>${a.qty.toLocaleString('tr-TR')}</span></div>`).join('')}</div>
+            </div>
+            <div class="sub" style="margin-top:8px;">
+              100 seviye ortalama miktar · Bid: <b>${avgBidQty.toLocaleString('tr-TR', { maximumFractionDigits: 4 })}</b> · Ask: <b>${avgAskQty.toLocaleString('tr-TR', { maximumFractionDigits: 4 })}</b>
             </div>
           </div>
 
@@ -205,7 +212,7 @@
         d.lsRatio = lsRatio;
         d.ttAcc = ttA;
         d.ttPos = ttP;
-        d.orderbookData = { bids, asks };
+        d.orderbookData = { bids: bidsAll, asks: asksAll };
         state.detailData = d;
         buildOutput(d, symbol);
         document.getElementById('copyBtn').disabled = false;

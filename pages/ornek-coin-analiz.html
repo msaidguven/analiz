@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUAUSDT – 16 Mayıs 2026 05:43</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f8f8f6;
+            color: #1a1a1a;
+            padding: 1.5rem;
+        }
+
+        h1 {
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 0.25rem;
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .badge-up {
+            background: #E1F5EE;
+            color: #0F6E56;
+        }
+
+        .badge-down {
+            background: #FAECE7;
+            color: #993C1D;
+        }
+
+        .badge-warn {
+            background: #FAEEDA;
+            color: #854F0B;
+        }
+
+        .badge-neu {
+            background: #e8e8e4;
+            color: #5F5E5A;
+        }
+
+        .section {
+            margin-top: 1.5rem;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        .grid4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .mcard {
+            background: #f0f0ec;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+
+        .mcard .lbl {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .mcard .val {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .mcard .sub {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .mcard .delta {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .up {
+            color: #1D9E75 !important;
+        }
+
+        .down {
+            color: #D85A30 !important;
+        }
+
+        .signal-card {
+            background: #fff;
+            border: 0.5px solid #ddd;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+
+        .tf-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .gauge-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin: 4px 0;
+            font-size: 13px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-up {
+            background: #1D9E75;
+        }
+
+        .dot-down {
+            background: #D85A30;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        .bar-bg {
+            flex: 1;
+            height: 7px;
+            border-radius: 4px;
+            background: #e8e8e4;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .sr-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 0.5px solid #eee;
+            font-size: 12px;
+        }
+
+        .sr-row:last-child {
+            border: none;
+        }
+
+        .alert-box {
+            margin-top: 1.2rem;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1.5px solid #F0997B;
+            background: #FAECE7;
+        }
+
+        .summary-box {
+            margin-top: 1rem;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 0.5px solid #ddd;
+            background: #fff;
+        }
+
+        @media(max-width:600px) {
+
+            .grid4,
+            .grid3,
+            .grid2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>GUAUSDT · 16 Mayıs 2026 · 05:43</h1>
+
+    <div class="price-row">
+        <span class="price">$1.4156</span>
+        <span class="badge badge-up">+18.75% (24s)</span>
+    </div>
+    <div style="font-size:13px; color:#888; margin-bottom:0.5rem;">
+        Önceki veriye göre <span class="up" style="font-weight:600;">+$0.1175 (+9.1%)</span> · Son 6.5 saatte
+    </div>
+
+    <div
+        style="height:6px; background:#e8e8e4; border-radius:4px; position:relative; margin:0.75rem 0 0.25rem; overflow:hidden;">
+        <div style="width:88%; height:100%; background:linear-gradient(90deg,#9FE1CB,#1D9E75); border-radius:4px;">
+        </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; color:#aaa; margin-bottom:1rem;">
+        <span>Alt $1.1356</span><span>24s fiyat aralığı</span><span>Üst $1.4344</span>
+    </div>
+
+    <div class="grid4">
+        <div class="mcard">
+            <div class="lbl">Hacim (24s)</div>
+            <div class="val" style="font-size:16px;">$40.6M</div>
+            <div class="delta up">↑ +$6.9M</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">Açık Pozisyon</div>
+            <div class="val" style="font-size:16px;">$32.1M</div>
+            <div class="delta up">↑ +$2.8M</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">Fonlama Oranı</div>
+            <div class="val" style="font-size:16px;">+0.005%</div>
+            <div class="delta" style="color:#aaa;">↓ 0.042%'den düştü</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">OI/Hacim</div>
+            <div class="val" style="font-size:16px;">0.79</div>
+            <div class="delta" style="color:#aaa;">önceki: 0.87</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">Açık Pozisyon Momentumu</div>
+        <div class="grid3">
+            <div class="mcard">
+                <div class="lbl">5 dakika</div>
+                <div class="val up">+0.92%</div>
+                <div class="sub">+$293K</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">15 dakika</div>
+                <div class="val up">+1.69%</div>
+                <div class="sub">+$535K</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">1 saat</div>
+                <div class="val up">+0.97%</div>
+                <div class="sub">+$308K</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">Long / Short Dağılımı</div>
+        <div class="signal-card">
+            <div class="bar-row">
+                <span style="font-size:12px; color:#1D9E75; width:44px;">Long</span>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width:45.4%; background:#1D9E75;"></div>
+                </div>
+                <span style="font-weight:600; color:#1D9E75;">45.4%</span>
+                <span
+                    style="font-size:11px; background:#FAECE7; color:#993C1D; padding:1px 6px; border-radius:10px; margin-left:4px;">↓
+                    49.6'dan</span>
+            </div>
+            <div class="bar-row">
+                <span style="font-size:12px; color:#D85A30; width:44px;">Short</span>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width:54.6%; background:#D85A30;"></div>
+                </div>
+                <span style="font-weight:600; color:#D85A30;">54.6%</span>
+                <span
+                    style="font-size:11px; background:#E1F5EE; color:#0F6E56; padding:1px 6px; border-radius:10px; margin-left:4px;">↑
+                    50.4'ten</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:12px; color:#888;">
+                <span>Oran: <b style="color:#1a1a1a;">0.832</b></span>
+                <span>Büyük hesaplar L/S: <b class="down">0.666</b> (daha da short'a geçti)</span>
+                <span>Büyük pozisyonlar L/S: <b class="up">1.469</b> (net long)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">CVD — Kümülatif Hacim Deltası</div>
+        <div class="grid3">
+            <div class="mcard">
+                <div class="lbl">5 dk CVD</div>
+                <div class="val down">-50,573</div>
+                <div class="sub">delta -2,818</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">15 dk CVD</div>
+                <div class="val down">-74,304</div>
+                <div class="sub">delta +12,289</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">1s CVD</div>
+                <div class="val down">-204,404</div>
+                <div class="sub">delta -50,800</div>
+            </div>
+        </div>
+        <div
+            style="margin-top:8px; font-size:12px; color:#888; padding:8px 12px; background:#f0f0ec; border-radius:8px;">
+            CVD tüm zaman dilimlerinde negatif. Fiyat yükseldi ama satış baskısı alım baskısını geçiyor.
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">Teknik Göstergeler — Çoklu Zaman Dilimi</div>
+        <div class="grid3">
+            <div class="signal-card">
+                <div class="tf-label">1 SAAT</div>
+                <div class="gauge-row">
+                    <div class="dot dot-down"></div><span>RSI 69.3 — aşırı alım sınırında</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-up"></div><span>MACD sinyal üzerinde</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-up"></div><span>Histogram yükseliyor</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-down"></div><span>Fiyat BB üst banda yakın</span>
+                </div>
+                <div style="margin-top:8px;"><span class="badge badge-warn">Dikkatli — sınırda</span></div>
+            </div>
+            <div class="signal-card">
+                <div class="tf-label">4 SAAT</div>
+                <div class="gauge-row">
+                    <div class="dot dot-down"></div><span>RSI 67.6 — yüksek bölge</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-up"></div><span>MACD sinyal üzerinde</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-up"></div><span>Histogram hızla büyüyor</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-down"></div><span>Fiyat BB üst banda yakın</span>
+                </div>
+                <div style="margin-top:8px;"><span class="badge badge-warn">Güçlü ama gerilmiş</span></div>
+            </div>
+            <div class="signal-card">
+                <div class="tf-label">HAFTALIK</div>
+                <div class="gauge-row">
+                    <div class="dot dot-down"></div><span>RSI 98.0 — tarihi aşırı alım</span>
+                </div>
+                <div class="gauge-row">
+                    <div class="dot dot-down"></div><span>Fiyat BB üst bandının %27 üstünde</span>
+                </div>
+                <div style="font-size:11px; color:#aaa; margin-top:6px;">BB üst: $1.110 → Fiyat: $1.413</div>
+                <div style="margin-top:8px;"><span class="badge badge-down">Kritik aşırı alım</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">4S Destek ve Direnç</div>
+        <div class="signal-card">
+            <div style="font-size:12px; color:#888; margin-bottom:6px;">Üstteki dirençler</div>
+            <div class="sr-row"><span class="down">D1 $1.50</span><span>Psikolojik seviye</span><span>+5.9%
+                    uzakta</span></div>
+            <div class="sr-row"><span class="down">D2 $1.5993</span><span>Teknik direnç</span><span>+12.9% uzakta</span>
+            </div>
+            <div style="font-size:12px; color:#888; margin:10px 0 6px;">Alttaki destekler</div>
+            <div class="sr-row"><span class="up">S1 $1.1548</span><span></span><span>-18.4% uzakta</span></div>
+            <div class="sr-row"><span class="up">S2 $1.1356</span><span>24s dibi</span><span>-19.8% uzakta</span></div>
+            <div class="sr-row"><span class="up">S3 $1.1216</span><span></span><span>-20.8% uzakta</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">4S Hacim Yapısı</div>
+        <div class="grid2">
+            <div class="mcard">
+                <div class="lbl">OBV trendi</div>
+                <div class="val down">Ayı yönlü</div>
+                <div class="sub">önceki snapshot ile aynı</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">Taker delta ort.</div>
+                <div class="val down">-85,561</div>
+                <div class="sub">önceki: -35,280 → kötüleşti</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">BTC Bağlamı (korelasyon: 0.18 — düşük)</div>
+        <div class="grid3">
+            <div class="mcard">
+                <div class="lbl">BTC fiyatı</div>
+                <div class="val">$79,085</div>
+                <div class="sub down">-2.25% (24s)</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">BTC RSI</div>
+                <div class="val down">40.3</div>
+                <div class="sub">aşırı satım eşiğine yakın</div>
+            </div>
+            <div class="mcard">
+                <div class="lbl">BTC yönü</div>
+                <div class="val down">Ayı</div>
+                <div class="sub">MACD kötüleşti</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert-box">
+        <div style="font-size:13px; font-weight:600; color:#993C1D; margin-bottom:6px;">⚠ Kritik uyarı — Haftalık RSI
+            98.0</div>
+        <div style="font-size:13px; color:#712B13; line-height:1.6;">
+            Önceki analizde RSI 97.8'di, şimdi 98.0. Haftalık BB üst sınırının <b>%27 üzerinde</b>. Son 6.5 saatte %9
+            daha yükseldi — bu gerilmeyi daha da tehlikeli yapıyor. Tarihsel olarak bu seviyelerdeki geri dönüşler hızlı
+            ve sert olur.
+        </div>
+    </div>
+
+    <div class="summary-box">
+        <div style="font-size:13px; font-weight:600; margin-bottom:6px;">Genel değerlendirme</div>
+        <div style="font-size:13px; color:#555; line-height:1.7;">
+            Fiyat 6.5 saatte $1.2981'den $1.4156'ya çıktı (+9.1%). OI büyüyor, kısa vadeli momentum pozitif. Ancak CVD
+            her zaman diliminde negatif, taker delta bozuldu (–35K → –85K), büyük hesaplar daha da short'a geçti (0.84 →
+            0.67). Fonlama oranının 0.042%'den 0.005%'e düşmesi dikkat çekici: short sayısı arttı ama bu aynı zamanda
+            short squeeze potansiyeli yaratıyor. Bir sonraki kritik seviye psikolojik direnç olan <b>$1.50</b>; burası
+            geçilemezse $1.14–1.16 destek bölgesi ilk geri çekilme hedefi. Haftalık tablo tüm bunların gölgesinde aşırı
+            gerilmiş durumda — risk yönetimi kritik.
+        </div>
+    </div>
+
+</body>
+
+</html>
