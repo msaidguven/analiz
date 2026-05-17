@@ -37,7 +37,7 @@ export function renderList(coins) {
     const updown = change >= 0 ? 'up' : 'down';
     const arrow = change >= 0 ? '▲' : '▼';
     return `
-    <div class="coin-row" onclick="openDetail('${c.symbol}')">
+    <div class="coin-row" onclick="openCoinAnalysis('${c.symbol}')">
       <div class="coin-name">
         <div class="coin-symbol">${sym}</div>
         <div class="coin-base">USDT PERP</div>
@@ -45,7 +45,7 @@ export function renderList(coins) {
       <div class="coin-price">${formatPrice(price)}</div>
       <div class="coin-change ${updown}">${arrow}${Math.abs(change).toFixed(2)}%</div>
       <div class="coin-vol">${formatVol(vol)}</div>
-      <button class="analyze-btn" onclick="event.stopPropagation();openDetail('${c.symbol}')">ANALİZ</button>
+      <button class="analyze-btn" onclick="event.stopPropagation();openCoinAnalysis('${c.symbol}')">ANALİZ</button>
     </div>`;
   }).join('');
 }
