@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUAUSDT – 17 Mayıs 2026 10:27</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f8f8f6;
+            color: #1a1a1a;
+            padding: 1.5rem;
+            font-size: 14px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin: 1.5rem 0 0.6rem;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .badge-up {
+            background: #E1F5EE;
+            color: #0F6E56;
+        }
+
+        .badge-down {
+            background: #FAECE7;
+            color: #993C1D;
+        }
+
+        .badge-warn {
+            background: #FAEEDA;
+            color: #854F0B;
+        }
+
+        .badge-neu {
+            background: #e8e8e4;
+            color: #5F5E5A;
+        }
+
+        .grid4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .mcard {
+            background: #f0f0ec;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+
+        .lbl {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .val {
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .sub {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 3px;
+        }
+
+        .delta {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .up {
+            color: #1D9E75 !important;
+        }
+
+        .down {
+            color: #D85A30 !important;
+        }
+
+        .neutral {
+            color: #888 !important;
+        }
+
+        .signal-card {
+            background: #fff;
+            border: 0.5px solid #ddd;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+
+        .tf-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .gauge-row {
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+            margin: 5px 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .dot-up {
+            background: #1D9E75;
+        }
+
+        .dot-down {
+            background: #D85A30;
+        }
+
+        .dot-neu {
+            background: #aaa;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+        }
+
+        .bar-bg {
+            flex: 1;
+            height: 7px;
+            border-radius: 4px;
+            background: #e8e8e4;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .sr-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 0.5px solid #eee;
+            font-size: 12px;
+        }
+
+        .sr-row:last-child {
+            border: none;
+        }
+
+        .alert-box {
+            margin-top: 1.2rem;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1.5px solid #F0997B;
+            background: #FAECE7;
+        }
+
+        .warn-box {
+            margin-top: 1rem;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1.5px solid #F5C842;
+            background: #FAEEDA;
+        }
+
+        .info-box {
+            margin-top: 1rem;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #f0f0ec;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .ok-box {
+            margin-top: 1rem;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #E1F5EE;
+            border: 1px solid #A3DFC8;
+            font-size: 13px;
+            color: #0F6E56;
+            line-height: 1.6;
+        }
+
+        .summary-box {
+            margin-top: 1rem;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 0.5px solid #ddd;
+            background: #fff;
+            line-height: 1.8;
+        }
+
+        /* Timeline */
+        .tl {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .tl-card {
+            background: #f0f0ec;
+            border-radius: 8px;
+            padding: 0.7rem 0.9rem;
+        }
+
+        .tl-card.now {
+            background: #fff;
+            border: 2px solid #1D9E75;
+        }
+
+        .tl-time {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .tl-price {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        /* Funding chart */
+        .funding-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 60px;
+            margin: 8px 0;
+        }
+
+        .funding-bar {
+            flex: 1;
+            border-radius: 2px 2px 0 0;
+            min-width: 4px;
+        }
+
+        /* OB */
+        .ob-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            font-size: 12px;
+            border-bottom: 0.5px solid #f0f0ec;
+        }
+
+        .ob-row:last-child {
+            border: none;
+        }
+
+        .ob-bar-bg {
+            width: 80px;
+            height: 5px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+            margin: 0 6px;
+        }
+
+        .ob-bid-fill {
+            height: 100%;
+            background: #1D9E75;
+            border-radius: 3px;
+        }
+
+        .ob-ask-fill {
+            height: 100%;
+            background: #D85A30;
+            border-radius: 3px;
+        }
+
+        @media(max-width:600px) {
+
+            .grid4,
+            .grid3,
+            .grid2,
+            .tl {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BAŞLIK -->
+    <div
+        style="font-size:11px; font-weight:700; color:#888; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:0.5rem;">
+        GUAUSDT · 17 Mayıs 2026 · 10:27</div>
+
+    <div style="display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:0.3rem;">
+        <span style="font-size:38px; font-weight:700; color:#1a1a1a;">$1.5455</span>
+        <span class="badge badge-up">+6.63% (24s)</span>
+        <span class="badge badge-down">Haftalık RSI 98.2</span>
+    </div>
+    <div style="font-size:13px; color:#555; margin-bottom:0.5rem;">
+        24s: Alt <b>$1.4001</b> — Üst <b>$1.5705</b> &nbsp;·&nbsp; Hacim: <b>$65.4M</b> (rekor yüksek)
+    </div>
+
+    <!-- FİYAT ÇUBUĞU -->
+    <div style="height:6px; background:#e8e8e4; border-radius:4px; overflow:hidden; margin-bottom:1rem;">
+        <div style="width:91%; height:100%; background:linear-gradient(90deg,#9FE1CB,#1D9E75); border-radius:4px;">
+        </div>
+    </div>
+
+    <!-- SNAPSHOT KARŞILAŞTIRMASI -->
+    <div class="section-label">Fiyat Yolculuğu — 4 Snapshot</div>
+    <div class="tl">
+        <div class="tl-card">
+            <div class="tl-time">15 Mayıs 23:09</div>
+            <div class="tl-price">$1.2981</div>
+            <div style="font-size:12px; color:#888; margin-top:3px;">Başlangıç</div>
+        </div>
+        <div class="tl-card">
+            <div class="tl-time">16 Mayıs 05:43</div>
+            <div class="tl-price up">$1.4156</div>
+            <div style="font-size:12px; color:#1D9E75; margin-top:3px;">+9.1%</div>
+        </div>
+        <div class="tl-card">
+            <div class="tl-time">16 Mayıs 07:59</div>
+            <div class="tl-price up">$1.4753</div>
+            <div style="font-size:12px; color:#1D9E75; margin-top:3px;">+13.7% toplam</div>
+        </div>
+        <div class="tl-card now">
+            <div class="tl-time">17 Mayıs 10:27 ★</div>
+            <div class="tl-price up">$1.5455</div>
+            <div style="font-size:12px; color:#1D9E75; margin-top:3px;">+19.1% toplam</div>
+        </div>
+    </div>
+
+    <!-- ANA METRİKLER -->
+    <div class="section-label">Ana Metrikler</div>
+    <div class="grid4">
+        <div class="mcard">
+            <div class="lbl">Hacim (24s)</div>
+            <div class="val" style="font-size:16px;">$65.4M</div>
+            <div class="delta up">↑ $46M'dan — yeni rekor</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">Açık Pozisyon</div>
+            <div class="val" style="font-size:16px;">$38.9M</div>
+            <div class="delta up">↑ $34.2M'dan</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">Fonlama Oranı</div>
+            <div class="val down">-0.0007%</div>
+            <div class="delta down">İlk kez negatife döndü!</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">OI Değişimi (1s)</div>
+            <div class="val neutral" style="font-size:15px;">+$39K</div>
+            <div class="delta" style="color:#aaa;">çok yavaş (önceki: +$308K)</div>
+        </div>
+    </div>
+
+    <!-- FONLAMa GEÇMİŞİ -->
+    <div class="section-label">Fonlama Oranı Geçmişi — Son 7 Gün (4 saatlik)</div>
+    <div class="signal-card">
+        <div style="font-size:13px; color:#555; margin-bottom:10px; line-height:1.6;">
+            42 periyodun <b>tamamı pozitif</b> — 168 saat boyunca hiç negatife dönmedi. Longlar short'lara sürekli
+            ödedi.
+            Toplam maliyet: <b>$1.000 başına $20.77</b> (7 günde).
+        </div>
+
+        <!-- Bar chart: funding rates -->
+        <div style="display:flex; align-items:flex-end; gap:2px; height:70px; margin-bottom:6px;">
+            <!-- Her bar normalize edilmiş yükseklik (max=0.150488) -->
+            <div style="flex:1; height:15%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.022%">
+            </div>
+            <div style="flex:1; height:28%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.042%">
+            </div>
+            <div style="flex:1; height:38%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.057%">
+            </div>
+            <div style="flex:1; height:43%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.064%">
+            </div>
+            <div style="flex:1; height:21%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.032%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.4;" title="0.005%">
+            </div>
+            <div style="flex:1; height:5%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.4;" title="0.008%">
+            </div>
+            <div style="flex:1; height:16%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.023%">
+            </div>
+            <div style="flex:1; height:58%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.088%"></div>
+            <div style="flex:1; height:40%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.060%"></div>
+            <div style="flex:1; height:95%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.143%"></div>
+            <div style="flex:1; height:69%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.103%"></div>
+            <div style="flex:1; height:68%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.102%"></div>
+            <div style="flex:1; height:63%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.094%"></div>
+            <div style="flex:1; height:79%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.119%"></div>
+            <div style="flex:1; height:99%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.149% — ZİRVE">
+            </div>
+            <div style="flex:1; height:71%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.107%"></div>
+            <div style="flex:1; height:93%; background:#D85A30; border-radius:2px 2px 0 0;" title="0.140%"></div>
+            <div style="flex:1; height:100%; background:#D85A30; border-radius:2px 2px 0 0; position:relative;"
+                title="0.150% — MUTLAK ZİRVE">
+                <div
+                    style="position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:9px; color:#D85A30; white-space:nowrap;">
+                    zirve</div>
+            </div>
+            <div style="flex:1; height:29%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.043%"></div>
+            <div style="flex:1; height:18%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.027%"></div>
+            <div style="flex:1; height:48%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.073%"></div>
+            <div style="flex:1; height:29%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.043%"></div>
+            <div style="flex:1; height:20%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.030%"></div>
+            <div style="flex:1; height:26%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.040%"></div>
+            <div style="flex:1; height:15%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.023%"></div>
+            <div style="flex:1; height:11%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.017%"></div>
+            <div style="flex:1; height:10%; background:#F5C842; border-radius:2px 2px 0 0;" title="0.016%"></div>
+            <div style="flex:1; height:18%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.027%">
+            </div>
+            <div style="flex:1; height:5%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.4;" title="0.008%">
+            </div>
+            <div style="flex:1; height:41%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.061%">
+            </div>
+            <div style="flex:1; height:10%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.4;" title="0.015%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.3;" title="0.005%">
+            </div>
+            <div style="flex:1; height:29%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.044%">
+            </div>
+            <div style="flex:1; height:28%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.6;" title="0.043%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.3;" title="0.005%">
+            </div>
+            <div style="flex:1; height:9%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.4;" title="0.014%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.3;" title="0.005%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.3;" title="0.005%">
+            </div>
+            <div style="flex:1; height:10%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.4;" title="0.015%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.3;" title="0.005%">
+            </div>
+            <div style="flex:1; height:3%; background:#1D9E75; border-radius:2px 2px 0 0; opacity:0.3;" title="0.005%">
+            </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:#aaa; margin-bottom:8px;">
+            <span>10 May</span><span>11 May</span><span>12 May (zirve)</span><span>13 May</span><span>14
+                May</span><span>15 May</span><span>16 May</span><span>17 May</span>
+        </div>
+
+        <div style="display:flex; gap:16px; font-size:12px; color:#555; flex-wrap:wrap;">
+            <span>📈 Ort (7 gün): <b>+0.0495%</b></span>
+            <span>📉 Son 1 gün ort: <b>+0.0082%</b> (yüksek dönemden çok düşük)</span>
+            <span>⚡ Zirve: <b>+0.150%</b> (13 May)</span>
+            <span>🔻 Son oran: <b>+0.005%</b> (minimum seviye)</span>
+        </div>
+
+        <div class="warn-box" style="margin-top:10px;">
+            <b>Fonlama analizi:</b> 12-13 Mayıs'ta %0.10–0.15 olan fonlama oranı dramatik şekilde düştü ve şimdi minimum
+            seviyede (+0.005%). Bu, spekülatif long baskısının tamamen söndüğünün işareti. Şu anki anlık oran
+            <b>negatife döndü (-0.0007%)</b> — yani short'lar artık longlardan ödeme alıyor. Bu hem long pozisyonlardan
+            çıkışın hem de artan short baskısının göstergesi.
+        </div>
+    </div>
+
+    <!-- ORDER BOOK -->
+    <div class="section-label">Order Book Derinliği — Anlık Görüntü</div>
+    <div class="signal-card">
+        <div class="grid2" style="gap:16px;">
+            <div>
+                <div style="font-size:12px; font-weight:600; color:#1D9E75; margin-bottom:8px;">BİD (Alış Duvarları)
+                </div>
+                <div class="ob-row"><span class="up">$1.54</span>
+                    <div class="ob-bar-bg">
+                        <div class="ob-bid-fill" style="width:100%;"></div>
+                    </div><span style="font-size:11px; font-weight:600;">6,832 adet 🔵</span>
+                </div>
+                <div class="ob-row"><span class="up">$1.541</span>
+                    <div class="ob-bar-bg">
+                        <div class="ob-bid-fill" style="width:34%;"></div>
+                    </div><span style="font-size:11px;">2,326 adet</span>
+                </div>
+                <div class="ob-row"><span class="up">$1.535</span>
+                    <div class="ob-bar-bg">
+                        <div class="ob-bid-fill" style="width:31%;"></div>
+                    </div><span style="font-size:11px;">2,131 adet</span>
+                </div>
+                <div style="margin-top:8px; font-size:12px; color:#888;">Toplam bid: <b
+                        style="color:#1D9E75;">32,876</b></div>
+            </div>
+            <div>
+                <div style="font-size:12px; font-weight:600; color:#D85A30; margin-bottom:8px;">ASK (Satış Duvarları)
+                </div>
+                <div class="ob-row"><span class="down">$1.553</span>
+                    <div class="ob-bar-bg">
+                        <div class="ob-ask-fill" style="width:100%;"></div>
+                    </div><span style="font-size:11px; font-weight:600;">15,723 adet 🔴</span>
+                </div>
+                <div class="ob-row"><span class="down">$1.556</span>
+                    <div class="ob-bar-bg">
+                        <div class="ob-ask-fill" style="width:55%;"></div>
+                    </div><span style="font-size:11px;">8,620 adet</span>
+                </div>
+                <div class="ob-row"><span class="down">$1.555</span>
+                    <div class="ob-bar-bg">
+                        <div class="ob-ask-fill" style="width:43%;"></div>
+                    </div><span style="font-size:11px;">6,837 adet</span>
+                </div>
+                <div style="margin-top:8px; font-size:12px; color:#888;">Toplam ask: <b
+                        style="color:#D85A30;">66,878</b></div>
+            </div>
+        </div>
+
+        <div style="margin-top:12px; padding:10px 14px; background:#FAECE7; border-radius:8px;">
+            <b style="color:#993C1D;">Bid/Ask oranı: 0.492</b> — Satış tarafı alış tarafının tam 2 katı!
+            En yakın büyük satış duvarı <b>$1.553</b>'te (fiyattan sadece +0.5% uzakta). Bu duvarı geçmek için ciddi
+            alım hacmi gerekiyor.
+            Mevcut fiyat ile destek ($1.54) arasındaki mesafe çok dar — aşağı yönlü zemin yakın ama üstteki baskı çok
+            daha ağır.
+        </div>
+
+        <div
+            style="margin-top:8px; font-size:12px; color:#555; padding:8px 12px; background:#f0f0ec; border-radius:8px;">
+            Spread: <b>$0.0006</b> (%0.039) — dar ve likit. &nbsp;·&nbsp; VWAP bid: $1.5405 &nbsp;·&nbsp; VWAP ask:
+            $1.5527
+        </div>
+    </div>
+
+    <!-- LONG/SHORT -->
+    <div class="section-label">Long / Short Dağılımı — Tarihsel Kötüleşme</div>
+    <div class="signal-card">
+        <div class="bar-row">
+            <span style="font-size:12px; color:#1D9E75; width:44px;">Long</span>
+            <div class="bar-bg">
+                <div class="bar-fill" style="width:32.34%; background:#1D9E75;"></div>
+            </div>
+            <span style="font-weight:600; color:#1D9E75;">32.3%</span>
+            <span
+                style="font-size:11px; background:#FAECE7; color:#993C1D; padding:1px 8px; border-radius:10px; margin-left:6px;">↓↓
+                45.4'ten (07:59'da)</span>
+        </div>
+        <div class="bar-row">
+            <span style="font-size:12px; color:#D85A30; width:44px;">Short</span>
+            <div class="bar-bg">
+                <div class="bar-fill" style="width:67.66%; background:#D85A30;"></div>
+            </div>
+            <span style="font-weight:600; color:#D85A30;">67.7%</span>
+            <span
+                style="font-size:11px; background:#FAECE7; color:#993C1D; padding:1px 8px; border-radius:10px; margin-left:6px;">↑↑
+                54.6'dan</span>
+        </div>
+
+        <div style="margin-top:10px; overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                <tr style="border-bottom:1px solid #eee; color:#888;">
+                    <th style="text-align:left; padding:5px 8px;">Snapshot</th>
+                    <th style="text-align:center; padding:5px 8px;">Long%</th>
+                    <th style="text-align:center; padding:5px 8px;">Short%</th>
+                    <th style="text-align:center; padding:5px 8px;">Büyük Hesaplar L/S</th>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:5px 8px;">15 May 23:09</td>
+                    <td style="text-align:center; color:#1D9E75;">49.6%</td>
+                    <td style="text-align:center; color:#D85A30;">50.4%</td>
+                    <td style="text-align:center;">0.840</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:5px 8px;">16 May 05:43</td>
+                    <td style="text-align:center; color:#1D9E75;">45.4%</td>
+                    <td style="text-align:center; color:#D85A30;">54.6%</td>
+                    <td style="text-align:center;">0.666</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:5px 8px;">16 May 07:59</td>
+                    <td style="text-align:center; color:#1D9E75;">42.6%</td>
+                    <td style="text-align:center; color:#D85A30;">57.4%</td>
+                    <td style="text-align:center;">0.581</td>
+                </tr>
+                <tr style="background:#FAECE7; font-weight:600;">
+                    <td style="padding:5px 8px;">17 May 10:27 ★</td>
+                    <td style="text-align:center; color:#1D9E75;">32.3%</td>
+                    <td style="text-align:center; color:#D85A30;">67.7%</td>
+                    <td style="text-align:center; color:#D85A30;">0.414</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="warn-box" style="margin-top:10px;">
+            ⚡ <b>Short squeeze potansiyeli zirveye yakın:</b> Short oranı %67.7 ile kritik seviyede. Büyük hesaplar L/S
+            0.414 — kurumsal para son derece agresif short'ta. Fiyat yine de yükselmeye devam ederse bu short
+            pozisyonları zararla kapanmak zorunda kalır ve fiyatı ani yukarı fırlatır.
+        </div>
+    </div>
+
+    <!-- CVD -->
+    <div class="section-label">CVD — Kümülatif Hacim Deltası</div>
+    <div class="grid3">
+        <div class="mcard">
+            <div class="lbl">5 dk CVD</div>
+            <div class="val up">+310,583</div>
+            <div class="sub">delta +20,399</div>
+            <div class="delta up">↑↑↑ önceki: +122,334</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">15 dk CVD</div>
+            <div class="val up">+950,234</div>
+            <div class="sub">delta +12,781</div>
+            <div class="delta up">↑↑↑ önceki: +120,643</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">1s CVD</div>
+            <div class="val up">+1,770,034</div>
+            <div class="sub">delta +55,278</div>
+            <div class="delta up">↑↑↑ önceki: +18,844</div>
+        </div>
+    </div>
+    <div class="ok-box">
+        ✅ <b>CVD çok güçlü ve ivmeleniyor.</b> Her zaman diliminde pozitif ve hızla büyüyor. Taker delta +392,409 (boğa
+        yönlü) — bu agresif piyasa alımı demek. Hacim desteği var, bu yükseliş gerçek.
+    </div>
+
+    <!-- TEKNİK -->
+    <div class="section-label">Teknik Göstergeler — Çoklu Zaman Dilimi</div>
+    <div class="grid3">
+        <div class="signal-card">
+            <div class="tf-label">1 SAAT</div>
+            <div class="gauge-row">
+                <div class="dot dot-neu"></div><span>RSI 62.5 — nötr bölgeye çekildi (önceki: 74.0)</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-down"></div><span>MACD sinyal altına geçti (histogram negatif)</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-up"></div><span>Histogram iyileşiyor (-0.0076'dan -0.0069'a)</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-up"></div><span>Fiyat BB orta bandının çok üstünde</span>
+            </div>
+            <div style="margin-top:8px;"><span class="badge badge-warn">Kısa vadeli zayıflama</span></div>
+        </div>
+        <div class="signal-card">
+            <div class="tf-label">4 SAAT</div>
+            <div class="gauge-row">
+                <div class="dot dot-down"></div><span>RSI 72.2 — aşırı alım (önceki: 70.7)</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-up"></div><span>MACD sinyal üzerinde, güçlü</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-down"></div><span>Histogram hafif düşüyor (0.020→0.017)</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-up"></div><span>Fiyat BB bandı içinde — toparladı</span>
+            </div>
+            <div style="margin-top:8px;"><span class="badge badge-warn">Güçlü ama yavaşlama sinyali</span></div>
+        </div>
+        <div class="signal-card">
+            <div class="tf-label">HAFTALIK</div>
+            <div class="gauge-row">
+                <div class="dot dot-down"></div><span>RSI <b>98.2</b> — tarihi aşırı alım (↑ 98.1'den)</span>
+            </div>
+            <div class="gauge-row">
+                <div class="dot dot-down"></div><span>Fiyat BB üst bandının <b>%33 üstünde</b></span>
+            </div>
+            <div style="font-size:11px; color:#aaa; margin:6px 0;">BB üst: $1.156 → Fiyat: $1.546</div>
+            <div style="margin-top:8px;"><span class="badge badge-down">Kritik — her geçen gün daha kötü</span></div>
+        </div>
+    </div>
+
+    <!-- DESTEK DİRENÇ -->
+    <div class="section-label">Destek ve Direnç Seviyeleri</div>
+    <div class="signal-card">
+        <div style="font-size:12px; color:#888; margin-bottom:8px;">Dirençler</div>
+        <div class="sr-row">
+            <span class="down" style="font-weight:600;">D1 $1.5705</span>
+            <span>24s yüksek / teknik direnç</span>
+            <span style="font-weight:600;">+1.6% uzakta</span>
+        </div>
+        <div class="sr-row">
+            <span class="down">D2 $1.5993</span>
+            <span>Teknik direnç</span>
+            <span>+3.5% uzakta</span>
+        </div>
+        <div style="font-size:12px; color:#888; margin:10px 0 8px;">Destekler (çok uzakta)</div>
+        <div class="sr-row"><span class="up">S1 $1.1356</span><span>Çok sağlam destek</span><span class="down">-26.5%
+                uzakta</span></div>
+        <div class="sr-row"><span class="up">S2 $1.1216</span><span></span><span class="down">-27.4% uzakta</span></div>
+        <div class="sr-row"><span class="up">S3 $1.1119</span><span></span><span class="down">-28.0% uzakta</span></div>
+        <div
+            style="margin-top:10px; font-size:12px; color:#993C1D; background:#FAECE7; padding:8px 12px; border-radius:8px;">
+            ⚠ Destekler fiyattan %26+ uzakta. Ara bölgede güvenilir zemin yok. Satış baskısı gelirse sert düşüş riski.
+        </div>
+    </div>
+
+    <!-- BTC -->
+    <div class="section-label">BTC Bağlamı (korelasyon: 0.24 — hâlâ düşük)</div>
+    <div class="grid3">
+        <div class="mcard">
+            <div class="lbl">BTC fiyatı</div>
+            <div class="val">$78,112</div>
+            <div class="sub down">-0.45% (24s) — stabilize oluyor</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">BTC RSI</div>
+            <div class="val down">35.9</div>
+            <div class="sub down">↓ 39.3'ten — aşırı satım yakın</div>
+        </div>
+        <div class="mcard">
+            <div class="lbl">BTC MACD</div>
+            <div class="val down">Ayı</div>
+            <div class="sub">Histogram daha derin negatif</div>
+        </div>
+    </div>
+    <div class="info-box">
+        BTC RSI 35.9'a düştü — teknik olarak aşırı satım bölgesine yaklaşıyor. GUA korelasyonu düşük (0.24) ama BTC'de
+        olası bir sert toparlanma GUA'ya da destek verebilir. Şu an BTC zayıflığı GUA'nın bağımsız hareketini
+        zorlaştırıyor.
+    </div>
+
+    <!-- KRİTİK UYARI -->
+    <div class="alert-box">
+        <div style="font-size:14px; font-weight:700; color:#993C1D; margin-bottom:8px;">🚨 HAFTALIK RSI 98.2 — 4
+            Snapshot'ta Sürekli Yükseliyor</div>
+        <div style="font-size:13px; color:#712B13; line-height:1.7;">
+            97.8 → 98.0 → 98.1 → <b>98.2</b>. Her seferinde biraz daha kötüleşiyor.<br>
+            Haftalık BB üst bandının <b>%33 üzerinde</b> — önceki snapshotta %30'du.<br>
+            Fonlama oranı negatife döndü — spekülatif long baskısı tamamen bitti.<br>
+            Order book'ta satış tarafı alış tarafının 2 katı.<br>
+            Short oranı %67.7 — aşırı kalabalık pozisyon.<br><br>
+            Bu tablo, momentum devam etse bile geri dönüş riskinin çok yüksek olduğunu gösteriyor.
+        </div>
+    </div>
+
+    <!-- GENEL DEĞERLENDİRME -->
+    <div class="summary-box">
+        <div style="font-size:14px; font-weight:700; margin-bottom:10px;">📊 Genel Değerlendirme — 17 Mayıs 10:27</div>
+
+        <div style="font-size:13px; color:#555;">
+            <b style="color:#1D9E75;">Güçlü taraf:</b> CVD tüm zaman dilimlerinde güçlü ve ivmeleniyor (+1.77M / 1
+            saatlik). Taker delta +392K boğa yönlü. OBV hâlâ boğa trendindeqwe. Hacim $65.4M ile serinin rekorunu kırdı.
+            4S MACD güçlü pozitif.<br><br>
+
+            <b style="color:#D85A30;">Zayıf taraf:</b><br>
+            — 1S MACD sinyal altına geçti: kısa vadeli momentum yavaşlıyor<br>
+            — Fonlama negatife döndü: spekülatif alıcı baskısı söndü<br>
+            — Order book 2:1 satış ağırlıklı; $1.553'te 15,723 lotluk dev satış duvarı var<br>
+            — Short oranı %67.7 — hem squeeze riski hem de ciddi karşı görüş<br>
+            — Haftalık RSI 98.2, BB %33 üstünde<br>
+            — Ara bölgede destek yok, destekler %26+ aşağıda<br><br>
+
+            <b>Kritik senaryo:</b><br>
+            Eğer $1.553'teki satış duvarı kırılırsa → short squeeze tetiklenebilir → $1.57–1.60 hedefi.<br>
+            Eğer duvar kırılamazsa ve fiyat $1.54 desteklerini kaybederse → %20+ düşüş riski, arada temiz destek
+            yok.<br><br>
+
+            <b>Özet:</b> CVD ve hacim boğaları destekliyor. Ama order book, fonlama ve haftalık aşırı alım tablosu
+            ayıları haklı çıkarıyor. İki taraf da çok güçlü argümana sahip — bu, volatilitenin artacağının işareti.
+        </div>
+    </div>
+
+</body>
+
+</html>
