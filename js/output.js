@@ -51,6 +51,90 @@ function formatOrderbookRows(rows, side) {
   });
 }
 
+function fmtMoney(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—';
+  return `$${n.toLocaleString('en-US', { maximumFractionDigits: n < 10 ? 4 : 2 })}`;
+}
+
+function fmtCompact(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—';
+  if (Math.abs(n) >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+  if (Math.abs(n) >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
+  if (Math.abs(n) >= 1e3) return `$${(n / 1e3).toFixed(2)}K`;
+  return `$${n.toFixed(2)}`;
+}
+
+function clsBySign(v) {
+  if (!Number.isFinite(Number(v))) return 'neutral';
+  return Number(v) >= 0 ? 'up' : 'down';
+}
+
+function renderCoinAnalysisPage(d, symbol) {
+  const root = document.getElementById('coinAnalysisRender');
+  if (!root) return;
+
+  const change = Number(d.change);
+  const changeCls = clsBySign(change);
+  const funding = Number(d.funding);
+  const fundingCls = clsBySign(-funding);
+  const oi5m = state.oiData?.windows?.find((w) => w.window === '5m');
+  const oiDelta = Number(oi5m?.oi_usd_delta);
+  const oiDeltaCls = clsBySign(oiDelta);
+  const longPct = Number(d.longPct);
+  const shortPct = Number(d.shortPct);
+  const ratio = Number(d.lsRatio);
+
+  const supports = state.srData?.supports || [];
+  const resistances = state.srData?.resistances || [];
+  const bids = state.orderbookData?.bids || [];
+  const asks = state.orderbookData?.asks || [];
+
+  root.innerHTML = `
+    <div style="font-size:11px;font-weight:700;color:#888;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.5rem;">
+      ${symbol} · ${new Date().toLocaleString('tr-TR')}
+    </div>
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:0.3rem;">
+      <span style="font-size:36px;font-weight:700;color:#1a1a1a;">${fmtMoney(d.price)}</span>
+      <span class="badge ${change >= 0 ? 'badge-up' : 'badge-down'}">${Number.isFinite(change) ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}% (24s)` : '—'}</span>
+      <span class="badge ${funding > 0.03 ? 'badge-down' : 'badge-up'}">Funding ${Number.isFinite(funding) ? funding.toFixed(4) : '—'}%</span>
+    </div>
+    <div style="font-size:13px;color:#555;margin-bottom:0.5rem;">
+      24s: Alt <b>${fmtMoney(d.low)}</b> — Üst <b>${fmtMoney(d.high)}</b> · Hacim: <b>${fmtCompact(d.volume)}</b>
+    </div>
+
+    <div class="section-label">Ana Metrikler</div>
+    <div class="grid4">
+      <div class="mcard"><div class="lbl">Hacim (24s)</div><div class="val">${fmtCompact(d.volume)}</div><div class="sub">Binance Futures</div></div>
+      <div class="mcard"><div class="lbl">Açık Pozisyon</div><div class="val">${fmtCompact(d.oiUSD)}</div><div class="sub">USD değer</div></div>
+      <div class="mcard"><div class="lbl">Fonlama Oranı</div><div class="val ${fundingCls}">${Number.isFinite(funding) ? `${funding.toFixed(4)}%` : '—'}</div><div class="sub">8 saatlik</div></div>
+      <div class="mcard"><div class="lbl">OI Değişimi (5d)</div><div class="val ${oiDeltaCls}">${Number.isFinite(oiDelta) ? fmtCompact(oiDelta) : '—'}</div><div class="sub">Canlı delta</div></div>
+    </div>
+
+    <div class="section-label">Order Book Derinliği — Anlık</div>
+    <div class="signal-card">
+      <div class="grid2">
+        <div><div class="lbl up">BID</div>${bids.slice(0,3).map((b) => `<div class="sr-row"><span class="up">${fmtMoney(b.price)}</span><span>${Number(b.qty || 0).toLocaleString('tr-TR')}</span></div>`).join('') || '<div class="sub">Veri yok</div>'}</div>
+        <div><div class="lbl down">ASK</div>${asks.slice(0,3).map((a) => `<div class="sr-row"><span class="down">${fmtMoney(a.price)}</span><span>${Number(a.qty || 0).toLocaleString('tr-TR')}</span></div>`).join('') || '<div class="sub">Veri yok</div>'}</div>
+      </div>
+    </div>
+
+    <div class="section-label">Long / Short Dağılımı</div>
+    <div class="signal-card">
+      <div class="bar-row"><span style="width:46px" class="up">Long</span><div class="bar-bg"><div class="bar-fill" style="width:${Number.isFinite(longPct) ? longPct : 50}%;background:#1D9E75;"></div></div><span class="up">${Number.isFinite(longPct) ? longPct.toFixed(1) : '—'}%</span></div>
+      <div class="bar-row"><span style="width:46px" class="down">Short</span><div class="bar-bg"><div class="bar-fill" style="width:${Number.isFinite(shortPct) ? shortPct : 50}%;background:#D85A30;"></div></div><span class="down">${Number.isFinite(shortPct) ? shortPct.toFixed(1) : '—'}%</span></div>
+      <div class="sub">L/S oranı: <b>${Number.isFinite(ratio) ? ratio.toFixed(4) : '—'}</b></div>
+    </div>
+
+    <div class="section-label">Destek ve Direnç</div>
+    <div class="signal-card">
+      ${(resistances.slice(0,2).map((r, i) => `<div class="sr-row"><span class="down">D${i + 1} ${fmtMoney(r.price)}</span><span>${r.touches || 0} temas</span></div>`).join('')) || '<div class="sub">Direnç verisi yok</div>'}
+      ${(supports.slice(0,2).map((s, i) => `<div class="sr-row"><span class="up">S${i + 1} ${fmtMoney(s.price)}</span><span>${s.touches || 0} temas</span></div>`).join('')) || '<div class="sub">Destek verisi yok</div>'}
+    </div>
+  `;
+}
+
 export function buildOutput(d, symbol) {
   const now = new Date().toLocaleString('tr-TR');
   let t = `NOT: Lutfen bu ham veriyi Turkce olarak acikla. Yorumlarini Turkce yaz.\n`;
@@ -226,6 +310,7 @@ export function buildOutput(d, symbol) {
     if (state.btcData.corrVal !== undefined && state.btcData.corrVal !== null) t += `btc_correlation_4h_60=${state.btcData.corrVal}\n`;
   }
 
+  renderCoinAnalysisPage(d, symbol);
   document.getElementById('outputPreview').textContent = t;
   state.detailData._text = t;
 }

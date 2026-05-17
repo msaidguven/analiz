@@ -1829,6 +1829,70 @@
     .count-badge span {
       color: var(--green);
     }
+
+    /* coin_analiz tasarim gorunumu */
+    .coin-report {
+      background: #f8f8f6;
+      color: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 10px;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+    }
+
+    .coin-report .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin: 1rem 0 0.6rem;
+    }
+
+    .coin-report .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .coin-report .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .coin-report .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .coin-report .mcard { background: #f0f0ec; border-radius: 8px; padding: 0.75rem 1rem; }
+    .coin-report .lbl { font-size: 12px; color: #888; margin-bottom: 3px; }
+    .coin-report .val { font-size: 18px; font-weight: 600; }
+    .coin-report .sub { font-size: 12px; color: #666; margin-top: 3px; }
+    .coin-report .up { color: #1D9E75 !important; }
+    .coin-report .down { color: #D85A30 !important; }
+    .coin-report .neutral { color: #888 !important; }
+    .coin-report .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .coin-report .badge-up { background: #E1F5EE; color: #0F6E56; }
+    .coin-report .badge-down { background: #FAECE7; color: #993C1D; }
+    .coin-report .signal-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 0.9rem 1rem; }
+    .coin-report .bar-bg { flex: 1; height: 7px; border-radius: 4px; background: #e8e8e4; overflow: hidden; }
+    .coin-report .bar-fill { height: 100%; border-radius: 4px; }
+    .coin-report .bar-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .coin-report .sr-row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 12px; }
+    .coin-report .sr-row:last-child { border: none; }
+
+    #detailPage.use-coin-design .d-grid,
+    #detailPage.use-coin-design .ath-panel,
+    #detailPage.use-coin-design .signal-wrap,
+    #detailPage.use-coin-design .trader-row,
+    #detailPage.use-coin-design .mtf-confirm,
+    #detailPage.use-coin-design .mtf-grid,
+    #detailPage.use-coin-design .sr-panel,
+    #detailPage.use-coin-design .vol-panel,
+    #detailPage.use-coin-design .btc-panel,
+    #detailPage.use-coin-design .verdict,
+    #detailPage.use-coin-design #outputPreview,
+    #detailPage.use-coin-design .sec-title {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
+      .coin-report .grid4,
+      .coin-report .grid3,
+      .coin-report .grid2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   </style>
 </head>
 
@@ -1874,7 +1938,7 @@
   </div>
 
   <!-- ═══════════════════ DETAIL PAGE ═══════════════════ -->
-  <div class="page" id="detailPage">
+  <div class="page use-coin-design" id="detailPage">
     <div class="top-bar">
       <div class="logo">FUTURES<span>/</span>SCAN</div>
       <div class="live-badge">
@@ -1898,6 +1962,7 @@
       </div>
 
       <div id="detailError" class="err-box" style="display:none"></div>
+      <div id="coinAnalysisRender" class="coin-report">Veri çekiliyor...</div>
 
       <!-- MAIN GRID -->
       <div class="d-grid">
