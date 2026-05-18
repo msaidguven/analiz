@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binance Futures Panel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; background: #0b0e11; color: #d1d4dc; min-height: 100vh; }
+  header { background: #161a1e; border-bottom: 1px solid #2a2d35; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 16px; font-weight: 700; color: #f0b90b; letter-spacing: 2px; }
+  header .status { font-size: 12px; color: #5e6673; margin-left: auto; }
+  header .status.ok { color: #0ecb81; }
+  .api-box { background: #161a1e; border: 1px solid #2a2d35; border-radius: 6px; margin: 20px 24px; padding: 16px 20px; }
+  .api-box h2 { font-size: 11px; letter-spacing: 1.5px; color: #5e6673; text-transform: uppercase; margin-bottom: 12px; }
+  .api-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .api-row label { font-size: 11px; color: #5e6673; display: block; margin-bottom: 4px; }
+  .api-row input { background: #0b0e11; border: 1px solid #2a2d35; border-radius: 4px; color: #d1d4dc; font-family: monospace; font-size: 13px; padding: 7px 10px; width: 300px; outline: none; }
+  .api-row input:focus { border-color: #f0b90b; }
+  .api-row select { background: #0b0e11; border: 1px solid #2a2d35; border-radius: 4px; color: #d1d4dc; font-family: monospace; font-size: 13px; padding: 7px 10px; outline: none; cursor: pointer; }
+  .btn { background: #f0b90b; border: none; border-radius: 4px; color: #0b0e11; cursor: pointer; font-family: monospace; font-size: 13px; font-weight: 700; padding: 8px 18px; letter-spacing: 0.5px; transition: background 0.15s; }
+  .btn:hover { background: #d4a20a; }
+  .btn:disabled { background: #2a2d35; color: #5e6673; cursor: not-allowed; }
+  .btn-danger { background: #f6465d; color: #fff; }
+  .btn-danger:hover { background: #d43550; }
+  .btn-sm { font-size: 11px; padding: 5px 10px; }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid #2a2d35; margin: 0 24px; }
+  .tab { background: none; border: none; color: #5e6673; cursor: pointer; font-family: monospace; font-size: 13px; padding: 10px 20px; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: #d1d4dc; }
+  .tab.active { color: #f0b90b; border-bottom-color: #f0b90b; }
+  .panel { display: none; padding: 20px 24px; }
+  .panel.active { display: block; }
+  .stats-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat { background: #161a1e; border: 1px solid #2a2d35; border-radius: 6px; padding: 12px 16px; min-width: 140px; }
+  .stat label { font-size: 11px; color: #5e6673; display: block; margin-bottom: 4px; letter-spacing: 0.5px; }
+  .stat span { font-size: 18px; font-weight: 700; color: #d1d4dc; }
+  .stat span.pos { color: #0ecb81; }
+  .stat span.neg { color: #f6465d; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { color: #5e6673; font-size: 11px; letter-spacing: 1px; text-align: left; padding: 8px 12px; border-bottom: 1px solid #2a2d35; background: #161a1e; }
+  td { padding: 9px 12px; border-bottom: 1px solid #1a1e23; }
+  tr:hover td { background: #161a1e; }
+  .symbol { color: #f0b90b; font-weight: 700; }
+  .long { color: #0ecb81; }
+  .short { color: #f6465d; }
+  .msg { color: #5e6673; font-size: 13px; padding: 20px 0; text-align: center; }
+  .err { color: #f6465d; font-size: 13px; padding: 8px 12px; background: #1a0d0f; border: 1px solid #3a1520; border-radius: 4px; margin-bottom: 12px; display: none; }
+  .log { background: #0b0e11; border: 1px solid #2a2d35; border-radius: 4px; font-size: 12px; max-height: 200px; overflow-y: auto; padding: 10px 14px; margin-top: 16px; }
+  .log-line { padding: 2px 0; }
+  .log-line.ok { color: #0ecb81; }
+  .log-line.err { color: #f6465d; background: none; border: none; margin: 0; display: block; }
+  .log-line.info { color: #5e6673; }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; }
+  .badge-buy { background: #0d2e1f; color: #0ecb81; }
+  .badge-sell { background: #2e0d14; color: #f6465d; }
+  .loading { color: #f0b90b; font-size: 13px; padding: 20px 0; text-align: center; }
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+  .confirm-overlay.show { display: flex; }
+  .confirm-box { background: #161a1e; border: 1px solid #f6465d; border-radius: 8px; padding: 24px 28px; max-width: 360px; width: 90%; }
+  .confirm-box h3 { color: #f6465d; font-size: 15px; margin-bottom: 10px; }
+  .confirm-box p { font-size: 13px; color: #d1d4dc; margin-bottom: 20px; line-height: 1.6; }
+  .confirm-box .btns { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-ghost { background: none; border: 1px solid #2a2d35; color: #d1d4dc; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 13px; padding: 8px 18px; }
+  .btn-ghost:hover { border-color: #5e6673; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⬡ BINANCE FUTURES</h1>
+  <span class="status" id="conn-status">Bağlı değil</span>
+</header>
+
+<div class="api-box">
+  <h2>API Bağlantısı</h2>
+  <div class="api-row">
+    <div>
+      <label>API Key</label>
+      <input type="text" id="apiKey" placeholder="API Key..." autocomplete="off">
+    </div>
+    <div>
+      <label>Secret Key</label>
+      <input type="password" id="secretKey" placeholder="Secret Key..." autocomplete="off">
+    </div>
+    <div>
+      <label>Ortam</label>
+      <select id="env">
+        <option value="live">Canlı (api.binance.com)</option>
+        <option value="test">Testnet (testnet.binancefuture.com)</option>
+      </select>
+    </div>
+    <button class="btn" id="loadBtn" onclick="loadAll()">Yükle</button>
+  </div>
+  <div class="err" id="errBox"></div>
+  <div class="log" id="logBox" style="display:none"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('positions')">Pozisyonlar</button>
+  <button class="tab" onclick="switchTab('balance')">Bakiye</button>
+  <button class="tab" onclick="switchTab('orders')">Açık Emirler</button>
+  <button class="tab" onclick="switchTab('history')">İşlem Geçmişi</button>
+</div>
+
+<div id="positions" class="panel active">
+  <div class="stats-row" id="statsRow"></div>
+  <div class="msg" id="posMsg">API bilgilerinizi girin ve Yükle'ye tıklayın.</div>
+  <div style="overflow-x:auto"><table id="posTable" style="display:none">
+    <thead><tr>
+      <th>Sembol</th><th>Yön</th><th>Boyut</th><th>Giriş Fiyatı</th>
+      <th>İşaret Fiyatı</th><th>Liq. Fiyatı</th><th>Kaldıraç</th>
+      <th>Marjin</th><th>Unrealized PnL</th><th>İşlem</th>
+    </tr></thead>
+    <tbody id="posTbody"></tbody>
+  </table></div>
+</div>
+
+<div id="balance" class="panel">
+  <div class="msg" id="balMsg">API bilgilerinizi girin ve Yükle'ye tıklayın.</div>
+  <div style="overflow-x:auto"><table id="balTable" style="display:none">
+    <thead><tr><th>Varlık</th><th>Cüzdan Bakiyesi</th><th>Kullanılabilir</th><th>Açık P&L</th><th>Marjin Bakiye</th></tr></thead>
+    <tbody id="balTbody"></tbody>
+  </table></div>
+</div>
+
+<div id="orders" class="panel">
+  <div class="msg" id="ordMsg">API bilgilerinizi girin ve Yükle'ye tıklayın.</div>
+  <div style="overflow-x:auto"><table id="ordTable" style="display:none">
+    <thead><tr><th>Sembol</th><th>Tip</th><th>Yön</th><th>Miktar</th><th>Fiyat</th><th>Durum</th><th>Zaman</th><th>İptal</th></tr></thead>
+    <tbody id="ordTbody"></tbody>
+  </table></div>
+</div>
+
+<div id="history" class="panel">
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+    <label style="font-size:12px;color:#5e6673;">Sembol (opsiyonel):</label>
+    <input type="text" id="histSymbol" placeholder="BTCUSDT" style="width:140px;background:#0b0e11;border:1px solid #2a2d35;border-radius:4px;color:#d1d4dc;font-family:monospace;font-size:13px;padding:6px 10px;">
+    <label style="font-size:12px;color:#5e6673;">Limit:</label>
+    <select id="histLimit" style="background:#0b0e11;border:1px solid #2a2d35;border-radius:4px;color:#d1d4dc;font-family:monospace;font-size:13px;padding:6px 10px;">
+      <option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="500">500</option>
+    </select>
+    <button class="btn btn-sm" onclick="loadHistory()">Getir</button>
+  </div>
+  <div class="msg" id="histMsg">API bilgilerinizi girin ve Yükle'ye tıklayın.</div>
+  <div style="overflow-x:auto"><table id="histTable" style="display:none">
+    <thead><tr><th>Sembol</th><th>Yön</th><th>Fiyat</th><th>Miktar</th><th>Gerçekleşme Fiyatı</th><th>Realized PnL</th><th>Komisyon</th><th>Zaman</th></tr></thead>
+    <tbody id="histTbody"></tbody>
+  </table></div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>⚠ Pozisyon Kapat</h3>
+    <p id="confirmText"></p>
+    <div class="btns">
+      <button class="btn-ghost" onclick="closeConfirm()">İptal</button>
+      <button class="btn btn-danger" onclick="executeClose()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let BASE = 'https://api.binance.com';
+let pendingClose = null;
+
+function getBase() {
+  return document.getElementById('env').value === 'test'
+    ? 'https://testnet.binancefuture.com'
+    : 'https://api.binance.com';
+}
+
+function log(msg, type='info') {
+  const box = document.getElementById('logBox');
+  box.style.display = 'block';
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = '[' + new Date().toLocaleTimeString('tr') + '] ' + msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function showErr(msg) {
+  const box = document.getElementById('errBox');
+  box.style.display = 'block';
+  box.textContent = '⚠ ' + msg;
+}
+
+function hideErr() {
+  document.getElementById('errBox').style.display = 'none';
+}
+
+async function signedRequest(path, params={}) {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const secret = document.getElementById('secretKey').value.trim();
+  if (!apiKey || !secret) throw new Error('API Key ve Secret Key gerekli.');
+
+  params.timestamp = Date.now();
+  params.recvWindow = 5000;
+
+  const qs = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const msgData = encoder.encode(qs);
+  const cryptoKey = await crypto.subtle.importKey('raw', keyData, {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+  const signature = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+  const url = getBase() + path + '?' + qs + '&signature=' + signature;
+  const res = await fetch(url, { headers: { 'X-MBX-APIKEY': apiKey } });
+  const data = await res.json();
+  if (data.code && data.code < 0) throw new Error(data.msg || JSON.stringify(data));
+  return data;
+}
+
+async function publicRequest(path, params={}) {
+  const qs = Object.entries(params).map(([k,v]) => k+'='+v).join('&');
+  const url = getBase() + path + (qs ? '?'+qs : '');
+  const res = await fetch(url);
+  return res.json();
+}
+
+async function loadAll() {
+  hideErr();
+  document.getElementById('loadBtn').disabled = true;
+  document.getElementById('logBox').innerHTML = '';
+  log('Bağlanılıyor...', 'info');
+  try {
+    await Promise.all([loadPositions(), loadBalance(), loadOrders()]);
+    document.getElementById('conn-status').textContent = 'Bağlı ✓';
+    document.getElementById('conn-status').className = 'status ok';
+    log('Tüm veriler yüklendi.', 'ok');
+  } catch(e) {
+    showErr(e.message);
+    log('Hata: ' + e.message, 'err');
+    document.getElementById('conn-status').textContent = 'Hata';
+    document.getElementById('conn-status').className = 'status';
+  }
+  document.getElementById('loadBtn').disabled = false;
+}
+
+async function loadPositions() {
+  log('Pozisyonlar getiriliyor...', 'info');
+  const data = await signedRequest('/fapi/v2/positionRisk');
+  const active = data.filter(p => parseFloat(p.positionAmt) !== 0);
+
+  const tbody = document.getElementById('posTbody');
+  tbody.innerHTML = '';
+
+  if (active.length === 0) {
+    document.getElementById('posMsg').style.display = 'block';
+    document.getElementById('posMsg').textContent = 'Açık pozisyon bulunamadı.';
+    document.getElementById('posTable').style.display = 'none';
+    document.getElementById('statsRow').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('posMsg').style.display = 'none';
+  document.getElementById('posTable').style.display = 'table';
+
+  let totalPnl = 0;
+  active.forEach(p => totalPnl += parseFloat(p.unRealizedProfit));
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><label>Açık Pozisyon</label><span>${active.length}</span></div>
+    <div class="stat"><label>Toplam Unrealized PnL</label><span class="${totalPnl>=0?'pos':'neg'}">${totalPnl>=0?'+':''}${totalPnl.toFixed(2)} USDT</span></div>
+  `;
+
+  active.forEach(p => {
+    const amt = parseFloat(p.positionAmt);
+    const side = amt > 0 ? 'LONG' : 'SHORT';
+    const pnl = parseFloat(p.unRealizedProfit);
+    const margin = parseFloat(p.isolatedMargin)||parseFloat(p.notional)/parseFloat(p.leverage)||0;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="symbol">${p.symbol}</td>
+      <td class="${side==='LONG'?'long':'short'}">${side}</td>
+      <td>${Math.abs(amt)}</td>
+      <td>${parseFloat(p.entryPrice).toFixed(4)}</td>
+      <td>${parseFloat(p.markPrice).toFixed(4)}</td>
+      <td style="color:#f0b90b">${parseFloat(p.liquidationPrice||0).toFixed(4)}</td>
+      <td>${p.leverage}x</td>
+      <td>${parseFloat(p.isolatedMargin||0).toFixed(2)}</td>
+      <td class="${pnl>=0?'long':'short'}">${pnl>=0?'+':''}${pnl.toFixed(4)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="confirmClose('${p.symbol}','${side}',${Math.abs(amt)})">Kapat</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  log('Pozisyonlar yüklendi: ' + active.length + ' açık.', 'ok');
+}
+
+async function loadBalance() {
+  log('Bakiye getiriliyor...', 'info');
+  const data = await signedRequest('/fapi/v2/balance');
+  const nonzero = data.filter(b => parseFloat(b.balance) > 0 || parseFloat(b.availableBalance) > 0);
+
+  document.getElementById('balMsg').style.display = nonzero.length === 0 ? 'block' : 'none';
+  document.getElementById('balMsg').textContent = 'Bakiye bulunamadı.';
+  document.getElementById('balTable').style.display = nonzero.length === 0 ? 'none' : 'table';
+
+  const tbody = document.getElementById('balTbody');
+  tbody.innerHTML = '';
+  nonzero.forEach(b => {
+    const pnl = parseFloat(b.crossUnPnl||0);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="symbol">${b.asset}</td>
+      <td>${parseFloat(b.balance).toFixed(4)}</td>
+      <td>${parseFloat(b.availableBalance).toFixed(4)}</td>
+      <td class="${pnl>=0?'long':'short'}">${pnl>=0?'+':''}${pnl.toFixed(4)}</td>
+      <td>${parseFloat(b.marginBalance||b.balance).toFixed(4)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  log('Bakiye yüklendi.', 'ok');
+}
+
+async function loadOrders() {
+  log('Açık emirler getiriliyor...', 'info');
+  const data = await signedRequest('/fapi/v1/openOrders');
+
+  document.getElementById('ordMsg').style.display = data.length === 0 ? 'block' : 'none';
+  document.getElementById('ordMsg').textContent = 'Açık emir bulunamadı.';
+  document.getElementById('ordTable').style.display = data.length === 0 ? 'none' : 'table';
+
+  const tbody = document.getElementById('ordTbody');
+  tbody.innerHTML = '';
+  data.forEach(o => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="symbol">${o.symbol}</td>
+      <td>${o.type}</td>
+      <td><span class="badge badge-${o.side.toLowerCase()==='buy'?'buy':'sell'}">${o.side}</span></td>
+      <td>${o.origQty}</td>
+      <td>${parseFloat(o.price||0)===0?'MARKET':parseFloat(o.price).toFixed(4)}</td>
+      <td>${o.status}</td>
+      <td>${new Date(o.time).toLocaleString('tr')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="cancelOrder('${o.symbol}',${o.orderId})">İptal</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  log('Açık emirler yüklendi: ' + data.length, 'ok');
+}
+
+async function loadHistory() {
+  const symbol = document.getElementById('histSymbol').value.trim().toUpperCase();
+  const limit = document.getElementById('histLimit').value;
+  log('İşlem geçmişi getiriliyor...', 'info');
+
+  try {
+    const params = { limit };
+    if (symbol) params.symbol = symbol;
+    const data = await signedRequest('/fapi/v1/userTrades', params);
+
+    document.getElementById('histMsg').style.display = data.length === 0 ? 'block' : 'none';
+    document.getElementById('histMsg').textContent = 'İşlem bulunamadı.';
+    document.getElementById('histTable').style.display = data.length === 0 ? 'none' : 'table';
+
+    const tbody = document.getElementById('histTbody');
+    tbody.innerHTML = '';
+    [...data].reverse().forEach(t => {
+      const pnl = parseFloat(t.realizedPnl||0);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="symbol">${t.symbol}</td>
+        <td><span class="badge badge-${t.buyer?'buy':'sell'}">${t.buyer?'BUY':'SELL'}</span></td>
+        <td>${parseFloat(t.price).toFixed(4)}</td>
+        <td>${t.qty}</td>
+        <td>${parseFloat(t.price).toFixed(4)}</td>
+        <td class="${pnl>=0?'long':'short'}">${pnl>=0?'+':''}${pnl.toFixed(4)}</td>
+        <td>${parseFloat(t.commission).toFixed(6)} ${t.commissionAsset}</td>
+        <td>${new Date(t.time).toLocaleString('tr')}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    log('Geçmiş yüklendi: ' + data.length + ' işlem.', 'ok');
+  } catch(e) {
+    showErr(e.message);
+    log('Hata: ' + e.message, 'err');
+  }
+}
+
+function confirmClose(symbol, side, qty) {
+  pendingClose = { symbol, side, qty };
+  const closeSide = side === 'LONG' ? 'SELL' : 'BUY';
+  document.getElementById('confirmText').textContent =
+    `${symbol} sembolünde ${side} pozisyonunuzu (${qty} adet) piyasadan kapatmak istiyor musunuz?\nEmir Yönü: ${closeSide} ${qty} ${symbol}`;
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('show');
+  pendingClose = null;
+}
+
+async function executeClose() {
+  if (!pendingClose) return;
+  const { symbol, side, qty } = pendingClose;
+  const closeSide = side === 'LONG' ? 'SELL' : 'BUY';
+  closeConfirm();
+
+  log(`Kapatma emri gönderiliyor: ${closeSide} ${qty} ${symbol}...`, 'info');
+  try {
+    const result = await signedRequest('/fapi/v1/order', {});
+    // POST için farklı yöntem
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const secret = document.getElementById('secretKey').value.trim();
+    const params = {
+      symbol, side: closeSide, type: 'MARKET',
+      quantity: qty, reduceOnly: 'true',
+      timestamp: Date.now(), recvWindow: 5000
+    };
+    const qs = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
+    const encoder = new TextEncoder();
+    const cryptoKey = await crypto.subtle.importKey('raw', encoder.encode(secret), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+    const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(qs));
+    const signature = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+    const res = await fetch(getBase() + '/fapi/v1/order', {
+      method: 'POST',
+      headers: { 'X-MBX-APIKEY': apiKey, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: qs + '&signature=' + signature
+    });
+    const data = await res.json();
+    if (data.code && data.code < 0) throw new Error(data.msg);
+    log(`✓ Emir iletildi. OrderId: ${data.orderId}`, 'ok');
+    setTimeout(loadPositions, 1500);
+  } catch(e) {
+    showErr(e.message);
+    log('Hata: ' + e.message, 'err');
+  }
+}
+
+async function cancelOrder(symbol, orderId) {
+  if (!confirm(`${symbol} #${orderId} emrini iptal etmek istiyor musunuz?`)) return;
+  log(`Emir iptal ediliyor: ${orderId}...`, 'info');
+  try {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const secret = document.getElementById('secretKey').value.trim();
+    const params = { symbol, orderId, timestamp: Date.now(), recvWindow: 5000 };
+    const qs = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
+    const encoder = new TextEncoder();
+    const cryptoKey = await crypto.subtle.importKey('raw', encoder.encode(secret), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+    const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(qs));
+    const signature = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    const res = await fetch(getBase() + '/fapi/v1/order?' + qs + '&signature=' + signature, {
+      method: 'DELETE', headers: { 'X-MBX-APIKEY': apiKey }
+    });
+    const data = await res.json();
+    if (data.code && data.code < 0) throw new Error(data.msg);
+    log(`✓ Emir iptal edildi: ${orderId}`, 'ok');
+    setTimeout(loadOrders, 1000);
+  } catch(e) {
+    showErr(e.message);
+    log('Hata: ' + e.message, 'err');
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
