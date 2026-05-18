@@ -7,5 +7,11 @@
     "api/binance/analysis.js": {
       "regions": ["hkg1"]
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/proxy.js"
+    }
+  ]
 }
