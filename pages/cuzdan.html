@@ -165,6 +165,7 @@ async function call(path, method = 'GET', extra = {}) {
   const data = await res.json();
   if (data.error) throw new Error(data.error);
   if (data.code && data.code < 0) throw new Error(data.msg || JSON.stringify(data));
+  if (!Array.isArray(data)) throw new Error('API array döndürmedi: ' + JSON.stringify(data));
   return data;
 }
 
