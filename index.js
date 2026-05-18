@@ -153,16 +153,17 @@ function maybeShowKararDebugToast(symbol, sonuc) {
 }
 
 // ============================================================
-// BSC KONTRAT OTOMATİK ÇEKME
+// BSC + ETH KONTRAT OTOMATİK ÇEKME
 // ============================================================
 const bscContractCache = {};
+const ethContractCache = {};
 let bscContractsFetched = false;
 
 async function fetchBscContracts(symbols) {
     if (bscContractsFetched) return;
     bscContractsFetched = true;
     try {
-        showToast('Explorer linkleri yükleniyor...', 'warning', 'BSCScan', { durationMs: 5000 });
+        showToast('Explorer linkleri yükleniyor...', 'warning', 'Explorer', { durationMs: 5000 });
         const listRes = await fetch('https://api.coingecko.com/api/v3/coins/list?include_platform=true');
         if (!listRes.ok) throw new Error('CoinGecko platform listesi alınamadı');
         const list = await listRes.json();
@@ -171,15 +172,16 @@ async function fetchBscContracts(symbols) {
             const sym = String(coin.symbol || '').toUpperCase();
             if (!symbolSet.has(sym)) return;
             const bscAddr = coin.platforms?.['binance-smart-chain'] || coin.platforms?.['binance-smart-chain-mainnet'] || null;
-            if (bscAddr && !bscContractCache[sym]) {
-                bscContractCache[sym] = bscAddr.toLowerCase();
-            }
+            const ethAddr = coin.platforms?.['ethereum'] || null;
+            if (bscAddr && !bscContractCache[sym]) bscContractCache[sym] = bscAddr.toLowerCase();
+            if (ethAddr && !ethContractCache[sym]) ethContractCache[sym] = ethAddr.toLowerCase();
         });
-        const found = Object.keys(bscContractCache).length;
-        showToast(`${found} coin için BSCScan linkleri hazır`, 'success', 'BSCScan');
+        const bscFound = Object.keys(bscContractCache).length;
+        const ethFound = Object.keys(ethContractCache).length;
+        showToast(`BSC: ${bscFound} · ETH: ${ethFound} coin için explorer linkleri hazır`, 'success', 'Explorer');
         renderCoins();
     } catch (e) {
-        console.warn('BSC kontrat adresleri alınamadı:', e);
+        console.warn('Kontrat adresleri alınamadı:', e);
         bscContractsFetched = false;
     }
 }
@@ -304,7 +306,7 @@ async function fetchAllData() {
             pageCoins.forEach(coin => loadKararPreview(coin.baseAsset));
         }, 500);
 
-        // BSC kontratları arka planda çek
+        // BSC + ETH kontratları arka planda çek
         fetchBscContracts(allCoinsData.map(c => c.baseAsset));
 
     } catch (error) {
@@ -471,20 +473,34 @@ function renderCoins() {
         const volumePercent = maxVolume > 0 ? (parseFloat(coin.volume) / maxVolume * 100) : 0;
         const cardVisualClass = isMissingData ? 'opacity-65 border-premium-red/25 saturate-75' : '';
 
-        // Explorer linkleri
-        const contract = bscContractCache[coin.baseAsset];
-        const bscHoldersUrl = contract
-            ? `https://bscscan.com/token/${contract}#balances`
-            : `https://bscscan.com/search?q=${coin.baseAsset}`;
-        const bscTransfersUrl = contract
-            ? `https://bscscan.com/token/${contract}#tokenTrade`
-            : `https://bscscan.com/search?q=${coin.baseAsset}`;
-        const ethUrl = `https://etherscan.io/search?q=${coin.baseAsset}`;
-        const geckoUrl = `https://www.coingecko.com/en/search?query=${coin.baseAsset}`;
+        // ── Explorer linkleri ──────────────────────────────────────
+        const bscContract = bscContractCache[coin.baseAsset];
+        const ethContract = ethContractCache[coin.baseAsset];
+        const coinId = coin.baseAsset.toLowerCase();
 
-        const holdersLabel = contract ? 'Holders' : 'BSC';
-        const holdersBorder = contract ? 'border-binance-yellow/40 text-binance-yellow hover:border-binance-yellow hover:text-binance-yellow' : 'border-binance-border text-binance-muted hover:border-binance-yellow hover:text-binance-yellow';
-        const txnsLabel = contract ? 'Txns' : 'Txns';
+        const bscHoldersUrl = bscContract
+            ? `https://bscscan.com/token/${bscContract}#balances`
+            : `https://bscscan.com/search?q=${coin.baseAsset}`;
+        const bscTransfersUrl = bscContract
+            ? `https://bscscan.com/token/${bscContract}#tokenTrade`
+            : `https://bscscan.com/search?q=${coin.baseAsset}`;
+        const ethUrl = ethContract
+            ? `https://etherscan.io/token/${ethContract}#balances`
+            : `https://etherscan.io/search?q=${coin.baseAsset}`;
+        const geckoUrl  = `https://www.coingecko.com/en/coins/${coinId}`;
+        const unlockUrl = `https://token.unlocks.app/search?q=${coinId}`;
+
+        // Renk & etiket: adres bulunduysa vurgulu, bulunmadıysa soluk
+        const holdersBorder = bscContract
+            ? 'border-binance-yellow/50 text-binance-yellow hover:bg-binance-yellow/10'
+            : 'border-binance-border text-binance-muted hover:border-binance-yellow hover:text-binance-yellow';
+        const holdersLabel  = bscContract ? '🐋 BSC' : 'BSC';
+
+        const ethBorder = ethContract
+            ? 'border-blue-400/50 text-blue-400 hover:bg-blue-400/10'
+            : 'border-binance-border text-binance-muted hover:border-blue-400 hover:text-blue-400';
+        const ethLabel  = ethContract ? '🔷 ETH' : 'ETH';
+        // ──────────────────────────────────────────────────────────
 
         return `
             <div class="group bg-binance-card border border-binance-border rounded-2xl p-5 transition-all duration-300 hover:border-binance-yellow/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:-translate-y-1 relative overflow-hidden ${cardVisualClass}" data-symbol="${coin.symbol}">
@@ -543,30 +559,36 @@ function renderCoins() {
                 <div id="karar-preview-${coin.baseAsset}" class="bg-binance-dark/50 rounded-xl p-3 mb-4 min-h-[60px] border border-binance-border/50"></div>
 
                 <!-- Explorer Linkleri -->
-                <div class="flex gap-1.5 mb-3">
+                <div class="grid grid-cols-5 gap-1 mb-3">
                     <a href="${bscHoldersUrl}" target="_blank"
-                       class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-bold bg-binance-dark border ${holdersBorder} transition-all uppercase tracking-wider"
-                       title="${contract ? 'BSCScan Holders: ' + contract : 'BSCScan Arama'}">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                       class="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[9px] font-bold bg-binance-dark border ${holdersBorder} transition-all uppercase tracking-wider"
+                       title="${bscContract ? 'BSCScan Holders: ' + bscContract : 'BSCScan Arama'}">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         ${holdersLabel}
                     </a>
                     <a href="${bscTransfersUrl}" target="_blank"
-                       class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-bold bg-binance-dark border border-binance-border text-binance-muted hover:border-[#e040fb] hover:text-[#e040fb] transition-all uppercase tracking-wider"
+                       class="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[9px] font-bold bg-binance-dark border border-binance-border text-binance-muted hover:border-[#e040fb] hover:text-[#e040fb] transition-all uppercase tracking-wider"
                        title="BSCScan Transferler">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                        ${txnsLabel}
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                        Txns
                     </a>
                     <a href="${ethUrl}" target="_blank"
-                       class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-bold bg-binance-dark border border-binance-border text-binance-muted hover:border-blue-400 hover:text-blue-400 transition-all uppercase tracking-wider"
-                       title="Etherscan">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                        ETH
+                       class="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[9px] font-bold bg-binance-dark border ${ethBorder} transition-all uppercase tracking-wider"
+                       title="${ethContract ? 'Etherscan Holders: ' + ethContract : 'Etherscan Arama'}">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        ${ethLabel}
                     </a>
                     <a href="${geckoUrl}" target="_blank"
-                       class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-[10px] font-bold bg-binance-dark border border-binance-border text-binance-muted hover:border-green-400 hover:text-green-400 transition-all uppercase tracking-wider"
-                       title="CoinGecko">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                       class="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[9px] font-bold bg-binance-dark border border-binance-border text-binance-muted hover:border-green-400 hover:text-green-400 transition-all uppercase tracking-wider"
+                       title="CoinGecko — Tokenomics & Unlock">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                         GKO
+                    </a>
+                    <a href="${unlockUrl}" target="_blank"
+                       class="flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[9px] font-bold bg-binance-dark border border-binance-border text-binance-muted hover:border-orange-400 hover:text-orange-400 transition-all uppercase tracking-wider"
+                       title="Token Unlock Takvimi">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Unlock
                     </a>
                 </div>
 
