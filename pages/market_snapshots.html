@@ -47,10 +47,10 @@
     .copy-btn.copied { background: #26a69a; border-color: #26a69a; color: #fff; }
 
     .charts-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr; gap: 1px;
-      background: #1e2130; height: calc(100vh - 120px);
-    }
+  display: grid; grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr; gap: 1px;
+  background: #1e2130; height: calc(100vh - 120px);
+}
     .chart-wrapper {
       background: #0f1117; padding: 16px; display: flex; flex-direction: column;
     }
@@ -68,8 +68,10 @@
     .loading.hidden { display: none; }
 
     @media (max-width: 768px) {
-      .charts-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, 300px); height: auto; }
-    }
+  .charts-grid { grid-template-columns: 1fr; 
+  grid-template-rows: repeat(5, 300px); 
+  height: auto; }
+}
   </style>
 </head>
 <body>
@@ -110,6 +112,12 @@
     <div class="chart-title">OI (USD) & BA Ratio</div>
     <div class="chart-container" id="oiChart"></div>
   </div>
+
+  <div class="chart-wrapper">
+  <div class="chart-title">RSI (1h / 4h / 1d)</div>
+  <div class="chart-container" id="rsiChart"></div>
+</div>
+
 </div>
 
 <script>
@@ -198,6 +206,17 @@ test()
       color: '#ab47bc', lineWidth: 2, title: 'BA Ratio',
       priceScaleId: 'right2'
     })
+
+
+    // RSI grafikleri
+charts.rsi = createChart('rsiChart')
+charts.rsi1hSeries = charts.rsi.addLineSeries({ color: '#2962ff', lineWidth: 2, title: 'RSI 1h' })
+charts.rsi4hSeries = charts.rsi.addLineSeries({ color: '#ff9800', lineWidth: 2, title: 'RSI 4h' })
+charts.rsi1dSeries = charts.rsi.addLineSeries({ color: '#ab47bc', lineWidth: 2, title: 'RSI 1d' })
+
+// Aşırı alım/satım çizgileri
+charts.rsiOverbought = charts.rsi.addLineSeries({ color: '#ef5350', lineWidth: 1, lineStyle: 2 })
+charts.rsiOversold = charts.rsi.addLineSeries({ color: '#26a69a', lineWidth: 1, lineStyle: 2 })
   }
 
   // --- Veri çek ---
@@ -256,7 +275,16 @@ test()
     const changeEl = document.getElementById('priceChange')
     changeEl.textContent = (changePct > 0 ? '+' : '') + changePct + '%'
     changeEl.className = 'price-change ' + (changePct >= 0 ? 'positive' : 'negative')
-  }
+  
+
+    charts.rsi1hSeries.setData(data.map(d => toSeries(d, 'rsi_1h')))
+charts.rsi4hSeries.setData(data.map(d => toSeries(d, 'rsi_4h')))
+charts.rsi1dSeries.setData(data.map(d => toSeries(d, 'rsi_1d')))
+charts.rsiOverbought.setData(data.map(d => ({ time: Math.floor(new Date(d.ts).getTime() / 1000), value: 70 })))
+charts.rsiOversold.setData(data.map(d => ({ time: Math.floor(new Date(d.ts).getTime() / 1000), value: 30 })))
+
+
+}
 
   // --- Veri kopyala ---
   function copyData() {
