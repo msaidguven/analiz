@@ -206,7 +206,7 @@ test()
 
     const { data, error } = await db
       .from('market_snapshots')
-      .select('ts, price, long_pct, short_pct, funding_rate, oi_usd, ba_ratio, cvd_1h, cvd_delta_1h, cvd_signal, cvd_divergence')
+      .select('ts, price, long_pct, short_pct, funding_rate, oi_usd, ba_ratio, cvd_1h, cvd_delta_1h, cvd_signal, cvd_divergence, rsi_1h, rsi_4h, rsi_1d')
       .eq('symbol', symbol)
       .gte('ts', from)
       .order('ts', { ascending: true })
@@ -266,7 +266,7 @@ test()
     const prompt = `Aşağıdaki ${symbol} futures verilerini analiz et. Pump sinyali var mı? Long/short oranı, funding rate ve OI değişimlerine göre değerlendir. Önemli anomaliler ve dikkat çeken pattern'ler varsa belirt.\n\n`
 
     const header = `${symbol} — Son ${label[currentHours]} Analiz Verisi\n${'='.repeat(80)}\n`
-    const cols = 'Zaman                | Fiyat        | Long%  | Short% | Funding%  | OI (USD)       | BA Ratio | CVD 1h        | CVD Delta 1h  | Signal                | Divergence'
+    const cols = 'Zaman                | Fiyat        | Long%  | Short% | Funding%  | OI (USD)       | BA Ratio | CVD 1h        | CVD Delta 1h  | Signal                | Divergence  | RSI 1h | RSI 4h | RSI 1d'
     const sep = '-'.repeat(80)
 
 const sampledData = currentData.filter((_, i) => i % 3 === 0)
@@ -282,8 +282,12 @@ const cvd1h = Math.round(parseFloat(d.cvd_1h || 0)).toLocaleString().padStart(13
 const cvdDelta = Math.round(parseFloat(d.cvd_delta_1h || 0)).toLocaleString().padStart(13)
 const signal = (d.cvd_signal || 'neutral').padEnd(21)
 const divergence = (d.cvd_divergence || 'none')
-return `${ts.padEnd(20)} | ${price} | ${long} | ${short} | ${funding} | ${oi} | ${ba} | ${cvd1h} | ${cvdDelta} | ${signal} | ${divergence}`
-    }).join('\n')
+   const rsi1h = parseFloat(d.rsi_1h || 0).toFixed(2).padStart(6)
+const rsi4h = parseFloat(d.rsi_4h || 0).toFixed(2).padStart(6)
+const rsi1d = parseFloat(d.rsi_1d || 0).toFixed(2).padStart(6)
+return `${ts.padEnd(20)} | ${price} | ${long} | ${short} | ${funding} | ${oi} | ${ba} | ${cvd1h} | ${cvdDelta} | ${signal} | ${divergence.padEnd(11)} | ${rsi1h} | ${rsi4h} | ${rsi1d}` 
+
+}).join('\n')
 
     const text = prompt + header + cols + '\n' + sep + '\n' + rows
 
