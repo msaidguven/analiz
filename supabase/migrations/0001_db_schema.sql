@@ -28,5 +28,47 @@ CREATE TABLE public.islemler (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   binance_order_id text,
   binance_durum text DEFAULT 'BEKLIYOR'::text,
+  tp_algo_id text,
+  sl_algo_id text,
   CONSTRAINT islemler_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.liquidations (
+  id bigint NOT NULL DEFAULT nextval('liquidations_id_seq'::regclass),
+  symbol text NOT NULL,
+  side text NOT NULL CHECK (side = ANY (ARRAY['LONG'::text, 'SHORT'::text])),
+  order_type text,
+  time_in_force text,
+  quantity numeric NOT NULL,
+  price numeric NOT NULL,
+  avg_price numeric,
+  status text,
+  usd_value numeric NOT NULL,
+  trade_time timestamp with time zone NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT liquidations_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.market_snapshots (
+  id bigint NOT NULL DEFAULT nextval('market_snapshots_id_seq'::regclass),
+  ts timestamp with time zone NOT NULL,
+  symbol text NOT NULL,
+  price numeric,
+  price_change_1h_pct numeric,
+  price_change_4h_pct numeric,
+  long_pct numeric,
+  short_pct numeric,
+  ls_ratio numeric,
+  top_trader_long_pct numeric,
+  top_trader_short_pct numeric,
+  top_trader_ls_ratio numeric,
+  funding_rate numeric,
+  oi_usd numeric,
+  volume_24h numeric,
+  volume_24h_change_pct numeric,
+  bid_total numeric,
+  ask_total numeric,
+  ba_ratio numeric,
+  vwap_bid numeric,
+  vwap_ask numeric,
+  mark_index_diff numeric,
+  CONSTRAINT market_snapshots_pkey PRIMARY KEY (id)
 );

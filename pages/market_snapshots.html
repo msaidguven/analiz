@@ -113,11 +113,28 @@
 </div>
 
 <script>
+
+
   // --- SUPABASE ---
   const SUPABASE_URL = 'https://hsdrpjgswsahtnmwobll.supabase.co'
   const SUPABASE_ANON_KEY = 'sb_publishable_HMNycDbCD-n3kdoJAk_nxw_00IWbKWb'
   const { createClient } = supabase
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+
+async function test() {
+  const { data, error } = await db
+    .from('market_snapshots')
+    .select('ts, price')
+    .eq('symbol', 'BTCUSDT')
+    .limit(5)
+  
+  console.log('data:', data)
+  console.log('error:', error)
+}
+test()
+
+
 
   // --- URL'den symbol al ---
   const params = new URLSearchParams(window.location.search)
