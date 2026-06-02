@@ -269,7 +269,8 @@ test()
     const cols = 'Zaman                | Fiyat        | Long%  | Short% | Funding%  | OI (USD)       | BA Ratio'
     const sep = '-'.repeat(80)
 
-    const rows = currentData.map(d => {
+const sampledData = currentData.filter((_, i) => i % 3 === 0)
+const rows = sampledData.map(d => {
       const ts = new Date(d.ts).toLocaleString('tr-TR')
       const price = parseFloat(d.price).toFixed(4).padStart(12)
       const long = parseFloat(d.long_pct).toFixed(2).padStart(6)
