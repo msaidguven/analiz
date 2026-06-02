@@ -206,7 +206,7 @@ test()
 
     const { data, error } = await db
       .from('market_snapshots')
-      .select('ts, price, long_pct, short_pct, funding_rate, oi_usd, ba_ratio')
+      .select('ts, price, long_pct, short_pct, funding_rate, oi_usd, ba_ratio, cvd_1h, cvd_delta_1h, cvd_signal, cvd_divergence')
       .eq('symbol', symbol)
       .gte('ts', from)
       .order('ts', { ascending: true })
