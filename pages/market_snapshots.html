@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detay</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0f1117; color: #e0e0e0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    
+    .header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 24px; border-bottom: 1px solid #1e2130;
+    }
+    .back-btn {
+      background: #1e2130; border: none; color: #888; 
+      padding: 8px 14px; border-radius: 8px; cursor: pointer;
+      font-size: 14px; text-decoration: none;
+    }
+    .back-btn:hover { background: #2a2f45; color: #fff; }
+    .symbol-name { font-size: 22px; font-weight: 700; color: #fff; }
+    .price-display { font-size: 20px; font-weight: 600; color: #26a69a; margin-left: auto; }
+    .price-change { font-size: 14px; margin-left: 10px; }
+    .positive { color: #26a69a; }
+    .negative { color: #ef5350; }
+
+    .toolbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 24px; border-bottom: 1px solid #1e2130;
+    }
+    .time-btn {
+      background: #1e2130; border: none; color: #888;
+      padding: 7px 16px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; transition: all 0.2s;
+    }
+    .time-btn:hover { background: #2a2f45; color: #fff; }
+    .time-btn.active { background: #2962ff; color: #fff; }
+    .copy-btn {
+      margin-left: auto; background: #1e2130; border: 1px solid #2962ff;
+      color: #2962ff; padding: 7px 18px; border-radius: 6px;
+      cursor: pointer; font-size: 13px; transition: all 0.2s;
+    }
+    .copy-btn:hover { background: #2962ff; color: #fff; }
+    .copy-btn.copied { background: #26a69a; border-color: #26a69a; color: #fff; }
+
+    .charts-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr; gap: 1px;
+      background: #1e2130; height: calc(100vh - 120px);
+    }
+    .chart-wrapper {
+      background: #0f1117; padding: 16px; display: flex; flex-direction: column;
+    }
+    .chart-title {
+      font-size: 12px; font-weight: 600; color: #888;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .chart-container { flex: 1; }
+
+    .loading {
+      position: fixed; inset: 0; background: #0f1117;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #888; z-index: 100;
+    }
+    .loading.hidden { display: none; }
+
+    @media (max-width: 768px) {
+      .charts-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, 300px); height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading" id="loading">Veri yükleniyor...</div>
+
+<div class="header">
+  <a href="javascript:history.back()" class="back-btn">← Geri</a>
+  <div class="symbol-name" id="symbolName">—</div>
+  <div class="price-display">
+    <span id="currentPrice">—</span>
+    <span class="price-change" id="priceChange"></span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="time-btn" data-hours="1">1 Saat</button>
+  <button class="time-btn active" data-hours="4">4 Saat</button>
+  <button class="time-btn" data-hours="24">1 Gün</button>
+  <button class="time-btn" data-hours="168">1 Hafta</button>
+  <button class="copy-btn" id="copyBtn">📋 Veriyi Kopyala</button>
+</div>
+
+<div class="charts-grid">
+  <div class="chart-wrapper">
+    <div class="chart-title">Fiyat</div>
+    <div class="chart-container" id="priceChart"></div>
+  </div>
+  <div class="chart-wrapper">
+    <div class="chart-title">Long / Short Oranı (%)</div>
+    <div class="chart-container" id="lsChart"></div>
+  </div>
+  <div class="chart-wrapper">
+    <div class="chart-title">Funding Rate (%)</div>
+    <div class="chart-container" id="fundingChart"></div>
+  </div>
+  <div class="chart-wrapper">
+    <div class="chart-title">OI (USD) & BA Ratio</div>
+    <div class="chart-container" id="oiChart"></div>
+  </div>
+</div>
+
+<script>
+  // --- SUPABASE ---
+  const SUPABASE_URL = 'https://hsdrpjgswsahtnmwobll.supabase.co'
+  const SUPABASE_ANON_KEY = 'sb_publishable_HMNycDbCD-n3kdoJAk_nxw_00IWbKWb'
+  const { createClient } = supabase
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  // --- URL'den symbol al ---
+  const params = new URLSearchParams(window.location.search)
+  const symbol = params.get('symbol') || 'BTCUSDT'
+  document.getElementById('symbolName').textContent = symbol
+  document.title = symbol + ' — Detay'
+
+  // --- State ---
+  let currentHours = 4
+  let currentData = []
+  let charts = {}
+
+  // --- Chart oluştur ---
+  function createChart(containerId, options = {}) {
+    const container = document.getElementById(containerId)
+    const chart = LightweightCharts.createChart(container, {
+      width: container.clientWidth,
+      height: container.clientHeight,
+      layout: { background: { color: '#0f1117' }, textColor: '#888' },
+      grid: { vertLines: { color: '#1e2130' }, horzLines: { color: '#1e2130' } },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      rightPriceScale: { borderColor: '#1e2130' },
+      timeScale: { borderColor: '#1e2130', timeVisible: true, secondsVisible: false },
+      ...options
+    })
+    window.addEventListener('resize', () => {
+      chart.applyOptions({
+        width: container.clientWidth,
+        height: container.clientHeight
+      })
+    })
+    return chart
+  }
+
+  // --- Grafikleri başlat ---
+  function initCharts() {
+    // Fiyat — mum grafik
+    charts.price = createChart('priceChart')
+    charts.priceSeries = charts.price.addCandlestickSeries({
+      upColor: '#26a69a', downColor: '#ef5350',
+      borderUpColor: '#26a69a', borderDownColor: '#ef5350',
+      wickUpColor: '#26a69a', wickDownColor: '#ef5350'
+    })
+
+    // Long/Short — iki çizgi
+    charts.ls = createChart('lsChart')
+    charts.longSeries = charts.ls.addLineSeries({ color: '#26a69a', lineWidth: 2, title: 'Long%' })
+    charts.shortSeries = charts.ls.addLineSeries({ color: '#ef5350', lineWidth: 2, title: 'Short%' })
+
+    // Funding Rate
+    charts.funding = createChart('fundingChart')
+    charts.fundingSeries = charts.funding.addLineSeries({ color: '#2962ff', lineWidth: 2 })
+    charts.fundingBaseline = charts.funding.addLineSeries({
+      color: '#444', lineWidth: 1, lineStyle: 2
+    })
+
+    // OI + BA Ratio
+    charts.oi = createChart('oiChart')
+    charts.oiSeries = charts.oi.addLineSeries({ color: '#ff9800', lineWidth: 2, title: 'OI' })
+    charts.baSeries = charts.oi.addLineSeries({
+      color: '#ab47bc', lineWidth: 2, title: 'BA Ratio',
+      priceScaleId: 'right2'
+    })
+  }
+
+  // --- Veri çek ---
+  async function fetchData(hours) {
+    const from = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+
+    const { data, error } = await db
+      .from('market_snapshots')
+      .select('ts, price, long_pct, short_pct, funding_rate, oi_usd, ba_ratio')
+      .eq('symbol', symbol)
+      .gte('ts', from)
+      .order('ts', { ascending: true })
+
+    if (error) { console.error(error); return [] }
+    return data || []
+  }
+
+  // --- Grafikleri güncelle ---
+  function updateCharts(data) {
+    if (!data.length) return
+
+    // Fiyat için mum oluştur (her kayıt bir mum)
+    const priceData = data.map(d => ({
+      time: Math.floor(new Date(d.ts).getTime() / 1000),
+      open: parseFloat(d.price),
+      high: parseFloat(d.price) * 1.001,
+      low: parseFloat(d.price) * 0.999,
+      close: parseFloat(d.price)
+    }))
+
+    const toSeries = (d, key) => ({
+      time: Math.floor(new Date(d.ts).getTime() / 1000),
+      value: parseFloat(d[key]) || 0
+    })
+
+    charts.priceSeries.setData(priceData)
+    charts.longSeries.setData(data.map(d => toSeries(d, 'long_pct')))
+    charts.shortSeries.setData(data.map(d => toSeries(d, 'short_pct')))
+    charts.fundingSeries.setData(data.map(d => toSeries(d, 'funding_rate')))
+    charts.fundingBaseline.setData(data.map(d => ({
+      time: Math.floor(new Date(d.ts).getTime() / 1000), value: 0
+    })))
+    charts.oiSeries.setData(data.map(d => toSeries(d, 'oi_usd')))
+    charts.baSeries.setData(data.map(d => toSeries(d, 'ba_ratio')))
+
+    // Header güncelle
+    const last = data[data.length - 1]
+    const first = data[0]
+    const lastPrice = parseFloat(last.price)
+    const firstPrice = parseFloat(first.price)
+    const changePct = ((lastPrice - firstPrice) / firstPrice * 100).toFixed(2)
+
+    document.getElementById('currentPrice').textContent = lastPrice.toLocaleString('tr-TR', {
+      minimumFractionDigits: 2, maximumFractionDigits: 6
+    })
+    const changeEl = document.getElementById('priceChange')
+    changeEl.textContent = (changePct > 0 ? '+' : '') + changePct + '%'
+    changeEl.className = 'price-change ' + (changePct >= 0 ? 'positive' : 'negative')
+  }
+
+  // --- Veri kopyala ---
+  function copyData() {
+    if (!currentData.length) return
+
+    const label = { 1: '1 Saat', 4: '4 Saat', 24: '1 Gün', 168: '1 Hafta' }
+    const prompt = `Aşağıdaki ${symbol} futures verilerini analiz et. Pump sinyali var mı? Long/short oranı, funding rate ve OI değişimlerine göre değerlendir. Önemli anomaliler ve dikkat çeken pattern'ler varsa belirt.\n\n`
+
+    const header = `${symbol} — Son ${label[currentHours]} Analiz Verisi\n${'='.repeat(80)}\n`
+    const cols = 'Zaman                | Fiyat        | Long%  | Short% | Funding%  | OI (USD)       | BA Ratio'
+    const sep = '-'.repeat(80)
+
+    const rows = currentData.map(d => {
+      const ts = new Date(d.ts).toLocaleString('tr-TR')
+      const price = parseFloat(d.price).toFixed(4).padStart(12)
+      const long = parseFloat(d.long_pct).toFixed(2).padStart(6)
+      const short = parseFloat(d.short_pct).toFixed(2).padStart(6)
+      const funding = parseFloat(d.funding_rate).toFixed(4).padStart(9)
+      const oi = Math.round(parseFloat(d.oi_usd)).toLocaleString().padStart(14)
+      const ba = parseFloat(d.ba_ratio).toFixed(3).padStart(8)
+      return `${ts.padEnd(20)} | ${price} | ${long} | ${short} | ${funding} | ${oi} | ${ba}`
+    }).join('\n')
+
+    const text = prompt + header + cols + '\n' + sep + '\n' + rows
+
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn')
+      btn.textContent = '✓ Kopyalandı'
+      btn.classList.add('copied')
+      setTimeout(() => {
+        btn.textContent = '📋 Veriyi Kopyala'
+        btn.classList.remove('copied')
+      }, 2000)
+    })
+  }
+
+  // --- Ana yükleme ---
+  async function load(hours) {
+    document.getElementById('loading').classList.remove('hidden')
+    currentHours = hours
+    currentData = await fetchData(hours)
+    updateCharts(currentData)
+    document.getElementById('loading').classList.add('hidden')
+  }
+
+  // --- Event listeners ---
+  document.querySelectorAll('.time-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      load(parseInt(btn.dataset.hours))
+    })
+  })
+
+  document.getElementById('copyBtn').addEventListener('click', copyData)
+
+  // --- Başlat ---
+  initCharts()
+  load(4)
+</script>
+</body>
+</html>
