@@ -266,7 +266,7 @@ test()
     const prompt = `Aşağıdaki ${symbol} futures verilerini analiz et. Pump sinyali var mı? Long/short oranı, funding rate ve OI değişimlerine göre değerlendir. Önemli anomaliler ve dikkat çeken pattern'ler varsa belirt.\n\n`
 
     const header = `${symbol} — Son ${label[currentHours]} Analiz Verisi\n${'='.repeat(80)}\n`
-    const cols = 'Zaman                | Fiyat        | Long%  | Short% | Funding%  | OI (USD)       | BA Ratio'
+    const cols = 'Zaman                | Fiyat        | Long%  | Short% | Funding%  | OI (USD)       | BA Ratio | CVD 1h        | CVD Delta 1h  | Signal                | Divergence'
     const sep = '-'.repeat(80)
 
 const sampledData = currentData.filter((_, i) => i % 3 === 0)
@@ -278,7 +278,11 @@ const rows = sampledData.map(d => {
       const funding = parseFloat(d.funding_rate).toFixed(4).padStart(9)
       const oi = Math.round(parseFloat(d.oi_usd)).toLocaleString().padStart(14)
       const ba = parseFloat(d.ba_ratio).toFixed(3).padStart(8)
-      return `${ts.padEnd(20)} | ${price} | ${long} | ${short} | ${funding} | ${oi} | ${ba}`
+const cvd1h = Math.round(parseFloat(d.cvd_1h || 0)).toLocaleString().padStart(13)
+const cvdDelta = Math.round(parseFloat(d.cvd_delta_1h || 0)).toLocaleString().padStart(13)
+const signal = (d.cvd_signal || 'neutral').padEnd(21)
+const divergence = (d.cvd_divergence || 'none')
+return `${ts.padEnd(20)} | ${price} | ${long} | ${short} | ${funding} | ${oi} | ${ba} | ${cvd1h} | ${cvdDelta} | ${signal} | ${divergence}`
     }).join('\n')
 
     const text = prompt + header + cols + '\n' + sep + '\n' + rows
