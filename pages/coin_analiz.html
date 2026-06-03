@@ -386,6 +386,7 @@
         d.ttAcc = ttA;
         d.ttPos = ttP;
         d.orderbookData = { bids: bidsAll, asks: asksAll };
+        d.marketSnapshots = snapshots;
         state.detailData = d;
         buildOutput(d, symbol);
         document.getElementById('copyBtn').disabled = false;

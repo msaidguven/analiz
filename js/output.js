@@ -51,6 +51,48 @@ function formatOrderbookRows(rows, side) {
   });
 }
 
+function formatMarketSnapshotRows(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return [];
+  return rows.slice(-12).map((row, idx) => {
+    const iso = row?.ts ? new Date(row.ts).toISOString() : '';
+    const parts = [
+      `ts:${iso}`,
+      `price:${row?.price ?? ''}`,
+      `price_change_1h_pct:${row?.price_change_1h_pct ?? ''}`,
+      `price_change_4h_pct:${row?.price_change_4h_pct ?? ''}`,
+      `long_pct:${row?.long_pct ?? ''}`,
+      `short_pct:${row?.short_pct ?? ''}`,
+      `ls_ratio:${row?.ls_ratio ?? ''}`,
+      `top_trader_ls_ratio:${row?.top_trader_ls_ratio ?? ''}`,
+      `funding_rate_pct:${row?.funding_rate ?? ''}`,
+      `oi_usd:${row?.oi_usd ?? ''}`,
+      `volume_24h:${row?.volume_24h ?? ''}`,
+      `volume_24h_change_pct:${row?.volume_24h_change_pct ?? ''}`,
+      `bid_total:${row?.bid_total ?? ''}`,
+      `ask_total:${row?.ask_total ?? ''}`,
+      `ba_ratio:${row?.ba_ratio ?? ''}`,
+      `vwap_bid:${row?.vwap_bid ?? ''}`,
+      `vwap_ask:${row?.vwap_ask ?? ''}`,
+      `mark_index_diff:${row?.mark_index_diff ?? ''}`
+    ];
+    return `market_snapshot_${idx + 1}=${parts.join('|')}`;
+  });
+}
+
+function calcSnapshotChangePct(first, last, key) {
+  const a = Number(first?.[key]);
+  const b = Number(last?.[key]);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === 0) return '';
+  return ((b - a) / a) * 100;
+}
+
+function calcSnapshotDelta(first, last, key) {
+  const a = Number(first?.[key]);
+  const b = Number(last?.[key]);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return '';
+  return b - a;
+}
+
 function fmtMoney(v) {
   const n = Number(v);
   if (!Number.isFinite(n)) return '—';
@@ -148,6 +190,26 @@ export function buildOutput(d, symbol) {
   if (d.high !== undefined) t += `high_24h=${d.high}\n`;
   if (d.low !== undefined) t += `low_24h=${d.low}\n`;
   if (d.volume !== undefined) t += `volume_24h=${d.volume}\n`;
+
+  const snapshotRows = d.marketSnapshots || state.detailData?.marketSnapshots || [];
+  if (Array.isArray(snapshotRows) && snapshotRows.length > 0) {
+    const firstSnapshot = snapshotRows[0];
+    const lastSnapshot = snapshotRows[snapshotRows.length - 1];
+    t += '\n[MARKET_SNAPSHOTS_24H]\n';
+    t += `snapshot_count=${snapshotRows.length}\n`;
+    t += `snapshot_first_ts=${firstSnapshot?.ts || ''}\n`;
+    t += `snapshot_last_ts=${lastSnapshot?.ts || ''}\n`;
+    t += `snapshot_price_change_period_pct=${calcSnapshotChangePct(firstSnapshot, lastSnapshot, 'price')}\n`;
+    t += `snapshot_oi_change_period_pct=${calcSnapshotChangePct(firstSnapshot, lastSnapshot, 'oi_usd')}\n`;
+    t += `snapshot_long_pct_delta=${calcSnapshotDelta(firstSnapshot, lastSnapshot, 'long_pct')}\n`;
+    t += `snapshot_short_pct_delta=${calcSnapshotDelta(firstSnapshot, lastSnapshot, 'short_pct')}\n`;
+    t += `snapshot_latest_ba_ratio=${lastSnapshot?.ba_ratio ?? ''}\n`;
+    t += `snapshot_latest_funding_rate_pct=${lastSnapshot?.funding_rate ?? ''}\n`;
+    t += 'snapshot_rows_note=last_12_rows_from_supabase_market_snapshots\n';
+    formatMarketSnapshotRows(snapshotRows).forEach((row) => {
+      t += `${row}\n`;
+    });
+  }
 
   t += '\n[DERIVATIVES]\n';
   if (d.oiUSD !== undefined) t += `open_interest_usd=${d.oiUSD}\n`;
