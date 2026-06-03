@@ -27,6 +27,17 @@
     .bar-fill { height:100%; border-radius:4px; }
     .sr-row { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:.5px solid #eee; font-size:12px; }
     .sr-row:last-child { border:none; }
+    .snapshot-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .snapshot-title { font-size:14px; font-weight:700; }
+    .snapshot-time { font-size:11px; color:#777; text-align:right; }
+    .snapshot-table-wrap { overflow-x:auto; border:1px solid #ecece8; border-radius:8px; }
+    .snapshot-table { width:100%; min-width:760px; border-collapse:collapse; font-size:12px; }
+    .snapshot-table th { background:#f5f5f1; color:#777; font-size:10px; letter-spacing:.06em; text-transform:uppercase; text-align:right; padding:9px 10px; border-bottom:1px solid #e5e5df; white-space:nowrap; }
+    .snapshot-table th:first-child,
+    .snapshot-table td:first-child { text-align:left; }
+    .snapshot-table td { padding:8px 10px; text-align:right; border-bottom:1px solid #f0f0ec; white-space:nowrap; }
+    .snapshot-table tr:last-child td { border-bottom:none; }
+    .snapshot-table tbody tr:hover { background:#fafaf8; }
     .warn-box { margin-top: 1rem; padding: 14px 18px; border-radius: 12px; border: 1.5px solid #F5C842; background: #FAEEDA; }
     .alert-box { margin-top: 1rem; padding: 14px 18px; border-radius: 12px; border: 1.5px solid #F0997B; background: #FAECE7; }
     .top-nav { display:flex; gap:10px; margin-bottom: 14px; }
@@ -107,9 +118,167 @@
       return '$' + n.toFixed(2);
     };
 
+    const fmtPct = (v, digits = 2) => {
+      const n = Number(v); if (!Number.isFinite(n)) return '—';
+      return (n >= 0 ? '+' : '') + n.toFixed(digits) + '%';
+    };
+    const fmtPlainPct = (v, digits = 2) => {
+      const n = Number(v); if (!Number.isFinite(n)) return '—';
+      return n.toFixed(digits) + '%';
+    };
+    const fmtNumber = (v, digits = 2) => {
+      const n = Number(v); if (!Number.isFinite(n)) return '—';
+      return n.toLocaleString('tr-TR', { maximumFractionDigits: digits });
+    };
+    const deltaClass = (v, inverse = false) => {
+      const n = Number(v);
+      if (!Number.isFinite(n) || n === 0) return 'neutral';
+      const positive = inverse ? n < 0 : n > 0;
+      return positive ? 'up' : 'down';
+    };
+    const calcChangePct = (first, last) => {
+      const a = Number(first);
+      const b = Number(last);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || a === 0) return null;
+      return ((b - a) / a) * 100;
+    };
+    const SUPABASE_URL = 'https://hsdrpjgswsahtnmwobll.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_HMNycDbCD-n3kdoJAk_nxw_00IWbKWb';
+
+    async function fetchMarketSnapshots(symbol, hours = 24) {
+      const from = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+      const fields = [
+        'ts', 'price', 'price_change_1h_pct', 'price_change_4h_pct',
+        'long_pct', 'short_pct', 'ls_ratio',
+        'top_trader_long_pct', 'top_trader_short_pct', 'top_trader_ls_ratio',
+        'funding_rate', 'oi_usd', 'volume_24h', 'volume_24h_change_pct',
+        'bid_total', 'ask_total', 'ba_ratio', 'vwap_bid', 'vwap_ask', 'mark_index_diff'
+      ].join(',');
+      const url = `${SUPABASE_URL}/rest/v1/market_snapshots?symbol=eq.${encodeURIComponent(symbol)}&ts=gte.${encodeURIComponent(from)}&select=${fields}&order=ts.asc`;
+      const res = await fetch(url, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      });
+      if (!res.ok) throw new Error(`Snapshot verisi alınamadı (${res.status})`);
+      return res.json();
+    }
+
+    function snapshotAtOrBefore(rows, msAgo) {
+      const target = Date.now() - msAgo;
+      let picked = null;
+      for (const row of rows) {
+        const ts = new Date(row.ts).getTime();
+        if (Number.isFinite(ts) && ts <= target) picked = row;
+      }
+      return picked || rows[0] || null;
+    }
+
+    function renderSnapshotSection(rows) {
+      if (!Array.isArray(rows) || !rows.length) {
+        return `
+          <div class="section-label">Market Snapshot Geçmişi</div>
+          <div class="signal-card">
+            <div class="snapshot-head">
+              <div>
+                <div class="snapshot-title">Supabase geçmiş verisi</div>
+                <div class="sub">Bu sembol için son 24 saatte kayıtlı snapshot bulunamadı.</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const last = rows[rows.length - 1];
+      const oneHour = snapshotAtOrBefore(rows, 60 * 60 * 1000);
+      const fourHour = snapshotAtOrBefore(rows, 4 * 60 * 60 * 1000);
+      const first = rows[0];
+      const price1h = calcChangePct(oneHour?.price, last.price);
+      const price4h = calcChangePct(fourHour?.price, last.price);
+      const oi24h = calcChangePct(first?.oi_usd, last.oi_usd);
+      const longDelta = Number(last.long_pct) - Number(first?.long_pct);
+      const ba = Number(last.ba_ratio);
+      const pressure = Number.isFinite(ba)
+        ? (ba > 1.08 ? 'Bid baskısı güçlü' : (ba < 0.92 ? 'Ask baskısı güçlü' : 'Dengeye yakın'))
+        : 'Baskı ölçülemedi';
+      const sampled = rows.slice(-8).reverse();
+
+      return `
+        <div class="section-label">Market Snapshot Geçmişi</div>
+        <div class="signal-card">
+          <div class="snapshot-head">
+            <div>
+              <div class="snapshot-title">Son 24 saat kayıtlı piyasa verisi</div>
+              <div class="sub">${rows.length} snapshot · ${pressure}</div>
+            </div>
+            <div class="snapshot-time">Son kayıt<br><b>${new Date(last.ts).toLocaleString('tr-TR')}</b></div>
+          </div>
+
+          <div class="grid4" style="margin-bottom:10px;">
+            <div class="mcard">
+              <div class="lbl">Fiyat 1s / 4s</div>
+              <div class="val"><span class="${deltaClass(price1h)}">${fmtPct(price1h)}</span></div>
+              <div class="sub">4s: <b class="${deltaClass(price4h)}">${fmtPct(price4h)}</b></div>
+            </div>
+            <div class="mcard">
+              <div class="lbl">OI Değişim</div>
+              <div class="val ${deltaClass(oi24h)}">${fmtPct(oi24h)}</div>
+              <div class="sub">Son OI: <b>${fmtCompact(last.oi_usd)}</b></div>
+            </div>
+            <div class="mcard">
+              <div class="lbl">Long / Short</div>
+              <div class="val">${fmtPlainPct(last.long_pct, 1)} / ${fmtPlainPct(last.short_pct, 1)}</div>
+              <div class="sub">Long farkı: <b class="${deltaClass(longDelta)}">${fmtPct(longDelta, 1)}</b></div>
+            </div>
+            <div class="mcard">
+              <div class="lbl">BA Ratio / Funding</div>
+              <div class="val">${fmtNumber(last.ba_ratio, 3)}</div>
+              <div class="sub">Funding: <b class="${deltaClass(Number(last.funding_rate), true)}">${fmtPlainPct(last.funding_rate, 4)}</b></div>
+            </div>
+          </div>
+
+          <div class="snapshot-table-wrap">
+            <table class="snapshot-table">
+              <thead>
+                <tr>
+                  <th>Zaman</th>
+                  <th>Fiyat</th>
+                  <th>1s</th>
+                  <th>4s</th>
+                  <th>Long</th>
+                  <th>Short</th>
+                  <th>Funding</th>
+                  <th>OI</th>
+                  <th>BA</th>
+                  <th>Hacim 24s</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sampled.map(row => `
+                  <tr>
+                    <td>${new Date(row.ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td>${fmtMoney(row.price)}</td>
+                    <td class="${deltaClass(row.price_change_1h_pct)}">${fmtPct(row.price_change_1h_pct)}</td>
+                    <td class="${deltaClass(row.price_change_4h_pct)}">${fmtPct(row.price_change_4h_pct)}</td>
+                    <td class="up">${fmtPlainPct(row.long_pct, 1)}</td>
+                    <td class="down">${fmtPlainPct(row.short_pct, 1)}</td>
+                    <td class="${deltaClass(Number(row.funding_rate), true)}">${fmtPlainPct(row.funding_rate, 4)}</td>
+                    <td>${fmtCompact(row.oi_usd)}</td>
+                    <td>${fmtNumber(row.ba_ratio, 3)}</td>
+                    <td>${fmtCompact(row.volume_24h)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
     async function load() {
       try {
-        const [ticker, funding, oi, ls, ttAcc, ttPos, srKlines, ob] = await Promise.all([
+        const [ticker, funding, oi, ls, ttAcc, ttPos, srKlines, ob, snapshots] = await Promise.all([
           fetch(`https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=${symbol}`).then(r => r.json()),
           fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol}`).then(r => r.json()),
           fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}`).then(r => r.json()),
@@ -117,7 +286,8 @@
           fetch(`https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol=${symbol}&period=5m&limit=1`).then(r => r.json()),
           fetch(`https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=${symbol}&period=5m&limit=1`).then(r => r.json()),
           fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=4h&limit=240`).then(r => r.json()),
-          fetch(`https://fapi.binance.com/fapi/v1/depth?symbol=${symbol}&limit=100`).then(r => r.json())
+          fetch(`https://fapi.binance.com/fapi/v1/depth?symbol=${symbol}&limit=100`).then(r => r.json()),
+          fetchMarketSnapshots(symbol).catch(() => [])
         ]);
 
         const d = {
@@ -180,6 +350,8 @@
             <div class="mcard"><div class="lbl">Fonlama Oranı</div><div class="val ${d.funding < 0 ? 'up' : (d.funding > 0.03 ? 'down' : 'neutral')}">${d.funding.toFixed(4)}%</div></div>
             <div class="mcard"><div class="lbl">Açık Kontrat</div><div class="val">${d.oiContracts.toLocaleString('tr-TR')}</div></div>
           </div>
+
+          ${renderSnapshotSection(snapshots)}
 
           <div class="section-label">Order Book Derinliği — Anlık Görüntü</div>
           <div class="signal-card">
