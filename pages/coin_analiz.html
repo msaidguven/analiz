@@ -147,14 +147,7 @@
 
     async function fetchMarketSnapshots(symbol, hours = 24) {
       const from = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-      const fields = [
-        'ts', 'price', 'price_change_1h_pct', 'price_change_4h_pct',
-        'long_pct', 'short_pct', 'ls_ratio',
-        'top_trader_long_pct', 'top_trader_short_pct', 'top_trader_ls_ratio',
-        'funding_rate', 'oi_usd', 'volume_24h', 'volume_24h_change_pct',
-        'bid_total', 'ask_total', 'ba_ratio', 'vwap_bid', 'vwap_ask', 'mark_index_diff'
-      ].join(',');
-      const url = `${SUPABASE_URL}/rest/v1/market_snapshots?symbol=eq.${encodeURIComponent(symbol)}&ts=gte.${encodeURIComponent(from)}&select=${fields}&order=ts.asc`;
+      const url = `${SUPABASE_URL}/rest/v1/market_snapshots?symbol=eq.${encodeURIComponent(symbol)}&ts=gte.${encodeURIComponent(from)}&select=*&order=ts.asc`;
       const res = await fetch(url, {
         headers: {
           apikey: SUPABASE_ANON_KEY,
@@ -251,6 +244,11 @@
                   <th>Funding</th>
                   <th>OI</th>
                   <th>BA</th>
+                  <th>Top L/S</th>
+                  <th>CVD Signal</th>
+                  <th>RSI 1h</th>
+                  <th>RSI 4h</th>
+                  <th>RSI 1d</th>
                   <th>Hacim 24s</th>
                 </tr>
               </thead>
@@ -266,6 +264,11 @@
                     <td class="${deltaClass(Number(row.funding_rate), true)}">${fmtPlainPct(row.funding_rate, 4)}</td>
                     <td>${fmtCompact(row.oi_usd)}</td>
                     <td>${fmtNumber(row.ba_ratio, 3)}</td>
+                    <td>${fmtNumber(row.top_trader_ls_ratio, 3)}</td>
+                    <td>${row.cvd_signal || '—'}${row.cvd_divergence ? ' / ' + row.cvd_divergence : ''}</td>
+                    <td>${fmtNumber(row.rsi_1h, 2)}</td>
+                    <td>${fmtNumber(row.rsi_4h, 2)}</td>
+                    <td>${fmtNumber(row.rsi_1d, 2)}</td>
                     <td>${fmtCompact(row.volume_24h)}</td>
                   </tr>
                 `).join('')}
