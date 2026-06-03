@@ -145,7 +145,7 @@
     const SUPABASE_URL = 'https://hsdrpjgswsahtnmwobll.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_HMNycDbCD-n3kdoJAk_nxw_00IWbKWb';
 
-    async function fetchMarketSnapshots(symbol, hours = 24) {
+    async function fetchMarketSnapshots(symbol, hours = 72) {
       const from = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
       const url = `${SUPABASE_URL}/rest/v1/market_snapshots?symbol=eq.${encodeURIComponent(symbol)}&ts=gte.${encodeURIComponent(from)}&select=*&order=ts.asc`;
       const res = await fetch(url, {
@@ -176,7 +176,7 @@
             <div class="snapshot-head">
               <div>
                 <div class="snapshot-title">Supabase geçmiş verisi</div>
-                <div class="sub">Bu sembol için son 24 saatte kayıtlı snapshot bulunamadı.</div>
+                <div class="sub">Bu sembol için son 72 saatte kayıtlı snapshot bulunamadı.</div>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@
         <div class="signal-card">
           <div class="snapshot-head">
             <div>
-              <div class="snapshot-title">Son 24 saat kayıtlı piyasa verisi</div>
+              <div class="snapshot-title">Son 72 saat kayıtlı piyasa verisi</div>
               <div class="sub">${rows.length} snapshot · ${pressure}</div>
             </div>
             <div class="snapshot-time">Son kayıt<br><b>${new Date(last.ts).toLocaleString('tr-TR')}</b></div>
@@ -244,8 +244,16 @@
                   <th>Funding</th>
                   <th>OI</th>
                   <th>BA</th>
+                  <th>Top Long</th>
+                  <th>Top Short</th>
                   <th>Top L/S</th>
                   <th>CVD Signal</th>
+                  <th>CVD 5m</th>
+                  <th>Delta 5m</th>
+                  <th>CVD 15m</th>
+                  <th>Delta 15m</th>
+                  <th>CVD 1h</th>
+                  <th>Delta 1h</th>
                   <th>RSI 1h</th>
                   <th>RSI 4h</th>
                   <th>RSI 1d</th>
@@ -264,8 +272,16 @@
                     <td class="${deltaClass(Number(row.funding_rate), true)}">${fmtPlainPct(row.funding_rate, 4)}</td>
                     <td>${fmtCompact(row.oi_usd)}</td>
                     <td>${fmtNumber(row.ba_ratio, 3)}</td>
+                    <td class="up">${fmtPlainPct(row.top_trader_long_pct, 1)}</td>
+                    <td class="down">${fmtPlainPct(row.top_trader_short_pct, 1)}</td>
                     <td>${fmtNumber(row.top_trader_ls_ratio, 3)}</td>
                     <td>${row.cvd_signal || '—'}${row.cvd_divergence ? ' / ' + row.cvd_divergence : ''}</td>
+                    <td>${fmtNumber(row.cvd_5m, 2)}</td>
+                    <td class="${deltaClass(row.cvd_delta_5m)}">${fmtNumber(row.cvd_delta_5m, 2)}</td>
+                    <td>${fmtNumber(row.cvd_15m, 2)}</td>
+                    <td class="${deltaClass(row.cvd_delta_15m)}">${fmtNumber(row.cvd_delta_15m, 2)}</td>
+                    <td>${fmtNumber(row.cvd_1h, 2)}</td>
+                    <td class="${deltaClass(row.cvd_delta_1h)}">${fmtNumber(row.cvd_delta_1h, 2)}</td>
                     <td>${fmtNumber(row.rsi_1h, 2)}</td>
                     <td>${fmtNumber(row.rsi_4h, 2)}</td>
                     <td>${fmtNumber(row.rsi_1d, 2)}</td>

@@ -205,7 +205,7 @@ export function buildOutput(d, symbol) {
   if (Array.isArray(snapshotRows) && snapshotRows.length > 0) {
     const firstSnapshot = snapshotRows[0];
     const lastSnapshot = snapshotRows[snapshotRows.length - 1];
-    t += '\n[MARKET_SNAPSHOTS_24H]\n';
+    t += '\n[MARKET_SNAPSHOTS_72H]\n';
     t += `snapshot_count=${snapshotRows.length}\n`;
     t += `snapshot_first_ts=${firstSnapshot?.ts || ''}\n`;
     t += `snapshot_last_ts=${lastSnapshot?.ts || ''}\n`;
@@ -222,7 +222,7 @@ export function buildOutput(d, symbol) {
     t += `snapshot_latest_rsi_1d=${lastSnapshot?.rsi_1d ?? ''}\n`;
     const snapshotColumns = getMarketSnapshotColumns(snapshotRows);
     t += `snapshot_columns=${snapshotColumns.join(',')}\n`;
-    t += 'snapshot_rows_note=all_rows_from_supabase_market_snapshots_select_star\n';
+    t += 'snapshot_rows_note=all_rows_from_last_72h_supabase_market_snapshots_select_star\n';
     formatMarketSnapshotRows(snapshotRows, snapshotColumns).forEach((row) => {
       t += `${row}\n`;
     });
