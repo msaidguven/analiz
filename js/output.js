@@ -1,5 +1,163 @@
 import { state } from './state.js';
 
+// ==================== EKLENECEK YENİ FONKSİYONLAR ====================
+
+/**
+ * 5 dakikalık snapshot'ları saatlik dilimlere dönüştürür.
+ * Her saatlik dilim için OHLC fiyat, son değerler, ortalamalar, toplam deltalar ve mod sinyal hesaplar.
+ */
+function aggregateSnapshotsToHourly(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return [];
+
+  const hourly = new Map();
+
+  rows.forEach((row) => {
+    const ts = new Date(row.ts);
+    if (Number.isNaN(ts.getTime())) return;
+    ts.setMinutes(0, 0, 0); // Saat başına yuvarla
+    const key = ts.toISOString();
+
+    if (!hourly.has(key)) {
+      hourly.set(key, {
+        ts: key,
+        prices: [],
+        long_pcts: [],
+        short_pcts: [],
+        funding_rates: [],
+        oi_usds: [],
+        ba_ratios: [],
+        vwap_bids: [],
+        vwap_asks: [],
+        mark_index_diffs: [],
+        rsi_15ms: [],
+        rsi_1hs: [],
+        rsi_4hs: [],
+        rsi_1ds: [],
+        rsi_1ws: [],
+        cvd_delta_5m_sum: 0,
+        cvd_delta_15m_sum: 0,
+        cvd_delta_1h_sum: 0,
+        cvd_signals: [],
+        cvd_divergences: [],
+        volume_24hs: [],
+      });
+    }
+
+    const bucket = hourly.get(key);
+    const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };
+
+    const price = num(row.price);
+    if (price !== null) bucket.prices.push(price);
+
+    const pushIfNum = (arr, val) => { const n = num(val); if (n !== null) arr.push(n); };
+    pushIfNum(bucket.long_pcts, row.long_pct);
+    pushIfNum(bucket.short_pcts, row.short_pct);
+    pushIfNum(bucket.funding_rates, row.funding_rate);
+    pushIfNum(bucket.oi_usds, row.oi_usd);
+    pushIfNum(bucket.ba_ratios, row.ba_ratio);
+    pushIfNum(bucket.vwap_bids, row.vwap_bid);
+    pushIfNum(bucket.vwap_asks, row.vwap_ask);
+    pushIfNum(bucket.mark_index_diffs, row.mark_index_diff);
+    pushIfNum(bucket.rsi_15ms, row.rsi_15m);
+    pushIfNum(bucket.rsi_1hs, row.rsi_1h);
+    pushIfNum(bucket.rsi_4hs, row.rsi_4h);
+    pushIfNum(bucket.rsi_1ds, row.rsi_1d);
+    pushIfNum(bucket.rsi_1ws, row.rsi_1w);
+    pushIfNum(bucket.volume_24hs, row.volume_24h);
+
+    const cvd5m = num(row.cvd_delta_5m);
+    if (cvd5m !== null) bucket.cvd_delta_5m_sum += cvd5m;
+    const cvd15m = num(row.cvd_delta_15m);
+    if (cvd15m !== null) bucket.cvd_delta_15m_sum += cvd15m;
+    const cvd1h = num(row.cvd_delta_1h);
+    if (cvd1h !== null) bucket.cvd_delta_1h_sum += cvd1h;
+
+    if (row.cvd_signal) bucket.cvd_signals.push(row.cvd_signal);
+    if (row.cvd_divergence) bucket.cvd_divergences.push(row.cvd_divergence);
+  });
+
+  const avg = (arr) => {
+    const valid = arr.filter((v) => Number.isFinite(v));
+    return valid.length > 0 ? valid.reduce((s, v) => s + v, 0) / valid.length : null;
+  };
+
+  const mode = (arr) => {
+    if (arr.length === 0) return null;
+    const counts = {};
+    let max = 0, maxVal = arr[0];
+    arr.forEach((v) => {
+      counts[v] = (counts[v] || 0) + 1;
+      if (counts[v] > max) { max = counts[v]; maxVal = v; }
+    });
+    return maxVal;
+  };
+
+  const last = (arr) => arr.length > 0 ? arr[arr.length - 1] : null;
+
+  return Array.from(hourly.values())
+    .sort((a, b) => a.ts.localeCompare(b.ts))
+    .map((bucket) => {
+      const prices = bucket.prices.filter((p) => Number.isFinite(p));
+      return {
+        ts: bucket.ts,
+        price_open: prices.length > 0 ? prices[0] : null,
+        price_high: prices.length > 0 ? Math.max(...prices) : null,
+        price_low: prices.length > 0 ? Math.min(...prices) : null,
+        price_close: prices.length > 0 ? prices[prices.length - 1] : null,
+        price_avg: avg(prices),
+        long_pct: last(bucket.long_pcts),
+        short_pct: last(bucket.short_pcts),
+        funding_rate: last(bucket.funding_rates),
+        oi_usd: last(bucket.oi_usds),
+        ba_ratio: avg(bucket.ba_ratios),
+        vwap_bid: avg(bucket.vwap_bids),
+        vwap_ask: avg(bucket.vwap_asks),
+        mark_index_diff: avg(bucket.mark_index_diffs),
+        rsi_15m: avg(bucket.rsi_15ms),
+        rsi_1h: avg(bucket.rsi_1hs),
+        rsi_4h: avg(bucket.rsi_4hs),
+        rsi_1d: avg(bucket.rsi_1ds),
+        rsi_1w: avg(bucket.rsi_1ws),
+        cvd_delta_5m: bucket.cvd_delta_5m_sum,
+        cvd_delta_15m: bucket.cvd_delta_15m_sum,
+        cvd_delta_1h: bucket.cvd_delta_1h_sum,
+        cvd_signal: mode(bucket.cvd_signals),
+        cvd_divergence: mode(bucket.cvd_divergences),
+        volume_24h: last(bucket.volume_24hs),
+        sample_count: prices.length,
+      };
+    });
+}
+
+/**
+ * Saatlik snapshot'lar için özet kolonları döndürür.
+ */
+function getHourlySnapshotColumns() {
+  return [
+    'ts', 'price_open', 'price_high', 'price_low', 'price_close', 'price_avg',
+    'long_pct', 'short_pct', 'funding_rate', 'oi_usd', 'volume_24h',
+    'ba_ratio', 'vwap_bid', 'vwap_ask', 'mark_index_diff',
+    'cvd_signal', 'cvd_divergence',
+    'cvd_delta_5m', 'cvd_delta_15m', 'cvd_delta_1h',
+    'rsi_15m', 'rsi_1h', 'rsi_4h', 'rsi_1d', 'rsi_1w',
+    'sample_count'
+  ];
+}
+
+
+/**
+ * Saatlik snapshot satırlarını formatlar.
+ */
+function formatHourlySnapshotRows(rows, columns = getHourlySnapshotColumns()) {
+  if (!Array.isArray(rows) || rows.length === 0) return [];
+  return rows.map((row, idx) => {
+    const parts = columns.map((key) => `${key}:${normalizeSnapshotValue(key, row?.[key])}`);
+    return `hourly_snapshot_${idx + 1}=${parts.join('|')}`;
+  });
+}
+// ==================== GÜNCELLENECEK FONKSİYONLAR ====================
+
+
 function appendFlatObjectLines(text, obj, prefix = '') {
   if (!obj || typeof obj !== 'object') return text;
   const entries = Object.entries(obj);
@@ -271,8 +429,8 @@ function renderCoinAnalysisPage(d, symbol) {
     <div class="section-label">Order Book Derinliği — Anlık</div>
     <div class="signal-card">
       <div class="grid2">
-        <div><div class="lbl up">BID</div>${bids.slice(0,3).map((b) => `<div class="sr-row"><span class="up">${fmtMoney(b.price)}</span><span>${Number(b.qty || 0).toLocaleString('tr-TR')}</span></div>`).join('') || '<div class="sub">Veri yok</div>'}</div>
-        <div><div class="lbl down">ASK</div>${asks.slice(0,3).map((a) => `<div class="sr-row"><span class="down">${fmtMoney(a.price)}</span><span>${Number(a.qty || 0).toLocaleString('tr-TR')}</span></div>`).join('') || '<div class="sub">Veri yok</div>'}</div>
+        <div><div class="lbl up">BID</div>${bids.slice(0, 3).map((b) => `<div class="sr-row"><span class="up">${fmtMoney(b.price)}</span><span>${Number(b.qty || 0).toLocaleString('tr-TR')}</span></div>`).join('') || '<div class="sub">Veri yok</div>'}</div>
+        <div><div class="lbl down">ASK</div>${asks.slice(0, 3).map((a) => `<div class="sr-row"><span class="down">${fmtMoney(a.price)}</span><span>${Number(a.qty || 0).toLocaleString('tr-TR')}</span></div>`).join('') || '<div class="sub">Veri yok</div>'}</div>
       </div>
     </div>
 
@@ -285,8 +443,8 @@ function renderCoinAnalysisPage(d, symbol) {
 
     <div class="section-label">Destek ve Direnç</div>
     <div class="signal-card">
-      ${(resistances.slice(0,2).map((r, i) => `<div class="sr-row"><span class="down">D${i + 1} ${fmtMoney(r.price)}</span><span>${r.touches || 0} temas</span></div>`).join('')) || '<div class="sub">Direnç verisi yok</div>'}
-      ${(supports.slice(0,2).map((s, i) => `<div class="sr-row"><span class="up">S${i + 1} ${fmtMoney(s.price)}</span><span>${s.touches || 0} temas</span></div>`).join('')) || '<div class="sub">Destek verisi yok</div>'}
+      ${(resistances.slice(0, 2).map((r, i) => `<div class="sr-row"><span class="down">D${i + 1} ${fmtMoney(r.price)}</span><span>${r.touches || 0} temas</span></div>`).join('')) || '<div class="sub">Direnç verisi yok</div>'}
+      ${(supports.slice(0, 2).map((s, i) => `<div class="sr-row"><span class="up">S${i + 1} ${fmtMoney(s.price)}</span><span>${s.touches || 0} temas</span></div>`).join('')) || '<div class="sub">Destek verisi yok</div>'}
     </div>
   `;
 }
@@ -305,32 +463,59 @@ export function buildOutput(d, symbol) {
   if (d.low !== undefined) t += `low_24h=${d.low}\n`;
   if (d.volume !== undefined) t += `volume_24h=${d.volume}\n`;
 
+  // ==================== YENİ: MARKET_SNAPSHOTS_72H (SAATLİK) ====================
   const snapshotRows = d.marketSnapshots || state.detailData?.marketSnapshots || [];
   if (Array.isArray(snapshotRows) && snapshotRows.length > 0) {
-    const firstSnapshot = snapshotRows[0];
-    const lastSnapshot = snapshotRows[snapshotRows.length - 1];
+    const hourlyRows = aggregateSnapshotsToHourly(snapshotRows);
+
+    // Son 72 saatlik pencereyi al
+    const last72Hours = hourlyRows.slice(-72);
+
+    const firstHourly = last72Hours.length > 0 ? last72Hours[0] : null;
+    const lastHourly = last72Hours.length > 0 ? last72Hours[last72Hours.length - 1] : null;
+
     t += '\n[MARKET_SNAPSHOTS_72H]\n';
-    t += `snapshot_count=${snapshotRows.length}\n`;
-    t += `snapshot_first_ts=${firstSnapshot?.ts || ''}\n`;
-    t += `snapshot_last_ts=${lastSnapshot?.ts || ''}\n`;
-    t += `snapshot_price_change_period_pct=${calcSnapshotChangePct(firstSnapshot, lastSnapshot, 'price')}\n`;
-    t += `snapshot_oi_change_period_pct=${calcSnapshotChangePct(firstSnapshot, lastSnapshot, 'oi_usd')}\n`;
-    t += `snapshot_long_pct_delta=${calcSnapshotDelta(firstSnapshot, lastSnapshot, 'long_pct')}\n`;
-    t += `snapshot_short_pct_delta=${calcSnapshotDelta(firstSnapshot, lastSnapshot, 'short_pct')}\n`;
-    t += `snapshot_latest_ba_ratio=${lastSnapshot?.ba_ratio ?? ''}\n`;
-    t += `snapshot_latest_funding_rate_pct=${lastSnapshot?.funding_rate ?? ''}\n`;
-    t += `snapshot_latest_cvd_signal=${lastSnapshot?.cvd_signal ?? ''}\n`;
-    t += `snapshot_latest_cvd_divergence=${lastSnapshot?.cvd_divergence ?? ''}\n`;
-    t += `snapshot_latest_rsi_1h=${lastSnapshot?.rsi_1h ?? ''}\n`;
-    t += `snapshot_latest_rsi_4h=${lastSnapshot?.rsi_4h ?? ''}\n`;
-    t += `snapshot_latest_rsi_1d=${lastSnapshot?.rsi_1d ?? ''}\n`;
-    const snapshotColumns = getMarketSnapshotSummaryColumns(snapshotRows);
-    const compactRows = snapshotRows.slice(-8);
-    t += `snapshot_columns=${snapshotColumns.join(',')}\n`;
-    t += `snapshot_rows_note=summary_only_last_${compactRows.length}_rows_core_columns_raw_select_star_omitted\n`;
-    formatMarketSnapshotRows(compactRows, snapshotColumns).forEach((row) => {
+    t += `snapshot_source=5m_raw_aggregated_to_1h\n`;
+    t += `snapshot_total_raw_count=${snapshotRows.length}\n`;
+    t += `snapshot_total_hourly_count=${hourlyRows.length}\n`;
+    t += `snapshot_display_count=${last72Hours.length}\n`;
+    t += `snapshot_first_ts=${firstHourly?.ts || ''}\n`;
+    t += `snapshot_last_ts=${lastHourly?.ts || ''}\n`;
+    t += `snapshot_price_change_period_pct=${calcSnapshotChangePct(firstHourly, lastHourly, 'price_close')}\n`;
+    t += `snapshot_oi_change_period_pct=${calcSnapshotChangePct(firstHourly, lastHourly, 'oi_usd')}\n`;
+    t += `snapshot_long_pct_delta=${calcSnapshotDelta(firstHourly, lastHourly, 'long_pct')}\n`;
+    t += `snapshot_short_pct_delta=${calcSnapshotDelta(firstHourly, lastHourly, 'short_pct')}\n`;
+    t += `snapshot_latest_ba_ratio=${lastHourly?.ba_ratio ?? ''}\n`;
+    t += `snapshot_latest_funding_rate_pct=${lastHourly?.funding_rate ?? ''}\n`;
+    t += `snapshot_latest_cvd_signal=${lastHourly?.cvd_signal ?? ''}\n`;
+    t += `snapshot_latest_cvd_divergence=${lastHourly?.cvd_divergence ?? ''}\n`;
+    t += `snapshot_latest_rsi_1h=${lastHourly?.rsi_1h ?? ''}\n`;
+    t += `snapshot_latest_rsi_4h=${lastHourly?.rsi_4h ?? ''}\n`;
+    t += `snapshot_latest_rsi_1d=${lastHourly?.rsi_1d ?? ''}\n`;
+
+    const hourlyColumns = getHourlySnapshotColumns();
+    // Son 8 saati detaylı, önceki 64 saati kompakt ver
+    const recent8 = last72Hours.slice(-8);
+    const older64 = last72Hours.slice(0, -8);
+
+    t += `snapshot_columns=${hourlyColumns.join(',')}\n`;
+    t += `snapshot_rows_note=hourly_aggregated_last_8_rows_detailed_older_64_compact\n`;
+
+    // Son 8 saat detaylı
+    formatHourlySnapshotRows(recent8, hourlyColumns).forEach((row) => {
       t += `${row}\n`;
     });
+
+    // Önceki 64 saat kompakt (sadece kritik kolonlar)
+    if (older64.length > 0) {
+      const compactColumns = ['ts', 'price_close', 'long_pct', 'short_pct', 'funding_rate', 'oi_usd', 'cvd_delta_1h', 'cvd_signal', 'rsi_1h'];
+      t += `snapshot_compact_columns=${compactColumns.join(',')}\n`;
+      t += `snapshot_compact_rows_note=older_64_hours_compact_format\n`;
+      older64.forEach((row, idx) => {
+        const parts = compactColumns.map((key) => `${key}:${normalizeSnapshotValue(key, row?.[key])}`);
+        t += `hourly_compact_${idx + 1}=${parts.join('|')}\n`;
+      });
+    }
   }
 
   t += '\n[DERIVATIVES]\n';
