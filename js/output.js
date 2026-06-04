@@ -89,6 +89,110 @@ function formatMarketSnapshotRows(rows, columns = getMarketSnapshotColumns(rows)
   });
 }
 
+function getMarketSnapshotSummaryColumns(rows) {
+  const preferred = [
+    'ts', 'price', 'price_change_1h_pct', 'price_change_4h_pct',
+    'long_pct', 'short_pct', 'funding_rate', 'oi_usd', 'volume_24h',
+    'ba_ratio', 'cvd_signal', 'cvd_divergence',
+    'cvd_delta_5m', 'cvd_delta_15m', 'cvd_delta_1h',
+    'rsi_1h', 'rsi_4h', 'rsi_1d'
+  ];
+  const seen = new Set();
+  rows.forEach((row) => Object.keys(row || {}).forEach((key) => seen.add(key)));
+  return preferred.filter((key) => seen.has(key));
+}
+
+function safeNum(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function fixed(value, digits = 4) {
+  const n = safeNum(value);
+  return n === null ? '' : n.toFixed(digits);
+}
+
+function orderbookPressure(ratio) {
+  const n = safeNum(ratio);
+  if (n === null) return '';
+  if (n > 1.5) return 'guclu_alim';
+  if (n > 1.1) return 'hafif_alim';
+  if (n < 0.67) return 'guclu_satis';
+  if (n < 0.9) return 'hafif_satis';
+  return 'dengeli';
+}
+
+function normalizeOrderbookLevels(rows) {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) => ({
+      price: safeNum(row?.price ?? row?.[0]),
+      qty: safeNum(row?.qty ?? row?.[1])
+    }))
+    .filter((row) => row.price !== null && row.qty !== null);
+}
+
+function sumQty(rows) {
+  return rows.reduce((sum, row) => sum + row.qty, 0);
+}
+
+function calcVwap(rows, totalQty = sumQty(rows)) {
+  if (!totalQty) return null;
+  return rows.reduce((sum, row) => sum + row.price * row.qty, 0) / totalQty;
+}
+
+function formatWallList(rows) {
+  return rows.map((row) => `price:${row.price}|qty:${row.qty}`).join(',');
+}
+
+function buildOrderbookSummaryLines(orderbookPageData, marketPrice) {
+  const stats = orderbookPageData?.stats || {};
+  const bids = normalizeOrderbookLevels(orderbookPageData?.bids || stats.b);
+  const asks = normalizeOrderbookLevels(orderbookPageData?.asks || stats.a);
+  if (!bids.length && !asks.length) return [];
+
+  const totalBid = safeNum(stats.totalBid) ?? sumQty(bids);
+  const totalAsk = safeNum(stats.totalAsk) ?? sumQty(asks);
+  const bestBid = safeNum(stats.bestBid) ?? bids[0]?.price ?? null;
+  const bestAsk = safeNum(stats.bestAsk) ?? asks[0]?.price ?? null;
+  const spread = safeNum(stats.spread) ?? ((bestBid !== null && bestAsk !== null) ? bestAsk - bestBid : null);
+  const spreadPct = safeNum(stats.spreadPct) ?? ((bestBid && spread !== null) ? (spread / bestBid) * 100 : null);
+  const ratio = safeNum(stats.ratio) ?? (totalAsk > 0 ? totalBid / totalAsk : null);
+  const vwapBid = safeNum(stats.vwapBid) ?? calcVwap(bids, totalBid);
+  const vwapAsk = safeNum(stats.vwapAsk) ?? calcVwap(asks, totalAsk);
+  const statsTop3Bid = normalizeOrderbookLevels(stats.top3Bid);
+  const statsTop3Ask = normalizeOrderbookLevels(stats.top3Ask);
+  const top3Bid = statsTop3Bid.length ? statsTop3Bid : [...bids].sort((a, b) => b.qty - a.qty).slice(0, 3);
+  const top3Ask = statsTop3Ask.length ? statsTop3Ask : [...asks].sort((a, b) => b.qty - a.qty).slice(0, 3);
+  const closestBidWall = top3Bid
+    .filter((row) => marketPrice ? row.price <= marketPrice : true)
+    .sort((a, b) => b.price - a.price)[0] || top3Bid[0] || null;
+  const closestAskWall = top3Ask
+    .filter((row) => marketPrice ? row.price >= marketPrice : true)
+    .sort((a, b) => a.price - b.price)[0] || top3Ask[0] || null;
+
+  return [
+    `orderbook_summary_note=summary_only_raw_100x100_levels_omitted`,
+    `orderbook_bid_levels_loaded=${bids.length}`,
+    `orderbook_ask_levels_loaded=${asks.length}`,
+    `orderbook_best_bid=${bestBid ?? ''}`,
+    `orderbook_best_ask=${bestAsk ?? ''}`,
+    `orderbook_spread=${fixed(spread, 8)}`,
+    `orderbook_spread_pct=${fixed(spreadPct, 4)}`,
+    `orderbook_bid_total_qty=${fixed(totalBid, 4)}`,
+    `orderbook_ask_total_qty=${fixed(totalAsk, 4)}`,
+    `orderbook_bid_ask_ratio=${fixed(ratio, 3)}`,
+    `orderbook_pressure=${stats.pressure || orderbookPressure(ratio)}`,
+    `orderbook_bid_vwap=${fixed(vwapBid, 8)}`,
+    `orderbook_ask_vwap=${fixed(vwapAsk, 8)}`,
+    `orderbook_qty_imbalance=${fixed(totalBid - totalAsk, 4)}`,
+    `orderbook_closest_strong_bid_wall=${closestBidWall ? `price:${closestBidWall.price}|qty:${closestBidWall.qty}` : ''}`,
+    `orderbook_closest_strong_ask_wall=${closestAskWall ? `price:${closestAskWall.price}|qty:${closestAskWall.qty}` : ''}`,
+    `orderbook_top_bid_walls=${formatWallList(top3Bid)}`,
+    `orderbook_top_ask_walls=${formatWallList(top3Ask)}`
+  ];
+}
+
 function calcSnapshotChangePct(first, last, key) {
   const a = Number(first?.[key]);
   const b = Number(last?.[key]);
@@ -220,10 +324,11 @@ export function buildOutput(d, symbol) {
     t += `snapshot_latest_rsi_1h=${lastSnapshot?.rsi_1h ?? ''}\n`;
     t += `snapshot_latest_rsi_4h=${lastSnapshot?.rsi_4h ?? ''}\n`;
     t += `snapshot_latest_rsi_1d=${lastSnapshot?.rsi_1d ?? ''}\n`;
-    const snapshotColumns = getMarketSnapshotColumns(snapshotRows);
+    const snapshotColumns = getMarketSnapshotSummaryColumns(snapshotRows);
+    const compactRows = snapshotRows.slice(-8);
     t += `snapshot_columns=${snapshotColumns.join(',')}\n`;
-    t += 'snapshot_rows_note=all_rows_from_last_72h_supabase_market_snapshots_select_star\n';
-    formatMarketSnapshotRows(snapshotRows, snapshotColumns).forEach((row) => {
+    t += `snapshot_rows_note=summary_only_last_${compactRows.length}_rows_core_columns_raw_select_star_omitted\n`;
+    formatMarketSnapshotRows(compactRows, snapshotColumns).forEach((row) => {
       t += `${row}\n`;
     });
   }
@@ -259,15 +364,12 @@ export function buildOutput(d, symbol) {
     state.detailData?.orderbookData ||
     null;
   if (orderbookPageData && typeof orderbookPageData === 'object' && Object.keys(orderbookPageData).length > 0) {
-    t += '\n[ORDERBOOK]\n';
-    t = appendFlatObjectLines(t, orderbookPageData, 'orderbook');
-
-    if (Array.isArray(orderbookPageData.bids) || Array.isArray(orderbookPageData.asks)) {
-      t += '\n[ORDERBOOK_LEVELS]\n';
-      const askRows = formatOrderbookRows(orderbookPageData.asks, 'ask');
-      const bidRows = formatOrderbookRows(orderbookPageData.bids, 'bid');
-      askRows.forEach((row) => { t += `${row}\n`; });
-      bidRows.forEach((row) => { t += `${row}\n`; });
+    t += '\n[ORDERBOOK_SUMMARY]\n';
+    const orderbookSummaryLines = buildOrderbookSummaryLines(orderbookPageData, d.price);
+    if (orderbookSummaryLines.length > 0) {
+      orderbookSummaryLines.forEach((row) => { t += `${row}\n`; });
+    } else {
+      t += 'orderbook_summary_note=no_orderbook_levels_available\n';
     }
   }
 
