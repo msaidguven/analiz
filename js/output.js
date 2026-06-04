@@ -40,6 +40,11 @@ function aggregateSnapshotsToHourly(rows) {
         cvd_signals: [],
         cvd_divergences: [],
         volume_24hs: [],
+        taker_buy_vol_5m_sum: 0,   // YENİ
+        taker_sell_vol_5m_sum: 0,  // YENİ
+        oi_contracts: [],           // YENİ
+        high_24hs: [],              // YENİ
+        low_24hs: [],               // YENİ
       });
     }
 
@@ -64,6 +69,15 @@ function aggregateSnapshotsToHourly(rows) {
     pushIfNum(bucket.rsi_1ds, row.rsi_1d);
     pushIfNum(bucket.rsi_1ws, row.rsi_1w);
     pushIfNum(bucket.volume_24hs, row.volume_24h);
+
+    pushIfNum(bucket.oi_contracts, row.oi_contracts);
+    pushIfNum(bucket.high_24hs, row.high_24h);
+    pushIfNum(bucket.low_24hs, row.low_24h);
+
+    const takerBuy = num(row.taker_buy_vol_5m);
+    if (takerBuy !== null) bucket.taker_buy_vol_5m_sum += takerBuy;
+    const takerSell = num(row.taker_sell_vol_5m);
+    if (takerSell !== null) bucket.taker_sell_vol_5m_sum += takerSell;
 
     const cvd5m = num(row.cvd_delta_5m);
     if (cvd5m !== null) bucket.cvd_delta_5m_sum += cvd5m;
@@ -125,6 +139,12 @@ function aggregateSnapshotsToHourly(rows) {
         cvd_divergence: mode(bucket.cvd_divergences),
         volume_24h: last(bucket.volume_24hs),
         sample_count: prices.length,
+
+        oi_contracts: last(bucket.oi_contracts),
+        high_24h: prices.length > 0 ? Math.max(...bucket.high_24hs) : null,
+        low_24h: prices.length > 0 ? Math.min(...bucket.low_24hs) : null,
+        taker_buy_vol_5m: bucket.taker_buy_vol_5m_sum,
+        taker_sell_vol_5m: bucket.taker_sell_vol_5m_sum,
       };
     });
 }
@@ -135,11 +155,13 @@ function aggregateSnapshotsToHourly(rows) {
 function getHourlySnapshotColumns() {
   return [
     'ts', 'price_open', 'price_high', 'price_low', 'price_close', 'price_avg',
-    'long_pct', 'short_pct', 'funding_rate', 'oi_usd', 'volume_24h',
+    'long_pct', 'short_pct', 'funding_rate', 'oi_usd', 'oi_contracts', 'volume_24h',  // oi_contracts YENİ
+    'high_24h', 'low_24h',                                                              // YENİ
     'ba_ratio', 'vwap_bid', 'vwap_ask', 'mark_index_diff',
     'cvd_signal', 'cvd_divergence',
     'cvd_delta_5m', 'cvd_delta_15m', 'cvd_delta_1h',
     'rsi_15m', 'rsi_1h', 'rsi_4h', 'rsi_1d', 'rsi_1w',
+    'taker_buy_vol_5m', 'taker_sell_vol_5m',                                            // YENİ
     'sample_count'
   ];
 }
@@ -224,10 +246,13 @@ function getMarketSnapshotColumns(rows) {
   const preferred = [
     'id', 'ts', 'symbol', 'price', 'price_change_1h_pct', 'price_change_4h_pct',
     'long_pct', 'short_pct', 'ls_ratio', 'top_trader_long_pct', 'top_trader_short_pct', 'top_trader_ls_ratio',
-    'funding_rate', 'oi_usd', 'volume_24h', 'volume_24h_change_pct',
+    'top_trader_account_long_pct', 'top_trader_account_short_pct', 'top_trader_account_ls_ratio',  // YENİ
+    'funding_rate', 'oi_usd', 'oi_contracts', 'volume_24h', 'volume_24h_change_pct',              // oi_contracts YENİ
+    'high_24h', 'low_24h',                                                                         // YENİ
     'bid_total', 'ask_total', 'ba_ratio', 'vwap_bid', 'vwap_ask', 'mark_index_diff',
     'cvd_signal', 'cvd_divergence', 'rsi_1h', 'rsi_4h', 'rsi_1d',
-    'cvd_5m', 'cvd_15m', 'cvd_1h', 'cvd_delta_5m', 'cvd_delta_15m', 'cvd_delta_1h'
+    'cvd_5m', 'cvd_15m', 'cvd_1h', 'cvd_delta_5m', 'cvd_delta_15m', 'cvd_delta_1h',
+    'taker_buy_vol_5m', 'taker_sell_vol_5m'                                                        // YENİ
   ];
   const seen = new Set();
   rows.forEach((row) => {
